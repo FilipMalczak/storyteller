@@ -1,0 +1,77 @@
+plugins {
+    id 'java-library'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(16)
+    }
+}
+
+group = "com.github.filipmalczak"
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+  mavenCentral()
+}
+
+dependencyManagement {
+    dependencies {
+        // https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit
+        dependency 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
+        dependency 'org.projectlombok:lombok:1.18.20'
+        dependency 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
+        dependency 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+        dependency 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
+        dependency group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
+        dependency 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.1'
+        dependency 'org.apache.logging.log4j:log4j-api:2.14.1'
+
+        dependency 'com.google.code.gson:gson:2.8.9'
+    }
+
+}
+
+dependencies {
+    implementation 'org.eclipse.jgit:org.eclipse.jgit'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    implementation 'com.google.code.gson:gson'
+
+    compileOnly 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    implementation group: 'org.slf4j', name: 'slf4j-api'
+    implementation 'org.apache.logging.log4j:log4j-api'
+
+    runtimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl'
+    testRuntimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += "--enable-preview"
+}
+
+tasks.withType(Test) {
+    jvmArgs += "--enable-preview"
+}
+
+tasks.withType(JavaExec) {
+    jvmArgs += '--enable-preview'
+}
+
+wrapper {
+    gradleVersion = "7.1.1"
+    distributionType = Wrapper.DistributionType.ALL
+}
