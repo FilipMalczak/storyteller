@@ -24,19 +24,4 @@ public interface Episode /*permits TagBasedEpisode, SubEpisode, TagBasedSubEpiso
      */
     void tell(@NonNull Workspace workspace, @NonNull DiskSpaceManager manager);
 
-
-    /**
-     * Utility for GIT-based episodes
-     */
-    default String getRefName(String marker){
-        return buildRefName(getEpisodeId(), marker);
-    }
-
-    static String buildRefName(EpisodeId id, String domain, Object... subparts){
-        return Stream.concat(
-                Stream.of(id.toString(), domain),
-                Stream.of(subparts).map(x -> x.toString())
-            )
-            .collect(Collectors.joining("/"));
-    }
 }

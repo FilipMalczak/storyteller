@@ -8,8 +8,6 @@ import com.github.filipmalczak.storyteller.api.story.ThreadClosure;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.DiskSpaceManager;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.Workspace;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.index.EpisodeMetaPair;
-import com.github.filipmalczak.storyteller.impl.jgit.storage.index.IndexFile;
-import com.github.filipmalczak.storyteller.impl.jgit.storage.index.Metadata;
 import com.github.filipmalczak.storyteller.impl.jgit.story.episodes.EpisodeType;
 import com.github.filipmalczak.storyteller.impl.jgit.story.episodes.TagBasedSubEpisode;
 import com.github.filipmalczak.storyteller.impl.jgit.story.indexing.EpisodeSpec;
@@ -23,7 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.filipmalczak.storyteller.impl.jgit.story.Episode.buildRefName;
+import static com.github.filipmalczak.storyteller.impl.jgit.story.RefNames.*;
 import static java.util.Arrays.asList;
 
 @RequiredArgsConstructor
@@ -39,7 +37,7 @@ class MergeUpClosure implements ArcClosure, ThreadClosure {
 
     private Episode add(Episode episode){
         var workingCopy = diskSpaceManager.open(workspace);
-        var parentProgressBranchName = buildRefName(parentId, "progress");
+        var parentProgressBranchName = buildRefName(parentId, PROGRESS);
         var parentBranchExists = workingCopy.branchExists(parentProgressBranchName);
         if (!parentBranchExists) {
             throw new RuntimeException(); //fixme how did we even start a scene without a thread?
@@ -90,14 +88,14 @@ class MergeUpClosure implements ArcClosure, ThreadClosure {
         //fixme basically copypasted to add(...)
         log.info("Merge up "+episode);
         var workingCopy = diskSpaceManager.open(workspace);
-        var parentProgressBranchName = buildRefName(parentId, "progress");
+        var parentProgressBranchName = buildRefName(parentId, PROGRESS);
         var parentBranchExists = workingCopy.branchExists(parentProgressBranchName);
         log.info("parent="+parentProgressBranchName+" exists: "+parentBranchExists);
         if (parentBranchExists){
             workingCopy.checkoutExisting(parentProgressBranchName);
             var metadata = workingCopy.getIndexFile().getMetadata();
             log.info("checkout ok");
-            var tagName = buildRefName(episode.getEpisodeId(), "integrated-into", parentId);
+            var tagName = buildRefName(episode.getEpisodeId(), INTEGRATE, parentId);
             log.info("tag: "+tagName);
             if (workingCopy.tagExists(tagName)) {
                 log.info("exists!");
@@ -109,7 +107,7 @@ class MergeUpClosure implements ArcClosure, ThreadClosure {
                 log.info("gonna merge");
                 workingCopy.getRepository()
                     .merge()
-                    .include(workingCopy.getBranch(buildRefName(episode.getEpisodeId(), "progress")).get())
+                    .include(workingCopy.getBranch(buildRefName(episode.getEpisodeId(), PROGRESS)).get())
                     .setFastForward(MergeCommand.FastForwardMode.NO_FF)
                     //todo message?
                     .call();

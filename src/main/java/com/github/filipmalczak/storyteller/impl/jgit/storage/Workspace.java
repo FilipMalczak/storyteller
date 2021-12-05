@@ -16,8 +16,4 @@ public class Workspace {
         //todo fugly
         return new File(workingDir, Arrays.stream(path).collect(Collectors.joining("/")));
     }
-
-    public File indexFile(){
-        return file(IndexFile.FILENAME);
-    }
 }

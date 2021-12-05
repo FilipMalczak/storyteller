@@ -68,6 +68,7 @@ final class ManagedDir {
     //todo exists and friends
     @SneakyThrows
     public void save(String id, byte[] payload) {
+        //todo this could use FSUtils
         write(
             find(id)
                 .get()

@@ -45,7 +45,6 @@ public class GitManager implements DiskSpaceManager {
             .setDirectory(workspace.getWorkingDir())
             .setURI(goldenSource.toURI().toString())
             .setBare(false)
-//            .setNoCheckout(true)
             .call();
         return new WorkingCopy(git, workspace);
     }

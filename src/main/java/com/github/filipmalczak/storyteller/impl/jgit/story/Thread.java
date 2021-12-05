@@ -17,7 +17,7 @@ import org.eclipse.jgit.lib.Ref;
 import java.util.List;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.storage.index.Metadata.buildMetadata;
-import static com.github.filipmalczak.storyteller.impl.jgit.story.Episode.buildRefName;
+import static com.github.filipmalczak.storyteller.impl.jgit.story.RefNames.*;
 import static java.util.Arrays.asList;
 
 @Value
@@ -35,9 +35,9 @@ public class Thread implements TagBasedSubEpisode, CommitSequenceEpisode {
         //todo similar as with arc
         var history = workingCopy.resolveProgress(episodeId);
         var repo = workingCopy.getRepository();
-        var start = getStartEpisode(repo);
-        if (start.isPresent()){
-            workingCopy.checkoutExisting(start.get().getName());
+        var startTagName = buildRefName(episodeId, START);
+        if (workingCopy.tagExists(startTagName)){
+            workingCopy.checkoutExisting(startTagName);
             workingCopy.safeguardValidIndexFile(episodeId);
 //            assertValidTagOnParentCommit();//todo
         } else {
@@ -54,15 +54,15 @@ public class Thread implements TagBasedSubEpisode, CommitSequenceEpisode {
                     )
                 );
             workingCopy.commit(episodeId.toString());
-            workingCopy.createTag(getStartEpisodeName());;
-            workingCopy.push(asList(buildRefName(episodeId, "progress")), true);
+            workingCopy.createTag(startTagName);;
+            workingCopy.push(asList(buildRefName(episodeId, PROGRESS)), true);
         }
         body.action(new MergeUpClosure(episodeId, history, workspace, manager));
-        workingCopy.safeguardOnBranchHead(buildRefName(episodeId, "progress"));
+        workingCopy.safeguardOnBranchHead(buildRefName(episodeId, PROGRESS));
 //        assertLastTagIsEndTag();//todo
-        var end = getEndEpisode(repo);
-        if (end.isPresent()){
-            repo.checkout().setName(start.get().getName()).call();
+        var endTagName = buildRefName(episodeId, END);
+        if (workingCopy.tagExists(endTagName)){
+            repo.checkout().setName(endTagName).call();
             workingCopy.safeguardValidIndexFile(episodeId);
 //            assertValidTagOnParentCommit();//todo
         } else {
@@ -79,9 +79,9 @@ public class Thread implements TagBasedSubEpisode, CommitSequenceEpisode {
                     )
                 );
             workingCopy.commit(episodeId.toString());
-            workingCopy.createTag(getEndEpisodeName());;
+            workingCopy.createTag(endTagName);;
             //todo this specific call can be realized with currentId() and wrapped into "pushSequenceEvent"
-            workingCopy.push(asList(buildRefName(episodeId, "progress")), true);
+            workingCopy.push(asList(buildRefName(episodeId, PROGRESS)), true);
         }
     }
 

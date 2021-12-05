@@ -9,6 +9,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.FSUtils.writeFile;
 import static java.nio.file.Files.readString;
 import static java.nio.file.Files.writeString;
 
@@ -23,7 +24,7 @@ final class Properties implements PropertiesApi {
     @SneakyThrows
     public PropertyEnvelope create(String id, String val) {
         File f = backend.create(id, "val");
-        writeString(f.toPath(), val);
+        writeFile(f, val);
         return new PropertyEnvelope(id, val);
     }
 

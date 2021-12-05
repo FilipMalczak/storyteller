@@ -18,7 +18,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.filipmalczak.storyteller.impl.jgit.story.Episode.buildRefName;
+import static com.github.filipmalczak.storyteller.impl.jgit.story.RefNames.PROGRESS;
+import static com.github.filipmalczak.storyteller.impl.jgit.story.RefNames.buildRefName;
 import static com.github.filipmalczak.storyteller.impl.jgit.story.Safeguards.safeguard;
 import static java.util.Arrays.asList;
 import static java.util.Spliterators.spliteratorUnknownSize;
@@ -31,14 +32,6 @@ public class WorkingCopy {
     @NonNull Workspace workspace;
 
     @Getter(lazy = true) IndexFile indexFile = new IndexFile(workspace.getWorkingDir());
-
-    @SneakyThrows
-    public void branchFrom(String oldRef, String newBranch, boolean checkout){
-        checkoutExisting(oldRef);
-        repository.branchCreate().setName(newBranch).call();
-        if (checkout)
-            checkoutExisting(newBranch);
-    }
 
     @SneakyThrows
     public void checkoutExisting(String refish){
@@ -56,27 +49,6 @@ public class WorkingCopy {
         return getRepository().tagList().call().stream()
             .filter(r -> r.getName().equals("refs/tags/"+tagName))//todo it should be doable doing following isSYmbolic, maybe?
             .findAny().isPresent();
-    }
-
-    @SneakyThrows
-    public void deleteBranch(String name){
-        deleteBranch(name, true);
-    }
-
-    @SneakyThrows
-    public void deleteBranch(String name, boolean remoteToo){
-        Git git = getRepository();
-
-        git.branchDelete().setBranchNames("refs/heads/"+name).call();
-        if (remoteToo) {
-            //delete branch 'branchToDelete' on remote 'origin'
-            RefSpec refSpec = new RefSpec()
-                .setSource(null)
-                .setDestination("refs/heads/"+name);
-            git.push()
-                .setRefSpecs(refSpec)
-                .call();
-        }
     }
 
     public void safeguardValidIndexFile(EpisodeId id){
@@ -129,7 +101,7 @@ public class WorkingCopy {
 
     @SneakyThrows
     public List<EpisodeMetaPair> resolveProgress(EpisodeId id){
-        var name = buildRefName(id, "progress");
+        var name = buildRefName(id, PROGRESS);
         if (branchExists(name)){
             checkoutExisting(name);
             Metadata latest = getIndexFile().getMetadata();
@@ -143,7 +115,6 @@ public class WorkingCopy {
     //todo remove 2nd arg
     @SneakyThrows
     public void commit(String msg){
-//        var add = repository.add().addFilepattern(workspace.getWorkingDir().getAbsolutePath()+"/*").call();
         repository.add().addFilepattern(".").call();
         repository.add().setUpdate(true).addFilepattern(".").call();
         log.info("Add ./* called");

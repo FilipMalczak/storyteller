@@ -1,4 +1,4 @@
-package com.github.filipmalczak.storyteller.impl.jgit;
+package com.github.filipmalczak.storyteller.impl.jgit.utils;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.MapperFeature;

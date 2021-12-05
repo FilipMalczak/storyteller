@@ -1,4 +1,4 @@
-package com.github.filipmalczak.storyteller;
+package com.github.filipmalczak.storyteller.impl.jgit.utils;
 
 import lombok.SneakyThrows;
 

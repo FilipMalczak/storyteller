@@ -7,8 +7,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.function.Function;
 
-import static com.github.filipmalczak.storyteller.impl.jgit.GitFriendlyJSON.deserialize;
-import static com.github.filipmalczak.storyteller.impl.jgit.GitFriendlyJSON.serialize;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.GitFriendlyJSON.deserialize;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.GitFriendlyJSON.serialize;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)

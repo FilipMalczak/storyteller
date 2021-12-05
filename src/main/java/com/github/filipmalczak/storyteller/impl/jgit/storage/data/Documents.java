@@ -2,14 +2,15 @@ package com.github.filipmalczak.storyteller.impl.jgit.storage.data;
 
 import com.github.filipmalczak.storyteller.api.storage.DocumentsApi;
 import com.github.filipmalczak.storyteller.api.storage.envelope.DocumentEnvelope;
-import com.github.filipmalczak.storyteller.impl.jgit.GitFriendlyJSON;
+import com.github.filipmalczak.storyteller.impl.jgit.utils.GitFriendlyJSON;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import static com.github.filipmalczak.storyteller.FSUtils.readFile;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.FSUtils.readFile;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.FSUtils.writeFile;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -22,7 +23,7 @@ final class Documents implements DocumentsApi {
     @SneakyThrows
     public <T> DocumentEnvelope<T> create(String id, T val) {
         var f = backend.create(id, ".json");
-        java.nio.file.Files.write(f.toPath(), GitFriendlyJSON.serialize(val).getBytes(StandardCharsets.UTF_8));
+        writeFile(f, GitFriendlyJSON.serialize(val));
         return new DocumentEnvelope<T>(id, val, (Class<T>) val.getClass());
     }
 

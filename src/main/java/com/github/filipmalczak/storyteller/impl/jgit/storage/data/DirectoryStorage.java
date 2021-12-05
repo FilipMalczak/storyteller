@@ -43,12 +43,4 @@ public final class DirectoryStorage implements Storage {
     public PropertiesApi properties() {
         return this.getProperties();
     }
-
-    public List<File> contentRoots(){
-        return asList( //todo dehardcode
-            new File(root, "files"),
-            new File(root, "documents"),
-            new File(root, "properties")
-        );
-    }
 }
