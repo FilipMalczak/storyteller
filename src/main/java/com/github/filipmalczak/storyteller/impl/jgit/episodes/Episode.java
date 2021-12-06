@@ -1,15 +1,11 @@
-package com.github.filipmalczak.storyteller.impl.jgit.story;
+package com.github.filipmalczak.storyteller.impl.jgit.episodes;
 
 import com.github.filipmalczak.storyteller.impl.jgit.storage.DiskSpaceManager;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.Workspace;
-import com.github.filipmalczak.storyteller.impl.jgit.story.episodes.EpisodeType;
 import lombok.NonNull;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-//todo scene?
-public interface Episode /*permits TagBasedEpisode, SubEpisode, TagBasedSubEpisode, Story, Arc, Decision, Research, StoryThread, Scene*/ {
+//todo seal the interface
+public interface Episode {
 
     EpisodeId getEpisodeId();
     String getName();

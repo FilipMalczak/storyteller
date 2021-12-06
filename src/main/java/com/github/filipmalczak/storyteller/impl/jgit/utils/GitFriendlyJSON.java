@@ -1,16 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.jgit.utils;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import lombok.SneakyThrows;
-
-import java.util.*;
 
 public class GitFriendlyJSON {
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();

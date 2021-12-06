@@ -1,6 +1,5 @@
-package com.github.filipmalczak.storyteller.impl.jgit.story;
+package com.github.filipmalczak.storyteller.impl.jgit.episodes;
 
-import com.github.filipmalczak.storyteller.impl.jgit.story.episodes.EpisodeType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

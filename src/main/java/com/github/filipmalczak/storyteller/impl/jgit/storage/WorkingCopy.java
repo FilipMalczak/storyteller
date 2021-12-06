@@ -1,9 +1,9 @@
 package com.github.filipmalczak.storyteller.impl.jgit.storage;
 
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.EpisodeId;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.index.EpisodeMetaPair;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.index.IndexFile;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.index.Metadata;
-import com.github.filipmalczak.storyteller.impl.jgit.story.EpisodeId;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -18,9 +18,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.filipmalczak.storyteller.impl.jgit.story.RefNames.PROGRESS;
-import static com.github.filipmalczak.storyteller.impl.jgit.story.RefNames.buildRefName;
-import static com.github.filipmalczak.storyteller.impl.jgit.story.Safeguards.safeguard;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.PROGRESS;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.buildRefName;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.safeguard;
 import static java.util.Arrays.asList;
 import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;

@@ -1,8 +1,5 @@
 package com.github.filipmalczak.storyteller.api.storage.envelope;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_className")
 public sealed interface Envelope<Payload> permits DocumentEnvelope, FileEnvelope, PropertyEnvelope {
     String getId();
     Payload getPayload();

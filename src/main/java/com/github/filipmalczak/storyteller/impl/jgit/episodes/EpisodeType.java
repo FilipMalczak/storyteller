@@ -1,7 +1,9 @@
-package com.github.filipmalczak.storyteller.impl.jgit.story.episodes;
+package com.github.filipmalczak.storyteller.impl.jgit.episodes;
 
-import com.github.filipmalczak.storyteller.impl.jgit.story.Thread;
-import com.github.filipmalczak.storyteller.impl.jgit.story.*;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.Arc;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.Scene;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.Story;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.Thread;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,6 +1,5 @@
 package com.github.filipmalczak.storyteller.impl.jgit.storage;
 
-import com.github.filipmalczak.storyteller.impl.jgit.storage.index.IndexFile;
 import lombok.Value;
 
 import java.io.File;

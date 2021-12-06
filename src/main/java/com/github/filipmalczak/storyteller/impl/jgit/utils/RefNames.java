@@ -1,4 +1,6 @@
-package com.github.filipmalczak.storyteller.impl.jgit.story;
+package com.github.filipmalczak.storyteller.impl.jgit.utils;
+
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.EpisodeId;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

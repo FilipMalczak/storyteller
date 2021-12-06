@@ -1,4 +1,4 @@
-package com.github.filipmalczak.storyteller.impl.jgit.story;
+package com.github.filipmalczak.storyteller.impl.jgit.utils;
 
 public class Safeguards {
     public static class Failure extends RuntimeException {

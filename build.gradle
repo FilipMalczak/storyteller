@@ -21,7 +21,7 @@ dependencyManagement {
         // https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit
         dependency 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
         dependency 'org.projectlombok:lombok:1.18.20'
-        dependency 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
+//        dependency 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
         dependency 'org.junit.jupiter:junit-jupiter-api:5.8.1'
         dependency 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
@@ -36,7 +36,7 @@ dependencyManagement {
 
 dependencies {
     implementation 'org.eclipse.jgit:org.eclipse.jgit'
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
+//    implementation 'com.fasterxml.jackson.core:jackson-databind'
 
     implementation 'com.google.code.gson:gson'
 

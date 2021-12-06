@@ -1,13 +1,13 @@
-package com.github.filipmalczak.storyteller.impl.jgit.story.indexing;
+package com.github.filipmalczak.storyteller.impl.jgit.episodes.indexing;
 
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.Episode;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.EpisodeId;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.index.EpisodeMetaPair;
-import com.github.filipmalczak.storyteller.impl.jgit.story.Episode;
-import com.github.filipmalczak.storyteller.impl.jgit.story.EpisodeId;
 import lombok.Value;
 import lombok.experimental.Accessors;
 
 import java.util.List;
-import java.util.Map;
+
 @Value
 @Accessors(chain = true)
 public class EpisodeIndex<T extends Episode> {

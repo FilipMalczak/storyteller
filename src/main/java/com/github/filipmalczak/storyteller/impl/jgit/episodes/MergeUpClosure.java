@@ -1,16 +1,19 @@
-package com.github.filipmalczak.storyteller.impl.jgit.story;
+package com.github.filipmalczak.storyteller.impl.jgit.episodes;
 
 import com.github.filipmalczak.storyteller.api.storage.Storage;
 import com.github.filipmalczak.storyteller.api.story.ActionBody;
 import com.github.filipmalczak.storyteller.api.story.ArcClosure;
 import com.github.filipmalczak.storyteller.api.story.DecisionClosure;
 import com.github.filipmalczak.storyteller.api.story.ThreadClosure;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.Arc;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.Scene;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.Thread;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.indexing.EpisodeSpec;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.structure.EpisodeNode;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.structure.EpisodeRoot;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.DiskSpaceManager;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.Workspace;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.index.EpisodeMetaPair;
-import com.github.filipmalczak.storyteller.impl.jgit.story.episodes.EpisodeType;
-import com.github.filipmalczak.storyteller.impl.jgit.story.episodes.TagBasedSubEpisode;
-import com.github.filipmalczak.storyteller.impl.jgit.story.indexing.EpisodeSpec;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +24,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.filipmalczak.storyteller.impl.jgit.story.RefNames.*;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.*;
 import static java.util.Arrays.asList;
 
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Slf4j
+public
 class MergeUpClosure implements ArcClosure, ThreadClosure {
     @NonNull EpisodeId parentId;
     @NonNull List<EpisodeMetaPair> history;
@@ -78,13 +82,14 @@ class MergeUpClosure implements ArcClosure, ThreadClosure {
             //todo ???
             throw e;
         }
-        if (episode instanceof TagBasedSubEpisode)
-            mergeUp((TagBasedSubEpisode) episode);
+        //fixme this is wrong, but will be fixed soon
+        if (episode instanceof EpisodeNode)
+            mergeUp((EpisodeNode) episode);
 
     }
 
     @SneakyThrows
-    private void mergeUp(TagBasedSubEpisode episode){
+    private void mergeUp(EpisodeNode episode){
         //fixme basically copypasted to add(...)
         log.info("Merge up "+episode);
         var workingCopy = diskSpaceManager.open(workspace);

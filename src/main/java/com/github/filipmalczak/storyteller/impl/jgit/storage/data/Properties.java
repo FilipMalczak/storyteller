@@ -11,7 +11,6 @@ import java.util.Optional;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.FSUtils.writeFile;
 import static java.nio.file.Files.readString;
-import static java.nio.file.Files.writeString;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)

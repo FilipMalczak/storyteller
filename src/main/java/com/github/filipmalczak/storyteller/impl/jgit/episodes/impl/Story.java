@@ -1,22 +1,24 @@
-package com.github.filipmalczak.storyteller.impl.jgit.story;
+package com.github.filipmalczak.storyteller.impl.jgit.episodes.impl;
 
 import com.github.filipmalczak.storyteller.api.story.ActionBody;
 import com.github.filipmalczak.storyteller.api.story.ArcClosure;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.EpisodeId;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.EpisodeType;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.MergeUpClosure;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.indexing.EpisodeSpec;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.structure.EpisodeRoot;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.DiskSpaceManager;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.Workspace;
-import com.github.filipmalczak.storyteller.impl.jgit.story.episodes.EpisodeType;
-import com.github.filipmalczak.storyteller.impl.jgit.story.episodes.TagBasedEpisode;
-import com.github.filipmalczak.storyteller.impl.jgit.story.indexing.EpisodeSpec;
 import lombok.SneakyThrows;
 import lombok.Value;
 
 import static com.github.filipmalczak.storyteller.api.story.ToBeContinuedException.toBeContinued;
 import static com.github.filipmalczak.storyteller.impl.jgit.storage.index.Metadata.buildMetadata;
-import static com.github.filipmalczak.storyteller.impl.jgit.story.RefNames.*;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.*;
 import static java.util.Arrays.asList;
 
 @Value
-public class Story implements TagBasedEpisode {
+public class Story implements EpisodeRoot {
     EpisodeId episodeId;
     String name;
     ActionBody<ArcClosure> body;
