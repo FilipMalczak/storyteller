@@ -1,6 +1,5 @@
-package com.github.filipmalczak.storyteller.impl.jgit.episodes.indexing;
+package com.github.filipmalczak.storyteller.impl.jgit.episodes.identity;
 
-import com.github.filipmalczak.storyteller.impl.jgit.episodes.EpisodeType;
 import lombok.*;
 
 import java.util.HashMap;

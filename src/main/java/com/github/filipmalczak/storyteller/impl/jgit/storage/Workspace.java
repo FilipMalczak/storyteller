@@ -12,7 +12,7 @@ public class Workspace {
     File workingDir;
 
     public File file(String... path){
-        //todo fugly
+        //todo fugly; stream.reduce(wd, wd+it)
         return new File(workingDir, Arrays.stream(path).collect(Collectors.joining("/")));
     }
 }

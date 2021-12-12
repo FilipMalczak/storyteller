@@ -4,11 +4,12 @@ import com.github.filipmalczak.storyteller.api.story.ActionBody;
 import com.github.filipmalczak.storyteller.api.story.ArcClosure;
 import com.github.filipmalczak.storyteller.api.story.Storyteller;
 import com.github.filipmalczak.storyteller.api.story.ToBeContinuedException;
-import com.github.filipmalczak.storyteller.impl.jgit.episodes.EpisodeId;
-import com.github.filipmalczak.storyteller.impl.jgit.episodes.EpisodeType;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeId;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeType;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.Story;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.GitManager;
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -27,16 +28,32 @@ import static java.nio.file.Files.readString;
 import static java.nio.file.Files.write;
 import static java.util.Arrays.asList;
 
-//todo what pkg should this be in?
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Slf4j
 public class JGitStoryteller implements Storyteller {
-    File root; //holds root of bare repo serving as persistence backend
-    File tmp; //dedicated tmp dir; holds working copies of root
-    Git rootGit;
-    Git workingCopy;
+    //https://git-scm.com/docs/gitignore
+    //last example, version 2.34.1
+    private static String GITIGNORE_CONTENT = """
+            /*
+            !/documents
+            !/properties
+            !/files
+            !/.episode-index
+            !/.gitignore
+            """;
 
-    public JGitStoryteller(File root, File tmp) {
+    private static byte[] GITIGNORE_BYTES = GITIGNORE_CONTENT.getBytes(StandardCharsets.UTF_8);
+
+    private static List<String> GITIGNORE_LINES = asList(GITIGNORE_CONTENT.split("\\n"));
+
+    //given:
+    @NonNull File root; //holds root of bare repo serving as persistence backend
+    @NonNull File tmp; //dedicated tmp dir; holds working copies of root
+
+    //initialized:
+    @NonNull Git workingCopy; //duh
+
+    public JGitStoryteller(@NonNull File root, @NonNull File tmp) {
         this.root = root;
         this.tmp = tmp;
         init();
@@ -68,8 +85,6 @@ public class JGitStoryteller implements Storyteller {
             .setDirectory(workingCopyDir)
             .setURI(root.toURI().toString())
             .setBare(false)
-
-//            .setNoCheckout(true)
             .call();
     }
 
@@ -80,23 +95,6 @@ public class JGitStoryteller implements Storyteller {
 
     }
 
-//    private static String gitignoreContent = "";
-
-    //https://git-scm.com/docs/gitignore
-    //last example, version 2.34.1
-    private static String gitignoreContent = """
-            /*
-            !/documents
-            !/properties
-            !/files
-            !/.episode-index
-            !/.gitignore
-            """;
-
-    private static byte[] gitignoreBytes = gitignoreContent.getBytes(StandardCharsets.UTF_8);
-
-    private static List<String> gitignoreLines = asList(gitignoreContent.split("\\n"));
-
     @SneakyThrows
     private void createInitialRefs(){
         //todo why am I not using WorkspaceManager and friends?
@@ -104,13 +102,13 @@ public class JGitStoryteller implements Storyteller {
 //        workingCopy.checkout().setName("master").call();
         var gitignoreFile = new File(workingCopy.getRepository().getWorkTree(), ".gitignore");
         if (!gitignoreFile.exists()) {
-            write(gitignoreFile.toPath(), gitignoreBytes);
+            write(gitignoreFile.toPath(), GITIGNORE_BYTES);
             workingCopy.add().addFilepattern(".gitignore").call();
             workingCopy.commit().setMessage("Storyteller-compliant repository state").call();
             workingCopy.push().add("master").call();
         } else {
             var foundLines = asList(readString(gitignoreFile.toPath()).split("\\n"));
-            for (var line: gitignoreLines)
+            for (var line: GITIGNORE_LINES)
                 safeguard(
                     foundLines.contains(line), //fixme not perfect, allows for commenting it out
                     "Line '"+line+"' must be found in .gitignore file"
@@ -121,7 +119,7 @@ public class JGitStoryteller implements Storyteller {
         if (tag.isPresent()) {
             workingCopy.checkout().setCreateBranch(false).setName("empty");
             safeguard(
-                readString(gitignoreFile.toPath()).equals(gitignoreContent),
+                readString(gitignoreFile.toPath()).equals(GITIGNORE_CONTENT),
                 ".gitignore file matches prepared patterns"
             );
             workingCopy.checkout().setName("master").call();
@@ -137,11 +135,6 @@ public class JGitStoryteller implements Storyteller {
             workingCopy.tagList().call().stream().anyMatch(r -> "refs/tags/empty".equals(r.getName())),
             "existing repo must contain 'empty' tag" // tag which must only have .toryteller marker file" //todo
         );
-    }
-
-    @SneakyThrows
-    private void ensureRootIsRepo(){
-        rootGit = Git.open(root); //todo will throw if not repo
     }
 
     private boolean rootIsEmpty(){

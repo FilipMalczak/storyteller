@@ -1,5 +1,6 @@
-package com.github.filipmalczak.storyteller.impl.jgit.episodes;
+package com.github.filipmalczak.storyteller.impl.jgit.episodes.identity;
 
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.Episode;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.Arc;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.Scene;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.Story;
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 @Getter
 public enum EpisodeType {
-     ARC(Arc.class, "arc"),
+    ARC(Arc.class, "arc"),
     SCENE(Scene.class, "scene"),
     STORY(Story.class, "story"),
     THREAD(Thread.class, "thread")

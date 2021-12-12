@@ -30,6 +30,8 @@ dependencyManagement {
         dependency 'org.apache.logging.log4j:log4j-api:2.14.1'
 
         dependency 'com.google.code.gson:gson:2.8.9'
+        dependency 'io.github.glytching:junit-extensions:2.5.0'
+
     }
 
 }
@@ -47,6 +49,11 @@ dependencies {
 
     implementation group: 'org.slf4j', name: 'slf4j-api'
     implementation 'org.apache.logging.log4j:log4j-api'
+
+    testImplementation group: 'org.slf4j', name: 'slf4j-api'
+    testImplementation 'org.apache.logging.log4j:log4j-api'
+
+    testImplementation 'io.github.glytching:junit-extensions'
 
     runtimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl'
     testRuntimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl'

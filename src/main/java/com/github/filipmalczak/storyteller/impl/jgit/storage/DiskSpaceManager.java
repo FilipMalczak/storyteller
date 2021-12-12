@@ -10,9 +10,4 @@ public interface DiskSpaceManager extends WorkspaceFactory {
     WorkingCopy cloneInto(Workspace workspace);
 
     WorkingCopy open(Workspace workspace);
-
-    //fixme do I need that?
-//    Workspace copy(Workspace old, String newName){
-//
-//    }
 }

@@ -1,4 +1,4 @@
-package com.github.filipmalczak.storyteller.impl.jgit.episodes;
+package com.github.filipmalczak.storyteller.impl.jgit.episodes.identity;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EpisodeId {
-    @NonNull EpisodeType type; //todo
+    @NonNull EpisodeType type;
     @NonNull String id; //todo nonempty
 
     public void setId(String id) {

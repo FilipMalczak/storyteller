@@ -1,7 +1,8 @@
 package com.github.filipmalczak.storyteller.impl.jgit.storage.index;
 
-import com.github.filipmalczak.storyteller.impl.jgit.episodes.EpisodeId;
-import com.github.filipmalczak.storyteller.impl.jgit.episodes.indexing.EpisodeSpec;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeDefinition;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeId;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeSpec;
 import lombok.*;
 
 import java.util.LinkedList;
@@ -19,13 +20,17 @@ public class Metadata {
     @NonNull EpisodeSpec currentSpec;
 
     @Singular("subEpisode")
-    List<EpisodeMetaPair> orderedIndex = new LinkedList<>();
+    List<EpisodeDefinition> orderedIndex = new LinkedList<>();
 
-    public static Metadata buildMetadata(@NonNull EpisodeId id, EpisodeId parentId, @NonNull EpisodeSpec spec) {
+    public static Metadata buildMetadata(@NonNull EpisodeDefinition definition, EpisodeId parentId) {
         return Metadata.builder()
-            .currentId(id)
+            .currentId(definition.getEpisodeId())
             .parentId(parentId)
-            .currentSpec(spec)
+            .currentSpec(definition.getEpisodeSpec())
             .build();
+    }
+
+    EpisodeDefinition toDefinition(){
+        return new EpisodeDefinition(currentId, currentSpec);
     }
 }

@@ -1,15 +1,14 @@
 package com.github.filipmalczak.storyteller.impl.jgit.storage;
 
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.*;
 import org.eclipse.jgit.api.Git;
 
 import java.io.File;
 
 @RequiredArgsConstructor
 @Getter
+@EqualsAndHashCode
+@ToString
 public class GitManager implements DiskSpaceManager {
     @NonNull File goldenSource;
     @NonNull File tmp;

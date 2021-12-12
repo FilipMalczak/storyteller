@@ -1,25 +1,26 @@
 package com.github.filipmalczak.storyteller.impl.jgit.storage;
 
-import com.github.filipmalczak.storyteller.impl.jgit.episodes.EpisodeId;
-import com.github.filipmalczak.storyteller.impl.jgit.storage.index.EpisodeMetaPair;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeId;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.index.IndexFile;
-import com.github.filipmalczak.storyteller.impl.jgit.storage.index.Metadata;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTag;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RefSpec;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.PROGRESS;
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.buildRefName;
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.safeguard;
 import static java.util.Arrays.asList;
 import static java.util.Spliterators.spliteratorUnknownSize;
@@ -33,8 +34,12 @@ public class WorkingCopy {
 
     @Getter(lazy = true) IndexFile indexFile = new IndexFile(workspace.getWorkingDir());
 
+
     @SneakyThrows
     public void checkoutExisting(String refish){
+        log.info("Checking out "+refish+"; reseting first");
+        getRepository().reset().setRef("HEAD").call();
+        log.info("actual checkout; current="+currentCommit());
         getRepository().checkout().setName(refish).setCreateBranch(false).call();
     }
 
@@ -63,16 +68,33 @@ public class WorkingCopy {
         //todo check parent ID (as in episode ID, not commit ID)
     }
 
+    //todo move to utils?
+    private static <T> Stream<T> toStream(Iterable<T> iterable){
+        return stream(
+            spliteratorUnknownSize(
+                iterable.iterator(),
+                0
+            ),
+            false
+        );
+    }
+
     @SneakyThrows
     private List<RevCommit> gitLog(int maxCount){
-        return stream(
-                spliteratorUnknownSize(
-                    repository.log()
-                        .setMaxCount(maxCount)
-                        .call().iterator(),
-                    0
-                ),
-                false
+        return toStream(
+            repository.log()
+                .setMaxCount(maxCount)
+                .call()
+            )
+            .toList();
+    }
+
+    @SneakyThrows
+    public List<RevCommit> gitLog(ObjectId fromExc, ObjectId toInc){
+        return toStream(
+                repository.log()
+                    .addRange(fromExc, toInc)
+                    .call()
             )
             .toList();
     }
@@ -99,20 +121,29 @@ public class WorkingCopy {
 //        safeguard(tag.isPresent(), "tag '"+tagName+"' must exist and must point to current parent");
     }
 
+    //todo delete
+//    @SneakyThrows
+//    public List<EpisodeMetaPair> resolveProgress(EpisodeId id){
+//        var name = buildRefName(id, PROGRESS);
+//        if (branchExists(name)){
+//            checkoutExisting(name);
+//            Metadata latest = getIndexFile().getMetadata();
+//            return new LinkedList<>(latest.getOrderedIndex());
+//        }
+//        repository.checkout().setCreateBranch(true).setName(name).call();
+//        push(asList(name), false);
+//        return new LinkedList<>();
+//    }
+
     @SneakyThrows
-    public List<EpisodeMetaPair> resolveProgress(EpisodeId id){
-        var name = buildRefName(id, PROGRESS);
-        if (branchExists(name)){
-            checkoutExisting(name);
-            Metadata latest = getIndexFile().getMetadata();
-            return new LinkedList<>(latest.getOrderedIndex());
-        }
-        repository.checkout().setCreateBranch(true).setName(name).call();
+    public void createBranch(String name){
+        repository.branchCreate()
+            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+            .setName(name)
+            .call();
         push(asList(name), false);
-        return new LinkedList<>();
     }
 
-    //todo remove 2nd arg
     @SneakyThrows
     public void commit(String msg){
         repository.add().addFilepattern(".").call();
@@ -152,9 +183,43 @@ public class WorkingCopy {
     }
 
     @SneakyThrows
+    public void pushAll(){
+        log.info("push --all --tags");
+        var cmd = repository.push()
+            .setPushAll()
+            .setPushTags();
+        cmd.call();
+    }
+
+    @SneakyThrows
     public Optional<Ref> getBranch(String name) {
         return getRepository().branchList().call().stream()
             .filter(r -> r.getName().equals("refs/heads/"+name))//todo it should be doable doing following isSYmbolic, maybe?
             .findAny();
+    }
+
+    @SneakyThrows
+    public Optional<Ref> getTag(String name) {
+        return getRepository().tagList().call().stream()
+            .filter(r -> r.getName().equals("refs/tags/"+name))//todo it should be doable doing following isSYmbolic, maybe?
+            .findAny();
+    }
+
+    public <T> T withRevWalk(Function<RevWalk, T> body){
+        try (var revWalk = new RevWalk(getRepository().getRepository())){
+            var out = body.apply(revWalk);
+            revWalk.dispose();
+            return out;
+        }
+    }
+
+    @SneakyThrows
+    private static RevTag safeParseTag(RevWalk rw, Ref ref){
+        return rw.parseTag(ref.getObjectId());
+    }
+
+    @SneakyThrows
+    public ObjectId getTagCommitId(Ref tag){
+        return withRevWalk(rw -> safeParseTag(rw, tag).getObject().getId());
     }
 }
