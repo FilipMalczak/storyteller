@@ -7,7 +7,8 @@ public class Safeguards {
         }
     }
 
-    public static void safeguard(boolean shouldBeTrue, String title){
+    //fixme: Im reinventing the wheel http://www.valid4j.org/
+    public static void invariant(boolean shouldBeTrue, String title){
         if (!shouldBeTrue)
             throw new Failure(title);
     }

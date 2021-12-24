@@ -35,7 +35,11 @@ public class EpisodeId {
         );
     }
 
-    public static EpisodeId randomId(EpisodeType type){
+    /**
+     * The latter argument may be ignored or not; can be useful for debugging
+     */
+    public static EpisodeId randomId(EpisodeType type, String basis){
         return new EpisodeId(type, UUID.randomUUID().toString());
+//        return nonRandomId(type, basis);
     }
 }

@@ -4,8 +4,6 @@ import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeDe
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeId;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeSpec;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeType;
-import com.github.filipmalczak.storyteller.impl.jgit.storage.DiskSpaceManager;
-import com.github.filipmalczak.storyteller.impl.jgit.storage.Workspace;
 import lombok.NonNull;
 
 import java.util.Map;
@@ -39,10 +37,6 @@ public interface Episode {
         return new EpisodeDefinition(episode.getEpisodeId(), getEpisodeSpec(episode, metadata));
     }
 
-    /**
-     *  @param workspace use this to run this episode; usually pass that to subepisodes, which makes them run one by one
-     * @param manager use this if you want to manually request a workspace , e,g multithread and use workspace per subepisode
-     */
-    void tell(@NonNull Workspace workspace, @NonNull DiskSpaceManager manager);
+    void tell(@NonNull TaleContext context);
 
 }

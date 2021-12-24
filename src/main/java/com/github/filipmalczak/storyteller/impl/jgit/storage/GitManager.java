@@ -2,6 +2,7 @@ package com.github.filipmalczak.storyteller.impl.jgit.storage;
 
 import lombok.*;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.transport.TagOpt;
 
 import java.io.File;
 
@@ -43,6 +44,8 @@ public class GitManager implements DiskSpaceManager {
         Git git = Git.cloneRepository()
             .setDirectory(workspace.getWorkingDir())
             .setURI(goldenSource.toURI().toString())
+            .setCloneAllBranches(true)
+            .setTagOption(TagOpt.FETCH_TAGS)
             .setBare(false)
             .call();
         return new WorkingCopy(git, workspace);

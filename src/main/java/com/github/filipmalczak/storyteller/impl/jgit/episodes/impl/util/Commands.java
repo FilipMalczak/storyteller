@@ -1,7 +1,5 @@
 package com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.util;
 
-import com.github.filipmalczak.storyteller.api.storage.Storage;
-import com.github.filipmalczak.storyteller.api.story.ActionBody;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.Episode;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeDefinition;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeId;
@@ -11,23 +9,20 @@ import com.github.filipmalczak.storyteller.impl.jgit.episodes.tree.SubEpisode;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.DiskSpaceManager;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.WorkingCopy;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.Workspace;
-import com.github.filipmalczak.storyteller.impl.jgit.storage.data.DirectoryStorage;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.index.Metadata;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.MergeCommand;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.episodes.Episode.getEpisodeDefinition;
 import static com.github.filipmalczak.storyteller.impl.jgit.storage.index.Metadata.buildMetadata;
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.*;
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.safeguard;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
@@ -87,17 +82,6 @@ public class Commands {
     @Getter(lazy = true)
     String progressBranchName = buildRefName(getEpisodeId(), PROGRESS);
 
-//    @EqualsAndHashCode.Exclude
-//    @NonFinal
-//    ProgressProof<ProofType> currentProgress = getLoader().load(getWorkingCopy(), getEpisodeId());
-//
-//    public void reloadProgress(){
-//        currentProgress = getLoader().load(getWorkingCopy(), getEpisodeId());
-//    }
-
-//    public interface ProgressLoader<PT> {
-//        ProgressProof<PT> load(WorkingCopy workingCopy, EpisodeId id);
-//    }
 
     private boolean parentProgressExists(){
         return getWorkingCopy().branchExists(getParentProgressBranchName()); //todo and its metadata is well-initialized?
@@ -112,21 +96,23 @@ public class Commands {
      * Enters anywhere and exits on current progress branch.
      */
     public void define(EpisodeDefinition definition){
-        safeguard(
+        invariant(
             currentProgressExists(),
             "current episodes progress branch should already be present in the working copy!"
         );
-        getWorkingCopy().checkoutExisting(getParentProgressBranchName());
+        var branchName = getProgressBranchName();
+        getWorkingCopy().checkoutExisting(branchName);
         getWorkingCopy()
             .getIndexFile()
-            .updateMetadata(m ->
-                m.toBuilder()
-                    .subEpisode(definition)
-                    .build()
+            .updateMetadata(
+                m ->
+                    m.toBuilder()
+                        .subEpisode(definition)
+                        .build()
             );
-        log.info("Commiting: Define episode "+definition+" in index of "+parentId);
-        getWorkingCopy().commit(buildRefName(getEpisodeId(), DEFINE, parentId));
-        pushParentProgress();
+        log.info("Commiting: Define episode "+definition+" in index on branch "+branchName);
+        getWorkingCopy().commit(branchName, buildRefName(definition.getEpisodeId(), DEFINE, getEpisodeId()));
+        pushCurrentProgress(false);
     }
 
     /**
@@ -138,7 +124,9 @@ public class Commands {
      * @return list of already defined child episodes
      */
     public List<EpisodeDefinition> initializeSequenceProgress(){
+        log.info("init "+getEpisodeId());
         if (getWorkingCopy().branchExists(getProgressBranchName())){
+            log.info("branch "+getProgressBranchName()+" exists");
             getWorkingCopy().checkoutExisting(getProgressBranchName());
             return getWorkingCopy().getIndexFile().getMetadata().getOrderedIndex();
             //todo safeguard starts with define present on parent then start that is commited from define
@@ -148,38 +136,20 @@ public class Commands {
         }
     }
 
-    //todo belongs to higher-level API
-    /**
-     * Applicable only to leafs. Runs the leaf and persists run proof. Doesn't check if already happened.
-     */
-    public void runLeaf(ActionBody<Storage> body){
-        safeguard(
-            parentId != null,
-            "'parentId' must be provided for this operation to work!"
-        );
-        safeguard(
-            parentProgressExists(),
-            "parent progress branch should already be present in the working copy!"
-        );
-        //todo parent instanceOf LeafSequence
-        var storage = new DirectoryStorage(workspace.getWorkingDir());
-        body.action(storage);
-        getWorkingCopy().commit(buildRefName(getEpisodeId(), RUN));
-        pushParentProgress();
-
-    }
-
     //todo start/end should take somethind like Expectation=enum(DONE, PENDING) and fail if it doesnt match tag.exists
     private void sequenceLifecycleTag(String tagName, Consumer<WorkingCopy> existingValidators, Metadata metadata){
+        getWorkingCopy().checkoutExisting(getProgressBranchName());
         if (getWorkingCopy().tagExists(tagName)){
+            log.info("Tag "+tagName+" already exists!");
             getWorkingCopy().checkoutExisting(tagName);
             existingValidators.accept(getWorkingCopy());
 
         } else {
+            log.info("Creating tag "+tagName);
             getWorkingCopy()
                 .getIndexFile()
                 .setMetadata(metadata);
-            getWorkingCopy().commit(tagName);
+            getWorkingCopy().commit(getProgressBranchName(), tagName);
             getWorkingCopy().createTag(tagName);;
         }
         getWorkingCopy().checkoutExisting(getProgressBranchName());
@@ -223,6 +193,7 @@ public class Commands {
     }
 
     /**
+     * Integrates this episode (a branch) into parent episode (also a branch).
      * If integration tag is mssing, integrates (merges, sanitizes metadata, tags);
      * if not, validates (partOfBranch=parent.progress, parentCommit=end).
      * Requires parentId != null.
@@ -230,23 +201,25 @@ public class Commands {
      */
     @SneakyThrows
     public void integrate(){
-        safeguard(
+        invariant(
             parentProgressExists(),
             "parent progress branch should already be present in the working copy!"
         );
+        getWorkingCopy().checkoutExisting(getProgressBranchName());
         //todo this should be possible without checkout, by raw plumbing api
-        var metadata = getWorkingCopy().getIndexFile().getMetadata();
+        var metadata = getWorkingCopy().getIndexFile().getMetadata(); //current meta
         log.info("checkout ok");
         var tagName = buildRefName(getEpisodeId(), INTEGRATE, parentId);
         log.info("tag: "+tagName);
         if (getWorkingCopy().tagExists(tagName)) {
-            log.info("exists!");
+            log.info("integration tag already exists!");
 //                workingCopy.checkoutExisting("/refs/heads/"+tagName);
             //todo perform validation - critical
             //  assert proper parents (one tag with x-end last on x-progress, the other y-start, previous on y-progress)
             //  assert proper message ??
         } else {
-            log.info("gonna merge");
+            log.info("integration tag is missing, we're gonna merge!");
+            getWorkingCopy().checkoutExisting(getParentProgressBranchName());
             getWorkingCopy().getRepository()
                 .merge()
                 .include(getWorkingCopy().getBranch(getProgressBranchName()).get())
@@ -255,11 +228,11 @@ public class Commands {
                 .call();
             getWorkingCopy().getIndexFile().setMetadata(metadata);
             //todo this is pretty repeatable -> extract method here
-            getWorkingCopy().commit(tagName);
+            getWorkingCopy().commit(getParentProgressBranchName(), tagName);
             log.info("gonna tag");
             getWorkingCopy().createTag(tagName);
             log.info("pushing " + parentProgressBranchName + " and tags");
-            getWorkingCopy().push(asList(getParentProgressBranchName()), true);
+            getWorkingCopy().push(asList(getParentProgressBranchName(), getProgressBranchName()), true);
             log.info("here ya go");
         }
     }
@@ -291,14 +264,24 @@ public class Commands {
     }
 
     //todo ditto
-    public static EpisodeDefinition handleDefinition(Optional<EpisodeDefinition> expected, EpisodeSpec spec){
+    public static EpisodeDefinition handleDefinition(Optional<EpisodeDefinition> expected, EpisodeSpec spec, Consumer<EpisodeDefinition> persistDefinition){
+        log.info("Figuring out a definition: "+expected+" "+spec);
         if (expected.isEmpty()){
-            var id = EpisodeId.randomId(spec.getType());
-            return new EpisodeDefinition(id, spec);
+            var id = EpisodeId.randomId(spec.getType(), spec.getName());
+            log.info("Using id: "+id);
+            var def = new EpisodeDefinition(id, spec);
+            log.info("Defining "+def);
+            persistDefinition.accept(def);
+            log.info("Returning "+def);
+            return def;
         }
         var exp = expected.get();
-        if (spec.equals(exp))
+        log.info("Expected def: "+exp);
+        if (spec.equals(exp.getEpisodeSpec())) {
+            log.info("Definition matches");
             return exp;
+        }
+        log.info("Definition doesnt match the expected one");
         throw new RuntimeException(); //todo this is the place where you can salvage some work
     }
 

@@ -4,6 +4,7 @@ import com.github.filipmalczak.storyteller.api.story.ActionBody;
 import com.github.filipmalczak.storyteller.api.story.ArcClosure;
 import com.github.filipmalczak.storyteller.api.story.Storyteller;
 import com.github.filipmalczak.storyteller.api.story.ToBeContinuedException;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.TaleContext;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeId;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeType;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.Story;
@@ -12,10 +13,11 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.flogger.Flogger;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.TagOpt;
 
 import java.io.File;
@@ -23,13 +25,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.safeguard;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.PROGRESS;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.buildRefName;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
 import static java.nio.file.Files.readString;
 import static java.nio.file.Files.write;
 import static java.util.Arrays.asList;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Slf4j
+@Flogger
 public class JGitStoryteller implements Storyteller {
     //https://git-scm.com/docs/gitignore
     //last example, version 2.34.1
@@ -109,7 +113,7 @@ public class JGitStoryteller implements Storyteller {
         } else {
             var foundLines = asList(readString(gitignoreFile.toPath()).split("\\n"));
             for (var line: GITIGNORE_LINES)
-                safeguard(
+                invariant(
                     foundLines.contains(line), //fixme not perfect, allows for commenting it out
                     "Line '"+line+"' must be found in .gitignore file"
                 );
@@ -118,7 +122,7 @@ public class JGitStoryteller implements Storyteller {
         var tag = workingCopy.tagList().call().stream().map(Ref::getName).filter("empty"::equals).findAny();
         if (tag.isPresent()) {
             workingCopy.checkout().setCreateBranch(false).setName("empty");
-            safeguard(
+            invariant(
                 readString(gitignoreFile.toPath()).equals(GITIGNORE_CONTENT),
                 ".gitignore file matches prepared patterns"
             );
@@ -131,7 +135,7 @@ public class JGitStoryteller implements Storyteller {
 
     @SneakyThrows
     private void safeguardEmptyTagExists(){
-        safeguard(
+        invariant(
             workingCopy.tagList().call().stream().anyMatch(r -> "refs/tags/empty".equals(r.getName())),
             "existing repo must contain 'empty' tag" // tag which must only have .toryteller marker file" //todo
         );
@@ -166,11 +170,29 @@ public class JGitStoryteller implements Storyteller {
         manager.cloneInto(workspace);
         var git = manager.open(workspace).getRepository();
         git.pull().setTagOpt(TagOpt.FETCH_TAGS).call();
-        git.checkout().setName("empty").call(); //?? good idea or not?
+//        git.checkout().setName("empty").call(); //todo ?? good idea or not?
+        var branchName = buildRefName(story.getEpisodeId(), PROGRESS);
+        git.checkout()
+            .setCreateBranch(true)
+            .setName(branchName)
+            .setStartPoint("empty")
+            .call();
+        git.push()
+            .setRemote("origin")
+            .setRefSpecs(asList(new RefSpec(branchName+":"+branchName)))
+            .call();
         try {
-            story.tell(workspace, manager);
-        } catch (ToBeContinuedException e){
-            log.info("Story {} is yet to be continued");
+            story.tell(TaleContext.of(workspace, manager));
+        } catch (Exception e){
+            if (e instanceof  ToBeContinuedException) {
+                log.atInfo().log("Story "+storyName+" is yet to be continued");
+            } else {
+                log.atSevere().withCause(e).log("ERROR: %s", e);
+                throw e;
+            }
+        } finally {
+            git.push().setPushAll().setPushTags().call();
+            log.atInfo().log("Current progress saved");
         }
     }
 }

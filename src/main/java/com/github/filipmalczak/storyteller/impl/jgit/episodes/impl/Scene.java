@@ -2,12 +2,12 @@ package com.github.filipmalczak.storyteller.impl.jgit.episodes.impl;
 
 import com.github.filipmalczak.storyteller.api.storage.Storage;
 import com.github.filipmalczak.storyteller.api.story.ActionBody;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.TaleContext;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeId;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.tree.LeafEpisode;
-import com.github.filipmalczak.storyteller.impl.jgit.storage.DiskSpaceManager;
-import com.github.filipmalczak.storyteller.impl.jgit.storage.Workspace;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.data.DirectoryStorage;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.index.Metadata;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +28,9 @@ public class Scene implements LeafEpisode {
 
     @Override
     @SneakyThrows
-    public void tell(Workspace workspace, DiskSpaceManager manager) {
-        var cmds = getCommands(this, workspace, manager);
+    public void tell(@NonNull TaleContext context) {
+        log.info("Scene "+episodeId+" ("+getName()+") start");
+        var cmds = getCommands(this, context.getWorkspace(), context.getManager());
         var workingCopy = cmds.getWorkingCopy();
         workingCopy.checkoutExisting(buildRefName(parentId, PROGRESS));
         workingCopy
@@ -40,10 +41,14 @@ public class Scene implements LeafEpisode {
                     parentId
                 )
             );
-        var storage = new DirectoryStorage(workspace.getWorkingDir());
+        log.info("Scene "+episodeId+" ("+getName()+") metadata up to date");
+        var storage = new DirectoryStorage(context.getWorkspace().getWorkingDir());
         body.action(storage);
-        workingCopy.commit(episodeId.toString());
+        log.info("Scene "+episodeId+" ("+getName()+") commiting");
+        workingCopy.commit(buildRefName(parentId, PROGRESS), episodeId.toString());
+        log.info("Scene "+episodeId+" ("+getName()+") commited");
         workingCopy.push(asList(buildRefName(parentId, PROGRESS)), false);
+        log.info("Scene "+episodeId+" ("+getName()+") pushed; end scene");
 
     }
 }

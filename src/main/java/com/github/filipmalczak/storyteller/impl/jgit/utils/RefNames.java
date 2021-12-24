@@ -1,6 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.jgit.utils;
 
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeId;
+import lombok.NonNull;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -13,11 +14,11 @@ public class RefNames {
     public static final String END = "end";
     public static final String INTEGRATE = "integrate-into";
 
-    public static String buildRefName(EpisodeId id, String domain, Object... subparts){
+    public static String buildRefName(@NonNull EpisodeId id, @NonNull String domain, Object... subparts){
         return buildRefName(id.toString(), domain, subparts);
     }
 
-    public static String buildRefName(String id, String domain, Object... subparts){
+    public static String buildRefName(@NonNull String id, @NonNull String domain, Object... subparts){
         return Stream.concat(
                 Stream.of(id, domain),
                 Stream.of(subparts).map(x -> x.toString())

@@ -32,6 +32,9 @@ dependencyManagement {
         dependency 'com.google.code.gson:gson:2.8.9'
         dependency 'io.github.glytching:junit-extensions:2.5.0'
 
+        dependency 'com.google.flogger:flogger-slf4j-backend:0.7.2'
+        dependency 'com.google.flogger:flogger:0.7.2'
+
     }
 
 }
@@ -47,13 +50,13 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
+    implementation 'com.google.flogger:flogger'
+    //todo migrate to flogger
     implementation group: 'org.slf4j', name: 'slf4j-api'
-    implementation 'org.apache.logging.log4j:log4j-api'
 
-    testImplementation group: 'org.slf4j', name: 'slf4j-api'
+    //todo these should be optional? or maybe its enough to move this to testImpl?
+    implementation 'com.google.flogger:flogger-slf4j-backend'
     testImplementation 'org.apache.logging.log4j:log4j-api'
-
-    testImplementation 'io.github.glytching:junit-extensions'
 
     runtimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl'
     testRuntimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl'
