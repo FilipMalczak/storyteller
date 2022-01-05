@@ -32,6 +32,7 @@ import static java.util.Collections.emptyList;
 @ToString
 @AllArgsConstructor
 @Slf4j
+//todo slaughter this class
 /**
  * This class doesn't care if described episode can use given simple command; e.g. run() should only be available
  * for leaves, and yet this class may be used for arc or thread.
@@ -111,13 +112,13 @@ public class Commands {
                         .build()
             );
         log.info("Commiting: Define episode "+definition+" in index on branch "+branchName);
-        getWorkingCopy().commit(branchName, buildRefName(definition.getEpisodeId(), DEFINE, getEpisodeId()));
+        getWorkingCopy().commit(branchName, buildRefName(definition.getEpisodeId(), DEFINE));
         pushCurrentProgress(false);
     }
 
     /**
      * Applicable only to sequences.
-     * If missing, create and push progress branch; read all known episode definitions in order and
+     * If missing, crewomensate and push progress branch; read all known episode definitions in order and
      * gather their run proof.
      * Enters on parent-progress-branch-ish, ideally on define (but not required; if parentIdf==null, you
      * may manually check out branching point); exits on progress branch.

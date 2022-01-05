@@ -7,11 +7,12 @@ import com.github.filipmalczak.storyteller.impl.jgit.episodes.TaleContext;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeId;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeSpec;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeType;
-import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.DefineAndRun;
-import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.ExecuteRoot;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.DefineAndIntegrate;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.ExecuteSequence;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.utils.DefinitionFactory;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.utils.StageBody;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.utils.StartPointFactory;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.tree.SubEpisode;
-import com.github.filipmalczak.storyteller.impl.jgit.storage.WorkingCopy;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
@@ -19,8 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.util.Commands.getCommands;
-import static com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.util.Rgx.RUN_MESSAGE;
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.*;
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
 
@@ -32,20 +31,28 @@ public class Thread implements SubEpisode {
     EpisodeId parentId;
     ActionBody<ThreadClosure> body;
 
-    protected static ThreadClosure closure(EpisodeId parentId, TaleContext context){
-        AtomicInteger childCount = new AtomicInteger(0);
+    protected ThreadClosure closure(TaleContext context){
+        AtomicInteger childCount = new AtomicInteger(0); //todo is this index ever used?
         //dont replace with lambda; this version is more readable (next comment disables IntelliJ suggestion)
         //noinspection Convert2Lambda
         return new ThreadClosure() {
             @Override
             public void scene(String name, ActionBody<Storage> body) {
-                DefineAndRun.builder()
-                    .scope(parentId)
+                DefineAndIntegrate.builder()
+                    .scope(episodeId)
                     .episodeInScopeIdx(childCount.getAndIncrement())
                     .toDefine(EpisodeSpec.builder().type(EpisodeType.SCENE).name(name).build())
-                    .toRun(body)
+                    .toRunFactory(id -> new Scene(id, name, episodeId, body))
+                    .context(context)
                     .build()
                     .run(context.getWorkingCopy());
+//                DefineAndRun.builder()
+//                    .scope(parentId)
+//                    .episodeInScopeIdx(childCount.getAndIncrement())
+//                    .toDefine(EpisodeSpec.builder().type(EpisodeType.SCENE).name(name).build())
+//                    .toRun(body)
+//                    .build()
+//                    .run(context.getWorkingCopy());
             }
         };
     }
@@ -61,9 +68,10 @@ public class Thread implements SubEpisode {
         ExecuteSequence.builder()
             .sequenceId(episodeId)
             .parentId(parentId)
-            .exec(() ->
-                body.action(closure(episodeId, context))
-            )
+            .startPointFactory(StartPointFactory.buildRef(DEFINE))
+            .definitionFactory(DefinitionFactory.RETRIEVE_FROM_PARENT_INDEX)
+            .body(StageBody.runAction(body, closure(context)))
+//            .containsLeaves(true)
             .build()
             .run(workingCopy);
 //        log.info("Thread "+episodeId+" ("+getName()+") start");

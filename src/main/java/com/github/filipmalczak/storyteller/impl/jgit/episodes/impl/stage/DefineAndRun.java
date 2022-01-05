@@ -8,9 +8,13 @@ import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeSp
 import com.github.filipmalczak.storyteller.impl.jgit.storage.WorkingCopy;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.data.DirectoryStorage;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.index.Metadata;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.util.Date;
 
@@ -22,6 +26,7 @@ import static java.util.Arrays.asList;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Flogger
+    //todo slaughter this
 /**
  * Defines a leaf episode (in index of scope). If proof commit for that leaf is missing, runs it, commits its meta
  * together with its storage state
@@ -38,12 +43,12 @@ public class DefineAndRun implements Stage {
 
     @Override
     public void body() {
-        log.atInfo().log("Planning the stage");
+        log.atInfo().log("Planning the stage for subepisode #"+episodeInScopeIdx+" ("+toDefine+")");
         //set up values
         var scopeStart = buildRefName(scope, START);
         var branch = buildRefName(scope, PROGRESS);
         //navigate to scopes progress
-        log.atInfo().log("Switching to branch %s");
+        log.atInfo().log("Switching to branch %s", branch);
         workingCopy.checkoutExisting(branch);
 
         boolean shouldDefine = true;
@@ -53,6 +58,7 @@ public class DefineAndRun implements Stage {
         String defineName;
         String runName;
         var scopeIndex =  workingCopy.getIndexFile().getMetadata().getOrderedIndex();
+        log.atFine().log("Present index: %s", scopeIndex);
         if (scopeIndex.size() > episodeInScopeIdx){ // definition for this episode already present
             EpisodeDefinition existing = scopeIndex.get(episodeInScopeIdx);
             id = existing.getEpisodeId();
@@ -60,6 +66,7 @@ public class DefineAndRun implements Stage {
             defineName = buildRefName(id, DEFINE);
             runName = buildRefName(id, RUN);
             log.atFine().log("Episode %s already defined ", definition);
+            //we check that the commit exists later as an invariant
             invariant(
                 toDefine.equals(existing.getEpisodeSpec()),
                 "If the leaf has already been defined, then definitions must match"
@@ -74,7 +81,7 @@ public class DefineAndRun implements Stage {
             runName = buildRefName(id, RUN);
         }
         var commits = workingCopy.gitLog(workingCopy.resolveToCommitId(scopeStart), workingCopy.resolveToCommitId(branch));
-        log.atFine().log("Commits log: %s", commits);
+        log.atFine().log("Commits log: %s", commits.stream().map(RevCommit::getFullMessage).toList());
         log.atFine().log("Commits log length: %s; idx: %s", commits.size(), episodeInScopeIdx);
         //size > 2*idx
         invariant(
@@ -151,8 +158,8 @@ public class DefineAndRun implements Stage {
             getWorkingCopy().push(asList(branch), false);
             log.atFine().log("Commited and pushed");
         } finally {
-            getWorkingCopy().getIndexFile().setMetadata(prevMeta);
-            log.atFine().log("Metadata reverted (without commiting) to metadata of scope");
+//            getWorkingCopy().getIndexFile().setMetadata(prevMeta);
+//            log.atFine().log("Metadata reverted (without commiting) to metadata of scope");
         }
     }
 }

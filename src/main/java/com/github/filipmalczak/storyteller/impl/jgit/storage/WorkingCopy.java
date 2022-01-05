@@ -18,14 +18,15 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RefSpec;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
 import static java.util.Arrays.asList;
+import static java.util.Collections.reverse;
 import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
 
@@ -77,16 +78,16 @@ public class WorkingCopy {
 
 
     public void checkoutExisting(String refish){
-        checkoutExisting(refish, true);
+        checkoutExisting(refish, false);
     }
 
     @SneakyThrows
     public void checkoutExisting(String refish, boolean pull){
         log.info("HEAD "+head());
         log.info("On branch "+ branchesWithHead(currentCommitId()));
-        log.info("Checking out "+refish+"; reseting first");
-        getRepository().reset().setRef(refish).call();
+        log.info("Checking out "+refish+"; then reseting");
         getRepository().checkout().setName(refish).setCreateBranch(false).call();
+        getRepository().reset().setRef(refish).call();
         if (pull)
             getRepository().pull().call(); //this should pull current branch
     }
@@ -161,12 +162,14 @@ public class WorkingCopy {
 
     @SneakyThrows
     public List<RevCommit> gitLog(ObjectId fromExc, ObjectId toInc){
-        return toStream(
+        var out = new ArrayList<>(toStream(
                 repository.log()
                     .addRange(fromExc, toInc)
                     .call()
             )
-            .toList();
+            .toList());
+        reverse(out);
+        return out;
     }
 
     public RevCommit currentCommit(){
@@ -214,16 +217,21 @@ public class WorkingCopy {
         push(asList(name), false);
     }
 
-    @SneakyThrows
     //todo remove first arg
     public ObjectId commit(String branchName, String msg){
+        return commit(branchName, msg, false);
+    }
+
+    //todo ditto
+    @SneakyThrows
+    public ObjectId commit(String branchName, String msg, boolean amend){
 //        log.info("On branch "+ branchesWithHead(currentCommitId()));
 //        log.info("Checking out "+branchName);
 //        checkoutExisting(branchName);
         repository.add().addFilepattern(".").call();
         repository.add().setUpdate(true).addFilepattern(".").call();
 //        log.info("Add ./* called");
-        var c = repository.commit().setMessage(msg).call();
+        var c = repository.commit().setMessage(msg).setAmend(amend).call();
 //        log.info("Commit: "+c);
 //        log.info("Merging commit "+c+" to branch "+branchName);
 //        repository.merge().include(repository.getRepository().parseCommit(c.getId())).setFastForward(MergeCommand.FastForwardMode.FF_ONLY).call();

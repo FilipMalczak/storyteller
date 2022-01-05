@@ -20,12 +20,11 @@ import static java.util.Arrays.asList;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class ExecuteSequence implements Stage{
-    @Builder.Default
-    EpisodeId parentId = null;
-    @NonNull EpisodeId sequenceId;
-    @NonNull StartPointFactory startPointFactory;
-    @NonNull DefinitionFactory definitionFactory;
+public class ExecuteLeaf implements Stage{
+    @NonNull EpisodeId parentId;
+    @NonNull EpisodeId leafId;
+    final StartPointFactory startPointFactory = StartPointFactory.buildRef(DEFINE);
+    final DefinitionFactory definitionFactory = DefinitionFactory.RETRIEVE_FROM_PARENT_INDEX;
     @NonNull StageBody body;
 //    @Builder.Default
 //    boolean containsLeaves = false; //if false, then this is a node or root sequence; if true - leaf sequence
@@ -34,7 +33,7 @@ public class ExecuteSequence implements Stage{
 
     @Override
     public EpisodeId getScope() {
-        return sequenceId;
+        return leafId;
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -43,39 +42,44 @@ public class ExecuteSequence implements Stage{
     private class Progress {
         boolean shouldCommitStart;
         boolean shouldTagStart;
+        boolean shouldRun;
 //        boolean shouldCommitReconciliation;
-        boolean shouldTagEnd;
+//        boolean shouldTagEnd;
 
         String progressName;
 
         ObjectId initialLatestCommit;
 
         String startName;
-        String endName;
+        String runName;
+//        String endName;
 //        String reconciliationName;
 
         String branchOffRef;
         ObjectId branchOffCommit;
 
+
         @SneakyThrows
         public void init(){
             shouldCommitStart = true;
             shouldTagStart = true;
+            shouldRun = true;
 //            shouldCommitReconciliation = containsLeaves;
-            shouldTagEnd = true;
+//            shouldTagEnd = true;
 
-            progressName = buildRefName(sequenceId, PROGRESS);
+            progressName = buildRefName(leafId, PROGRESS);
             //todo
             var result = workingCopy.getRepository().pull().setRemoteBranchName(progressName).call();
             invariant(result.isSuccessful(), "pulling must be succesful");
 
             initialLatestCommit = workingCopy.resolveToCommitId(progressName);
 
-            startName = buildRefName(sequenceId, START);
-            endName = buildRefName(sequenceId, END);
+            startName = buildRefName(leafId, START);
+            runName = buildRefName(leafId, RUN);
+//            endName = buildRefName(leafId, END);
 //            reconciliationName = buildRefName(sequenceId, RECONCILE);
 
-            branchOffRef = startPointFactory.apply(sequenceId);
+            branchOffRef = startPointFactory.apply(leafId);
             branchOffCommit = workingCopy.resolveToCommitId(branchOffRef);
             log.atFine().log("Initialized progress to %s", this);
         }
@@ -91,11 +95,11 @@ public class ExecuteSequence implements Stage{
             );
             var sequenceCommits = workingCopy.gitLog(branchOffCommit, initialLatestCommit);
             if (sequenceCommits.size() > 0){
-                log.atInfo().log("Initial branch commit for sequence %s present", sequenceId);
+                log.atInfo().log("Initial branch commit for sequence %s present", leafId);
                 shouldCommitStart = false;
                 //todo checkout commits[0], safeguard that metadata from index file matches id, checkout back
             } else {
-                log.atInfo().log("Initial branch commit for sequence %s missing", sequenceId);
+                log.atInfo().log("Initial branch commit for sequence %s missing", leafId);
             }
             if (workingCopy.tagExists(startName)){
                 log.atInfo().log("Tag %s already present", startName);
@@ -107,6 +111,13 @@ public class ExecuteSequence implements Stage{
                 !(shouldCommitStart && !shouldTagStart),
                 "If initial commit isn't present yet, then start tag cannot be present neither"
             );
+            if (sequenceCommits.size() > 1){
+                log.atInfo().log("Run commit for leaf %s present", leafId);
+                shouldRun = false;
+                //todo invariant commit name matches
+            } else {
+                log.atInfo().log("Run commit for leaf %s is missing", leafId);
+            }
 //            if (containsLeaves) {
 //                log.atInfo().log("Sequence contains leaves, may need to commit index reconciliation");
 //                if (sequenceCommits.isEmpty() || !sequenceCommits.get(sequenceCommits.size() - 1).getFullMessage().equals(reconciliationName)){
@@ -116,17 +127,17 @@ public class ExecuteSequence implements Stage{
 //                    log.atInfo().log("Reconciliation commit %s present at the end of curren");
 //                }
 //            }
-            if (workingCopy.tagExists(endName)){
-                log.atInfo().log("Tag %s already present", endName);
-                shouldTagEnd = false;
-                //todo check what is tagged - either an integrate of last child, or reconcile commit of leaf sequence
-            } else {
-                log.atInfo().log("Tag %s missing", endName);
-            }
-            invariant(
-                !(shouldTagStart && !shouldTagEnd),
-                "If start tag isn't present yet, then end tag cannot be present neither"
-            );
+//            if (workingCopy.tagExists(endName)){
+//                log.atInfo().log("Tag %s already present", endName);
+//                shouldTagEnd = false;
+//                //todo check what is tagged - either an integrate of last child, or reconcile commit of leaf sequence
+//            } else {
+//                log.atInfo().log("Tag %s missing", endName);
+//            }
+//            invariant(
+//                !(shouldTagStart && !shouldTagEnd),
+//                "If start tag isn't present yet, then end tag cannot be present neither"
+//            );
 //            invariant(
 //                !(shouldCommitReconciliation && !shouldTagEnd),
 //                "If reconciliation commit isn't present yet, then end that cannot be present neither"
@@ -137,11 +148,11 @@ public class ExecuteSequence implements Stage{
             log.atInfo().log("Executing the stage");
 
             if (shouldCommitStart){
-                log.atInfo().log("Commiting adequate metadata of episode %s to its branch", sequenceId);
+                log.atInfo().log("Commiting adequate metadata of episode %s to its branch", leafId);
                 doCommitStart();
                 log.atInfo().log("Commiting metadata finished");
             } else {
-                log.atInfo().log("Metadata of episode %s has already been commited at the beginning of the branch", sequenceId);
+                log.atInfo().log("Metadata of episode %s has already been commited at the beginning of the branch", leafId);
             }
             if (shouldTagStart){
                 log.atInfo().log("Creating tag %s", startName);
@@ -150,19 +161,24 @@ public class ExecuteSequence implements Stage{
             } else {
                 log.atInfo().log("Tag %s already present", startName);
             }
-            body.run();
+            if (shouldRun) {
+                log.atInfo().log("Running leaf %s body", leafId);
+                body.run();
+                log.atInfo().log("Running body of %s finished; commiting results", leafId);
+                workingCopy.commit(progressName, runName);
+                log.atInfo().log("Commited; pushing");
+                workingCopy.push(asList(progressName), false);
+                log.atInfo().log("Pushed");
+            } else {
+                log.atInfo().log("Skipping run of %s", leafId);
+                //todo details of why were skipping, e.g, when run happened originally
+            }
 //            if (shouldCommitReconciliation){
 //                log.atInfo().log("Reconciling index of current branch");
 //                doReconcile();
 //                log.atInfo().log("Reconciliation done");
 //            }
-            if (shouldTagEnd){
-                log.atInfo().log("Creating tag %s", endName);
-                doTagEnd();
-                log.atInfo().log("Creating the tag finished");
-            } else {
-                log.atInfo().log("Tag %s already present", endName);
-            }
+
         }
 
 
@@ -194,17 +210,17 @@ public class ExecuteSequence implements Stage{
             workingCopy.checkoutExisting(progressName);
             log.atFine().log("Switched back to sequence progress branch");
         }
-
-        //fixme ditto
-        private void doTagEnd(){
-            //todo invariant: on progress head; does this apply in other places too?
-            workingCopy.createTag(endName);
-            log.atFine().log("Tag %s created", endName);
-            workingCopy.push(asList(progressName), true);
-            log.atFine().log("Changes pushed");
-            workingCopy.checkoutExisting(progressName);
-            log.atFine().log("Switched back to sequence progress branch");
-        }
+//
+//        //fixme ditto
+//        private void doTagEnd(){
+//            //todo invariant: on progress head; does this apply in other places too?
+//            workingCopy.createTag(endName);
+//            log.atFine().log("Tag %s created", endName);
+//            workingCopy.push(asList(progressName), true);
+//            log.atFine().log("Changes pushed");
+//            workingCopy.checkoutExisting(progressName);
+//            log.atFine().log("Switched back to sequence progress branch");
+//        }
 
 //        private void doReconcile(){
 //            //todo invariant: on progress head; does this apply in other places too?

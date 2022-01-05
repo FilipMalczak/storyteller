@@ -2,10 +2,12 @@ package com.github.filipmalczak.storyteller.impl.jgit.storage.index;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.flogger.Flogger;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.GitFriendlyJSON.deserialize;
@@ -16,7 +18,7 @@ import static com.github.filipmalczak.storyteller.impl.jgit.utils.GitFriendlyJSO
 @Getter
 @ToString
 @EqualsAndHashCode
-@Slf4j
+@Flogger
 public class IndexFile {
     public static final String FILENAME = ".episode-index";
 
@@ -25,15 +27,27 @@ public class IndexFile {
     @Getter(lazy = true)
     final File persistenceBackend = new File(workingCopy, FILENAME);
 
+    @NonNull
+    public Optional<Metadata> findMetadata(){
+        try {
+            var out = Optional.of(deserialize(Files.readString(getPersistenceBackend().toPath()), Metadata.class));
+            log.atFiner().log("Succesfully deserialized metadata %s from %s", out, persistenceBackend);
+            return out;
+        } catch (IOException | RuntimeException e){
+            log.atFiner().withCause(e).log("Deserialization from %s failed", persistenceBackend);
+            return Optional.empty();
+        }
+    }
+
     @SneakyThrows
     @NonNull
     public Metadata getMetadata(){
-        return deserialize(Files.readString(getPersistenceBackend().toPath()), Metadata.class);
+        return findMetadata().get();
     }
 
     @SneakyThrows
     public void setMetadata(@NonNull Metadata metadata){
-        log.info("Set metadata: "+metadata);
+        log.atFiner().log("Set metadata: "+metadata);
         Files.writeString(getPersistenceBackend().toPath(), serialize(metadata));
     }
 

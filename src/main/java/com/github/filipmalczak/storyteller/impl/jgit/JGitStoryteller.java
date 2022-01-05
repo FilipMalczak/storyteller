@@ -16,6 +16,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.JGitInternalException;
+import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.TagOpt;
@@ -166,14 +168,21 @@ public class JGitStoryteller implements Storyteller {
         var manager = new GitManager(root, tmp);
         var story = new Story(EpisodeId.nonRandomId(EpisodeType.STORY, storyName), storyName, arcClosure);
         //todo empty?
-        var workspace = manager.getWorkspace(story.getEpisodeId().toString(), true);
-        manager.cloneInto(workspace);
+        var workspace = manager.getWorkspace(story.getEpisodeId().toString(), false);
+//        var workspace = manager.getWorkspace(story.getEpisodeId().toString(), true);
+//        if (!workspace.getWorkingDir().exists())
+        try {
+            manager.cloneInto(workspace);
+        } catch (JGitInternalException e){} //todo stop ignroing
         var git = manager.open(workspace).getRepository();
         git.pull().setTagOpt(TagOpt.FETCH_TAGS).call();
 //        git.checkout().setName("empty").call(); //todo ?? good idea or not?
         var branchName = buildRefName(story.getEpisodeId(), PROGRESS);
+        try {
+            git.branchCreate().setName(branchName).setStartPoint("empty").call();
+        } catch (RefAlreadyExistsException e){} //todo
         git.checkout()
-            .setCreateBranch(true)
+//            .setCreateBranch(true)
             .setName(branchName)
             .setStartPoint("empty")
             .call();

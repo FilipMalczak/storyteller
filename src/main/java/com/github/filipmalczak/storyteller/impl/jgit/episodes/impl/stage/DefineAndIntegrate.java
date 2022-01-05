@@ -10,6 +10,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
 import org.eclipse.jgit.api.MergeCommand;
+import org.eclipse.jgit.merge.ContentMergeStrategy;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.transport.RefSpec;
 
 import java.util.function.Function;
@@ -38,6 +40,7 @@ public class DefineAndIntegrate implements Stage {
     WorkingCopy workingCopy;
 
     @Override
+    @SneakyThrows
     public void body() {
         log.atInfo().log("Planning the stage");
         var shouldCommitDefine = true;
@@ -47,6 +50,9 @@ public class DefineAndIntegrate implements Stage {
         var branch = buildRefName(scope, PROGRESS);
         log.atInfo().log("Switching to branch %s");
         workingCopy.checkoutExisting(branch);
+        //todo
+        var result = workingCopy.getRepository().pull().setRemoteBranchName(branch).call();
+        invariant(result.isSuccessful(), "pulling must be succesful");
         var scopeIndex =  workingCopy.getIndexFile().getMetadata().getOrderedIndex();
         EpisodeId id;
         EpisodeDefinition definition;
@@ -186,19 +192,37 @@ public class DefineAndIntegrate implements Stage {
     //if we allowed failure during integration, then head of scope progress would move, so some previous invariants may not hold anymore
     @SneakyThrows
     private void doCommitAndTagIntegrate(String scopeBranch, String childProgressBranch, String childEndTag, String integrateName){
-        invariant(
-            workingCopy.resolveToCommitId(childProgressBranch).equals(workingCopy.resolveToCommitId(childEndTag)),
-            "Progress of the integration subject must be the same as its end marker"
-        );
+//    private void doCommitAndTagIntegrate(String scopeBranch, String childProgressBranch, String childEndTag, String integrateName){
+//        invariant(
+//            workingCopy.resolveToCommitId(childProgressBranch).equals(workingCopy.resolveToCommitId(childEndTag)),
+//            "Progress of the integration subject must be the same as its end marker"
+//        );
+        //todo invariant above is valid for subsequences, not for leaves though; tweak and reenable
         log.atFine().log("Switching to scope progress branch %s", scopeBranch);
-        workingCopy.getRepository().reset().addPath(".episode-index").setRef("HEAD").call();//todo
+//        workingCopy.getRepository().reset().addPath(".episode-index").setRef(scopeBranch).call();//todo
+        var pullScope = workingCopy.getRepository().pull().setRemoteBranchName(scopeBranch).call();
+        var pullChild = workingCopy.getRepository().pull().setRemoteBranchName(childProgressBranch).call();
+        log.atFine().log("Pulling status: scope=%s, child=%s", pullScope.isSuccessful(), pullChild.isSuccessful());
         workingCopy.checkoutExisting(scopeBranch);
+        var meta = workingCopy.getIndexFile().getMetadata();
+        log.atFine().log("Retrieved metadata: %s", meta);
         log.atFine().log("Switched; merging child %s to scope %s", childProgressBranch, scopeBranch);
-        workingCopy.getRepository().merge() //todo encapsulate in working copy?
+        var result = workingCopy.getRepository().merge() //todo encapsulate in working copy?
             .setFastForward(MergeCommand.FastForwardMode.NO_FF)
-            .include(workingCopy.getBranch(childProgressBranch).get())
+//            .include()
+//            .include(workingCopy.getBranch(childProgressBranch).get())
+//            .include(workingCopy.getRepository().getRepository().resolve(childEndTag))
+//            .include(workingCopy.getRepository().getRepository().resolve(scopeBranch))
+            .include(workingCopy.getRepository().getRepository().resolve(childProgressBranch))
+            .setContentMergeStrategy(ContentMergeStrategy.CONFLICT)
+            .setStrategy(MergeStrategy.SIMPLE_TWO_WAY_IN_CORE)
             .setMessage(integrateName)
+//            .setCommit(true)
             .call();
+        log.atInfo().log("Merge status: %s", result.getMergeStatus());
+        workingCopy.getIndexFile().setMetadata(meta);
+        log.atFine().log("Metadata set to %s", meta);
+        workingCopy.commit(scopeBranch, integrateName);
         log.atFine().log("Merged; creating tag %s", integrateName);
         workingCopy.createTag(integrateName);
         log.atFine().log("Created; pushing both branches + tags");

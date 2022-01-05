@@ -4,8 +4,10 @@ import com.github.filipmalczak.storyteller.api.story.ActionBody;
 import com.github.filipmalczak.storyteller.api.story.ArcClosure;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.TaleContext;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeId;
-import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeType;
-import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.ExecuteRoot;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.ExecuteSequence;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.utils.DefinitionFactory;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.utils.StageBody;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.utils.StartPointFactory;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.tree.RootEpisode;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -32,13 +34,11 @@ public class Story implements RootEpisode {
             buildRefName(episodeId, PROGRESS).equals(workingCopy.head()),
             "" //todo name invariant
         );
-        ExecuteRoot.builder()
+        ExecuteSequence.builder()
             .sequenceId(episodeId)
-            .type(EpisodeType.STORY)
-            .name(name)
-            .exec(() -> {
-                body.action(Arc.closure(null, episodeId, context));
-            })
+            .startPointFactory(StartPointFactory.constant("empty"))
+            .definitionFactory(DefinitionFactory.constant(episodeId, name))
+            .body(StageBody.runAction(body, Arc.closure(null, episodeId, context)))
             .build()
             .run(workingCopy);
 //        log.atInfo().log("Story %s (%s) start", episodeId, name);

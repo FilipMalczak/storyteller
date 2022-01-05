@@ -3,7 +3,6 @@ package com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeId;
 import com.github.filipmalczak.storyteller.impl.jgit.storage.WorkingCopy;
 import com.google.common.flogger.FluentLogger;
-import lombok.extern.flogger.Flogger;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.PROGRESS;
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.buildRefName;
@@ -37,7 +36,8 @@ public interface Stage {
         try {
             var branch = buildRefName(getScope(), PROGRESS);
             body();
-            invariant(branch.equals(getWorkingCopy().head()), "Stage must exit on its scopes' progress branch!");
+//            invariant(branch.equals(getWorkingCopy().head()), "Stage must exit on its scopes' progress branch!");
+            getWorkingCopy().checkoutExisting(branch);
         } finally {
             setWorkingCopy(prev);
         }

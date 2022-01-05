@@ -80,7 +80,59 @@ class JGitStorytellerTest {
     }
 
     @Test
-    public void simplestWithBasicChecks(){
+    public void simplestSuccessRerunWithBasicChecks() {
+        log.info("Start");
+        log.info("");
+        log.info("========================= RUN 0 =========================");
+        log.info("");
+        int[] x = new int[]{0};
+        int[] y = new int[]{0};
+
+        //if initial run was succesful
+        storyteller.tell("simplest with checks", a ->
+            a.thread("base-thread", t -> {
+                t.scene("x", s -> {
+                    s.documents().create(new SimplestRecord("hello"));
+                    x[0] += 1;
+                });
+                t.scene("y", s -> {
+                    s.documents().create(new SimplestRecord("world"));
+                    y[0] += 1;
+                });
+            })
+        );
+
+        assertEquals(1, x[0]);
+        assertEquals(1, y[0]);
+
+        x[0] = 0;
+        y[0] = 0;
+
+        log.info("");
+        log.info("========================= RUN 1 =========================");
+        log.info("");
+
+        //then rerunning should be cheap
+        storyteller.tell("simplest with checks", a ->
+            a.thread("base-thread", t -> {
+                t.scene("x", s -> {
+                    s.documents().create(new SimplestRecord("hello"));
+                    x[0] += 1;
+                });
+                t.scene("y", s -> {
+                    simulateFailure();
+                    s.documents().create(new SimplestRecord("world"));
+                    y[0] += 1;
+                });
+            })
+        );
+
+        assertEquals(0, x[0]);
+        assertEquals(0, y[0]);
+    }
+
+    @Test
+    public void simplestFailuresWithBasicChecks(){
         log.info("Start");
         log.info("");
         log.info("========================= RUN 0 =========================");
@@ -135,50 +187,50 @@ class JGitStorytellerTest {
         x[0] = 0;
         assertEquals(0, y[0]);
 
-//        log.info("");
-//        log.info("========================= RUN 2 =========================");
-//        log.info("");
-//
-//        //so we retry, and it succeeds
-//
-//        storyteller.tell("simplest with checks", a ->
-//            a.thread("base-thread", t -> {
-//                t.scene("x", s -> {
-//                    s.documents().create(new SimplestRecord("hello"));
-//                    x[0] += 1;
-//                });
-//                t.scene("y", s -> {
-//                    s.documents().create(new SimplestRecord("world"));
-//                    y[0] += 1;
-//                });
-//            })
-//        );
-//
-//        assertEquals(0, x[0]);
-//        assertEquals(1, y[0]);
-//        y[0] = 0;
-//
-//        log.info("");
-//        log.info("========================= RUN 3 =========================");
-//        log.info("");
-//
-//        //and we get another retry for effectively free
-//
-//        storyteller.tell("simplest with checks", a ->
-//            a.thread("base-thread", t -> {
-//                t.scene("x", s -> {
-//                    s.documents().create(new SimplestRecord("hello"));
-//                    x[0] += 1;
-//                });
-//                t.scene("y", s -> {
-//                    s.documents().create(new SimplestRecord("world"));
-//                    y[0] += 1;
-//                });
-//            })
-//        );
-//
-//        assertEquals(0, x[0]);
-//        assertEquals(0, y[0]);
+        log.info("");
+        log.info("========================= RUN 2 =========================");
+        log.info("");
+
+        //so we retry, and it succeeds
+
+        storyteller.tell("simplest with checks", a ->
+            a.thread("base-thread", t -> {
+                t.scene("x", s -> {
+                    s.documents().create(new SimplestRecord("hello"));
+                    x[0] += 1;
+                });
+                t.scene("y", s -> {
+                    s.documents().create(new SimplestRecord("world"));
+                    y[0] += 1;
+                });
+            })
+        );
+
+        assertEquals(0, x[0]);
+        assertEquals(1, y[0]);
+        y[0] = 0;
+
+        log.info("");
+        log.info("========================= RUN 3 =========================");
+        log.info("");
+
+        //and we get another retry for effectively free
+
+        storyteller.tell("simplest with checks", a ->
+            a.thread("base-thread", t -> {
+                t.scene("x", s -> {
+                    s.documents().create(new SimplestRecord("hello"));
+                    x[0] += 1;
+                });
+                t.scene("y", s -> {
+                    s.documents().create(new SimplestRecord("world"));
+                    y[0] += 1;
+                });
+            })
+        );
+
+        assertEquals(0, x[0]);
+        assertEquals(0, y[0]);
 
         log.info("End");
     }

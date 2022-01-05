@@ -10,6 +10,9 @@ import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeSp
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.identity.EpisodeType;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.DefineAndIntegrate;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.ExecuteSequence;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.utils.DefinitionFactory;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.utils.StageBody;
+import com.github.filipmalczak.storyteller.impl.jgit.episodes.impl.stage.utils.StartPointFactory;
 import com.github.filipmalczak.storyteller.impl.jgit.episodes.tree.SubEpisode;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -18,8 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.PROGRESS;
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.buildRefName;
+import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.*;
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
 
 @Value
@@ -103,11 +105,11 @@ public class Arc implements SubEpisode {
             "" //todo name invariant
         );
         ExecuteSequence.builder()
-            .sequenceId(episodeId)
             .parentId(parentId)
-            .exec(() -> {
-                body.action(closure(parentId, episodeId, context));
-            })
+            .sequenceId(episodeId)
+            .startPointFactory(StartPointFactory.buildRef(DEFINE))
+            .definitionFactory(DefinitionFactory.RETRIEVE_FROM_PARENT_INDEX)
+            .body(StageBody.runAction(body, closure(parentId, episodeId, context)))
             .build()
             .run(workingCopy);
 //        log.info("Arc "+episodeId+" ("+getName()+") start");
