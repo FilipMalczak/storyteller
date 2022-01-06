@@ -16,7 +16,9 @@ import lombok.extern.flogger.Flogger;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.PROGRESS;
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.buildRefName;
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.valid4j.Assertive.require;
+
 
 @Value
 @Flogger
@@ -30,9 +32,9 @@ public class Story implements RootEpisode {
     public void tell(@NonNull TaleContext context) {
         var workingCopy = context.getWorkingCopy();
         log.atFine().log("Head when starting to tell a %s story: %s", episodeId, workingCopy.head());
-        invariant(
-            buildRefName(episodeId, PROGRESS).equals(workingCopy.head()),
-            "" //todo name invariant
+        require(
+            buildRefName(episodeId, PROGRESS),
+            equalTo(workingCopy.head())
         );
         ExecuteSequence.builder()
             .sequenceId(episodeId)

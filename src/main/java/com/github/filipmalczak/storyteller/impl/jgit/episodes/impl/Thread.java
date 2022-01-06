@@ -21,7 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.*;
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.valid4j.Assertive.require;
+
 
 @Value
 @Slf4j
@@ -61,9 +63,9 @@ public class Thread implements SubEpisode {
     @SneakyThrows
     public void tell(@NonNull TaleContext context) {
         var workingCopy = context.getWorkingCopy();
-        invariant(
-            buildRefName(parentId, PROGRESS).equals(workingCopy.head()),
-            "" //todo name invariant
+        require(
+            buildRefName(parentId, PROGRESS),
+            equalTo(workingCopy.head())
         );
         ExecuteSequence.builder()
             .sequenceId(episodeId)

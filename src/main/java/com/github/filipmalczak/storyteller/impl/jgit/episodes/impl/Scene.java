@@ -15,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.PROGRESS;
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.buildRefName;
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.valid4j.Assertive.require;
+
 
 @Value
 @Slf4j
@@ -32,9 +34,9 @@ public class Scene implements LeafEpisode {
         log.info("Scene "+episodeId+" ("+getName()+") start");
 //        var cmds = getCommands(this, context.getWorkspace(), context.getManager());
         var workingCopy = context.getWorkingCopy();
-        invariant(
-            buildRefName(parentId, PROGRESS).equals(workingCopy.head()),
-            "" //todo name invariant
+        require(
+            buildRefName(parentId, PROGRESS),
+            equalTo(workingCopy.head())
         );
         var storage = new DirectoryStorage(context.getWorkspace().getWorkingDir());
         log.info("Using storage: %s",storage);

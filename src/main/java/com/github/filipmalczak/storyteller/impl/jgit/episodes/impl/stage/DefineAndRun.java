@@ -19,8 +19,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import java.util.Date;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.*;
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
+
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.valid4j.Assertive.require;
 
 @Data
 @Builder
@@ -36,7 +39,7 @@ public class DefineAndRun implements Stage {
     /**
      * The target episode (described by toDefine) is Xth leaf of scope episode. This var holds X (counting from 0).
      */
-    @NonNull int episodeInScopeIdx;
+    int episodeInScopeIdx;
     @NonNull EpisodeSpec toDefine;
     @NonNull ActionBody<Storage> toRun;
     WorkingCopy workingCopy;
@@ -67,9 +70,10 @@ public class DefineAndRun implements Stage {
             runName = buildRefName(id, RUN);
             log.atFine().log("Episode %s already defined ", definition);
             //we check that the commit exists later as an invariant
-            invariant(
-                toDefine.equals(existing.getEpisodeSpec()),
-                "If the leaf has already been defined, then definitions must match"
+            require(
+                toDefine,
+                equalTo(existing.getEpisodeSpec())
+//                "If the leaf has already been defined, then definitions must match"
             ); //todo salvaging happens here!
             shouldDefine = false;
         } else { //not defined yet
@@ -84,28 +88,30 @@ public class DefineAndRun implements Stage {
         log.atFine().log("Commits log: %s", commits.stream().map(RevCommit::getFullMessage).toList());
         log.atFine().log("Commits log length: %s; idx: %s", commits.size(), episodeInScopeIdx);
         //size > 2*idx
-        invariant(
+        require(
             shouldDefine || commits.size() > 2*episodeInScopeIdx,
-            "Either the leaf hasn't yet been defined, or the commit log has a required minimum length"
+            "Either the leaf hasn't yet been defined (%s), or the commit log (length: %s) has a required minimum length (%s)",
+            shouldDefine, commits.size(), 2*episodeInScopeIdx
         );
         //log[2*idx] == define
-        invariant(
+        require(
             shouldDefine || commits.get(2*episodeInScopeIdx).getFullMessage().equals(defineName),
-            "First commit for an already defined leaf should be a define commit"
+            "First commit for an already defined leaf should be a define commit (actual message: %s)"
         );
 
         if (commits.size() > 2*episodeInScopeIdx+1){
             var commit = commits.get(2*episodeInScopeIdx+1);
-            invariant(
-                commit.getFullMessage().equals(runName),
-                "If second commit for an already defined leaf is present, then it must be a run commit"
+            require(
+                commit.getFullMessage(),
+                equalTo(runName)
+//                "If second commit for an already defined leaf is present, then it must be a run commit"
             );
             // see https://www.programcreek.com/java-api-examples/?class=org.eclipse.jgit.revwalk.RevCommit&method=getCommitTime
             // to figure out why *1000
             DefineAndRun.log.atInfo().log("Episode %s already ran on %s", id, new Date(commit.getCommitTime()*1000L));
             shouldRun = false;
         }
-        invariant(
+        require(
             !(shouldDefine && !shouldRun),
             "Episode that was just defined must be marked for running"
         );

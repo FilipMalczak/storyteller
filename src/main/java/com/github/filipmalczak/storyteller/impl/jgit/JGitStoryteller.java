@@ -29,10 +29,12 @@ import java.util.UUID;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.PROGRESS;
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.buildRefName;
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
+
 import static java.nio.file.Files.readString;
 import static java.nio.file.Files.write;
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.*;
+import static org.valid4j.Assertive.require;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Flogger
@@ -115,18 +117,20 @@ public class JGitStoryteller implements Storyteller {
         } else {
             var foundLines = asList(readString(gitignoreFile.toPath()).split("\\n"));
             for (var line: GITIGNORE_LINES)
-                invariant(
-                    foundLines.contains(line), //fixme not perfect, allows for commenting it out
-                    "Line '"+line+"' must be found in .gitignore file"
+                require(
+                    foundLines,
+                    hasItem(line) //fixme not perfect, allows for commenting it out//does it?
+//                    "Line '"+line+"' must be found in .gitignore file"
                 );
         }
 
         var tag = workingCopy.tagList().call().stream().map(Ref::getName).filter("empty"::equals).findAny();
         if (tag.isPresent()) {
             workingCopy.checkout().setCreateBranch(false).setName("empty");
-            invariant(
-                readString(gitignoreFile.toPath()).equals(GITIGNORE_CONTENT),
-                ".gitignore file matches prepared patterns"
+            require(
+                readString(gitignoreFile.toPath()),
+                equalTo(GITIGNORE_CONTENT)
+//                ".gitignore file matches prepared patterns"
             );
             workingCopy.checkout().setName("master").call();
         } else {
@@ -137,7 +141,8 @@ public class JGitStoryteller implements Storyteller {
 
     @SneakyThrows
     private void safeguardEmptyTagExists(){
-        invariant(
+        //todo use nicer matcher
+        require(
             workingCopy.tagList().call().stream().anyMatch(r -> "refs/tags/empty".equals(r.getName())),
             "existing repo must contain 'empty' tag" // tag which must only have .toryteller marker file" //todo
         );

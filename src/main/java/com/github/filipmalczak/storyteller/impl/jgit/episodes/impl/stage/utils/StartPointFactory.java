@@ -13,6 +13,7 @@ public interface StartPointFactory extends Function<EpisodeId, String> {
     }
 
     static StartPointFactory buildRef(String suffix, String... suffixes){
+        //noinspection ConfusingArgumentToVarargsMethod
         return id -> buildRefName(id, suffix, suffixes);
     }
 }

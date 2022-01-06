@@ -12,8 +12,10 @@ import lombok.extern.flogger.Flogger;
 import org.eclipse.jgit.lib.ObjectId;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.*;
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
+
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.valid4j.Assertive.require;
 
 @Flogger
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -67,7 +69,7 @@ public class ExecuteSequence implements Stage{
             progressName = buildRefName(sequenceId, PROGRESS);
             //todo
             var result = workingCopy.getRepository().pull().setRemoteBranchName(progressName).call();
-            invariant(result.isSuccessful(), "pulling must be succesful");
+            require(result.isSuccessful(), "pulling must be succesful");
 
             initialLatestCommit = workingCopy.resolveToCommitId(progressName);
 
@@ -103,9 +105,10 @@ public class ExecuteSequence implements Stage{
             } else {
                 log.atInfo().log("Tag %s missing", startName);
             }
-            invariant(
+            require(
                 !(shouldCommitStart && !shouldTagStart),
-                "If initial commit isn't present yet, then start tag cannot be present neither"
+                "If initial commit isn't present yet (%s), then start tag cannot be present neither (%s)",
+                shouldCommitStart, shouldTagStart
             );
 //            if (containsLeaves) {
 //                log.atInfo().log("Sequence contains leaves, may need to commit index reconciliation");
@@ -123,9 +126,10 @@ public class ExecuteSequence implements Stage{
             } else {
                 log.atInfo().log("Tag %s missing", endName);
             }
-            invariant(
+            require(
                 !(shouldTagStart && !shouldTagEnd),
-                "If start tag isn't present yet, then end tag cannot be present neither"
+                "If start tag isn't present yet (%s), then end tag cannot be present neither (%s)",
+                shouldTagStart, shouldTagEnd
             );
 //            invariant(
 //                !(shouldCommitReconciliation && !shouldTagEnd),
@@ -168,9 +172,10 @@ public class ExecuteSequence implements Stage{
 
         //fixme awfuly similar to doCommitDefine and doTagDefine from the other stages
         private void doCommitStart(){
-            invariant(
-                workingCopy.resolveToCommitId(branchOffRef).equals(workingCopy.resolveToCommitId(progressName)),
-                "Start commit must be performed from sequence branch that has been tagged on its head as sequence definition"
+            require(
+                workingCopy.resolveToCommitId(branchOffRef),
+                equalTo(workingCopy.resolveToCommitId(progressName))
+//                "Start commit must be performed from sequence branch that has been tagged on its head as sequence definition"
             );
             var sequenceDef = definitionFactory.apply(workingCopy);
             workingCopy.getIndexFile().setMetadata(Metadata.buildMetadata(sequenceDef, parentId));
@@ -182,9 +187,10 @@ public class ExecuteSequence implements Stage{
 
         //fixme ditto
         private void doTagStart(){
-            invariant( //todo use this in other places that create tags
-                workingCopy.currentCommit().getFullMessage().equals(startName),
-                "Name of the tagged commit must match the commit message"
+            require( //todo use this in other places that create tags
+                workingCopy.currentCommit().getFullMessage(),
+                equalTo(startName)
+//                "Name of the tagged commit must match the commit message"
             );
             //todo invariant: on progress head; does this apply in other places too?
             workingCopy.createTag(startName);

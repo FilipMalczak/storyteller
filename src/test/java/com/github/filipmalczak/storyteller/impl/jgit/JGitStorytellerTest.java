@@ -52,7 +52,7 @@ class JGitStorytellerTest {
 //        return Files.createTempDirectory("storyteller").toFile();
     }
 
-    @Test
+//    @Test
     public void simplestWithNoChecks(){
         log.info("Start");
         storyteller.tell("simplest", a ->
@@ -79,7 +79,7 @@ class JGitStorytellerTest {
          throw new ControlledException();
     }
 
-    @Test
+//    @Test
     public void simplestSuccessRerunWithBasicChecks() {
         log.info("Start");
         log.info("");

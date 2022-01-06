@@ -24,11 +24,13 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
 import static java.util.Arrays.asList;
 import static java.util.Collections.reverse;
 import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.valid4j.Assertive.require;
+import static org.valid4j.Validation.validate;
 
 @Value
 @Slf4j
@@ -128,13 +130,13 @@ public class WorkingCopy {
     }
 
     public void safeguardValidIndexFile(EpisodeId id){
-        invariant(
-            getIndexFile().getMetadata().getCurrentId().equals(id),
-            "current index file matches current episode ID"
+        require(
+            getIndexFile().getMetadata().getCurrentId(),
+            equalTo(id)
         );
-        invariant(
-            getIndexFile().getMetadata().getCurrentSpec().getType().equals(id.getType()),
-            "current index file matches episode type internally"
+        require(
+            getIndexFile().getMetadata().getCurrentSpec().getType(),
+            equalTo(id.getType())
         );
         //todo check parent ID (as in episode ID, not commit ID)
     }
@@ -187,7 +189,11 @@ public class WorkingCopy {
     @SneakyThrows
     public void safeguardSingleParentWithTag(String tagNam1e){
         var current = currentCommit();
-        invariant(current.getParentCount() == 1, "current commit should have single parent");
+        require(
+            current.getParentCount() == 1,
+            "current commit should have single parent (parent count: %s)",
+            current.getParentCount()
+        );
         var parent = currentParents()[0];
         //todo safeguard that parent commit is head of parentId-progress
 //        var tag = repository.tagList().call().stream().filter(t -> t.getObjectId().equals(parent.toObjectId())).findAny();
@@ -251,9 +257,10 @@ public class WorkingCopy {
             .filter(r -> r.getName().equals("refs/heads/"+name))
             .filter(r -> r.getObjectId().equals(currentCommit().toObjectId()))
             .count();
-        invariant(
+        require(
              count == 1,
-            "current commit should be head of current progress branch (called '"+name+"')"
+            "current commit should be head of current progress branch (called '%s')",
+            name
         );
     }
 

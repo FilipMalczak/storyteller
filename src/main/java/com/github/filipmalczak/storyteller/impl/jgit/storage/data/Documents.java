@@ -24,7 +24,7 @@ final class Documents implements DocumentsApi {
     public <T> DocumentEnvelope<T> create(String id, T val) {
         var f = backend.create(id, ".json");
         writeFile(f, GitFriendlyJSON.serialize(val));
-        return new DocumentEnvelope<T>(id, val, (Class<T>) val.getClass());
+        return new DocumentEnvelope<>(id, val, (Class<T>) val.getClass());
     }
 
     @Override

@@ -22,7 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.*;
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.valid4j.Assertive.require;
+
 
 @Value
 @Slf4j
@@ -91,7 +93,7 @@ public class Arc implements SubEpisode {
 
             @Override
             public <K> void decision(String decision, ActionBody<DecisionClosure<K>> body) {
-                invariant(false, "Decisions are not implemented yet");
+                require(false, "Decisions are not implemented yet");
             }
         };
     }
@@ -100,9 +102,9 @@ public class Arc implements SubEpisode {
     @Override
     public void tell(@NonNull TaleContext context) {
         var workingCopy = context.getWorkingCopy();
-        invariant(
-            buildRefName(episodeId, PROGRESS).equals(workingCopy.head()),
-            "" //todo name invariant
+        require(
+            buildRefName(episodeId, PROGRESS),
+            equalTo(workingCopy.head())
         );
         ExecuteSequence.builder()
             .parentId(parentId)

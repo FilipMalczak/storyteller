@@ -17,8 +17,10 @@ import org.eclipse.jgit.transport.RefSpec;
 import java.util.function.Function;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.*;
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
+
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.valid4j.Assertive.require;
 
 @Data
 @Builder
@@ -33,7 +35,7 @@ public class DefineAndIntegrate implements Stage {
     /**
      * The target episode (described by toDefine) is Xth leaf of scope episode. This var holds X (counting from 0).
      */
-    @NonNull int episodeInScopeIdx;
+    int episodeInScopeIdx;
     @NonNull EpisodeSpec toDefine;
     @NonNull Function<EpisodeId, Episode> toRunFactory;
     @NonNull TaleContext context;
@@ -52,7 +54,7 @@ public class DefineAndIntegrate implements Stage {
         workingCopy.checkoutExisting(branch);
         //todo
         var result = workingCopy.getRepository().pull().setRemoteBranchName(branch).call();
-        invariant(result.isSuccessful(), "pulling must be succesful");
+        require(result.isSuccessful(), "pulling must be succesful");
         var scopeIndex =  workingCopy.getIndexFile().getMetadata().getOrderedIndex();
         EpisodeId id;
         EpisodeDefinition definition;
@@ -66,9 +68,10 @@ public class DefineAndIntegrate implements Stage {
             defineName = buildRefName(id, DEFINE);
             integrateName = buildRefName(id, INTEGRATE, scope);
             log.atFine().log("Episode %s already defined ", definition);
-            invariant(
-                toDefine.equals(existing.getEpisodeSpec()),
-                "If the episode has already been defined, then definitions must match"
+            require(
+                toDefine,
+                equalTo(existing.getEpisodeSpec())
+//                "If the episode has already been defined, then definitions must match"
             ); //todo salvaging happens here!
             shouldCommitDefine = false;
         } else {
@@ -82,9 +85,10 @@ public class DefineAndIntegrate implements Stage {
         if (workingCopy.tagExists(defineName)){
             log.atInfo().log("Tag %s already present", defineName);
             shouldTagDefine = false;
-            invariant(
+            require(
                 !(shouldCommitDefine && !shouldTagDefine),
-                "If the episode hasn't already been defined, then it must not have a corresponding tag"
+                "If the episode hasn't already been defined (%s), then it must not have a corresponding tag (%s)",
+                shouldCommitDefine, shouldTagDefine
             );
             //todo safeguard that tag is on progress branch
         } else {
@@ -102,7 +106,7 @@ public class DefineAndIntegrate implements Stage {
             log.atInfo().log("Tag %s already present", integrateName);
             //todo check that tag name matches commit name
             shouldIntegrate = false;
-            invariant(
+            require( //todo tweak messages
                 !(shouldTagDefine && !shouldIntegrate),
                 "Episode that was just defined must be marked for running"
             );
@@ -160,9 +164,10 @@ public class DefineAndIntegrate implements Stage {
     }
 
     private void doTagDefine(String scopeBranch, String defineName){
-        invariant( //todo use this in other places that create tags
-            workingCopy.currentCommit().getFullMessage().equals(defineName),
-            "Name of the tagged commit must match the commit message"
+        require( //todo use this in other places that create tags
+            workingCopy.currentCommit().getFullMessage(),
+            equalTo(defineName)
+//            "Name of the tagged commit must match the commit message"
         );
         workingCopy.createTag(defineName);
         log.atFine().log("Tag %s created", defineName);

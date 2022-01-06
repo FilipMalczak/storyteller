@@ -6,7 +6,7 @@ import com.google.common.flogger.FluentLogger;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.PROGRESS;
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.buildRefName;
-import static com.github.filipmalczak.storyteller.impl.jgit.utils.Safeguards.invariant;
+
 
 /**
  * Whenever docs of a stages behaviour use verbs like "defines", "starts", etc it actually means "looks up for proof
