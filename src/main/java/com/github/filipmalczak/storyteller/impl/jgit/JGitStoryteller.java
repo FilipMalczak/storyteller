@@ -29,11 +29,11 @@ import java.util.UUID;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.PROGRESS;
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.buildRefName;
-
 import static java.nio.file.Files.readString;
 import static java.nio.file.Files.write;
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.valid4j.Assertive.require;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)

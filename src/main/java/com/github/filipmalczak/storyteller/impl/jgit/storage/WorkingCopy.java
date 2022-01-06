@@ -30,7 +30,6 @@ import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.valid4j.Assertive.require;
-import static org.valid4j.Validation.validate;
 
 @Value
 @Slf4j

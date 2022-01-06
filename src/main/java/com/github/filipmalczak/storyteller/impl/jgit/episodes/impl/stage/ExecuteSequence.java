@@ -12,7 +12,6 @@ import lombok.extern.flogger.Flogger;
 import org.eclipse.jgit.lib.ObjectId;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.*;
-
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.valid4j.Assertive.require;

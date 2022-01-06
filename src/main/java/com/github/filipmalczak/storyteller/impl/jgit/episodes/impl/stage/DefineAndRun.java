@@ -19,10 +19,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import java.util.Date;
 
 import static com.github.filipmalczak.storyteller.impl.jgit.utils.RefNames.*;
-
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.valid4j.Assertive.require;
 
 @Data
