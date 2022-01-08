@@ -87,7 +87,7 @@ public class ExecuteLeaf implements Stage{
 
         public void plan(){
             log.atInfo().log("Planning the stage");
-            log.atInfo().log("Switching to branch %s");
+            log.atInfo().log("Switching to branch %s", progressName);
             workingCopy.checkoutExisting(progressName);
             log.atFine().log(
                 "Looking up commits between branch off point (%s -> <%s>) and progress head (%s -> <%s>)",
@@ -144,6 +144,7 @@ public class ExecuteLeaf implements Stage{
 //                !(shouldCommitReconciliation && !shouldTagEnd),
 //                "If reconciliation commit isn't present yet, then end that cannot be present neither"
 //            );
+            log.atInfo().log("Planning resulted in %s", this);
         }
 
         public void exec(){
