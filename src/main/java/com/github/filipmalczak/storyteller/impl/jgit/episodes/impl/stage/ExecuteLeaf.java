@@ -27,8 +27,6 @@ public class ExecuteLeaf implements Stage{
     final StartPointFactory startPointFactory = StartPointFactory.buildRef(DEFINE);
     final DefinitionFactory definitionFactory = DefinitionFactory.RETRIEVE_FROM_PARENT_INDEX;
     @NonNull StageBody body;
-//    @Builder.Default
-//    boolean containsLeaves = false; //if false, then this is a node or root sequence; if true - leaf sequence
 
     @Setter WorkingCopy workingCopy;
 
@@ -44,8 +42,6 @@ public class ExecuteLeaf implements Stage{
         boolean shouldCommitStart;
         boolean shouldTagStart;
         boolean shouldRun;
-//        boolean shouldCommitReconciliation;
-//        boolean shouldTagEnd;
 
         String progressName;
 
@@ -53,8 +49,6 @@ public class ExecuteLeaf implements Stage{
 
         String startName;
         String runName;
-//        String endName;
-//        String reconciliationName;
 
         String branchOffRef;
         ObjectId branchOffCommit;
@@ -65,8 +59,6 @@ public class ExecuteLeaf implements Stage{
             shouldCommitStart = true;
             shouldTagStart = true;
             shouldRun = true;
-//            shouldCommitReconciliation = containsLeaves;
-//            shouldTagEnd = true;
 
             progressName = buildRefName(leafId, PROGRESS);
             //todo
@@ -77,8 +69,6 @@ public class ExecuteLeaf implements Stage{
 
             startName = buildRefName(leafId, START);
             runName = buildRefName(leafId, RUN);
-//            endName = buildRefName(leafId, END);
-//            reconciliationName = buildRefName(sequenceId, RECONCILE);
 
             branchOffRef = startPointFactory.apply(leafId);
             branchOffCommit = workingCopy.resolveToCommitId(branchOffRef);
@@ -120,30 +110,6 @@ public class ExecuteLeaf implements Stage{
             } else {
                 log.atInfo().log("Run commit for leaf %s is missing", leafId);
             }
-//            if (containsLeaves) {
-//                log.atInfo().log("Sequence contains leaves, may need to commit index reconciliation");
-//                if (sequenceCommits.isEmpty() || !sequenceCommits.get(sequenceCommits.size() - 1).getFullMessage().equals(reconciliationName)){
-//                    log.atInfo().log("Reconciliation commit %s missing", reconciliationName);
-//                    shouldCommitReconciliation = true;
-//                } else {
-//                    log.atInfo().log("Reconciliation commit %s present at the end of curren");
-//                }
-//            }
-//            if (workingCopy.tagExists(endName)){
-//                log.atInfo().log("Tag %s already present", endName);
-//                shouldTagEnd = false;
-//                //todo check what is tagged - either an integrate of last child, or reconcile commit of leaf sequence
-//            } else {
-//                log.atInfo().log("Tag %s missing", endName);
-//            }
-//            invariant(
-//                !(shouldTagStart && !shouldTagEnd),
-//                "If start tag isn't present yet, then end tag cannot be present neither"
-//            );
-//            invariant(
-//                !(shouldCommitReconciliation && !shouldTagEnd),
-//                "If reconciliation commit isn't present yet, then end that cannot be present neither"
-//            );
             log.atInfo().log("Planning resulted in %s", this);
         }
 
@@ -176,12 +142,6 @@ public class ExecuteLeaf implements Stage{
                 log.atInfo().log("Skipping run of %s", leafId);
                 //todo details of why were skipping, e.g, when run happened originally
             }
-//            if (shouldCommitReconciliation){
-//                log.atInfo().log("Reconciling index of current branch");
-//                doReconcile();
-//                log.atInfo().log("Reconciliation done");
-//            }
-
         }
 
 
@@ -215,40 +175,6 @@ public class ExecuteLeaf implements Stage{
             workingCopy.checkoutExisting(progressName);
             log.atFine().log("Switched back to sequence progress branch");
         }
-//
-//        //fixme ditto
-//        private void doTagEnd(){
-//            //todo invariant: on progress head; does this apply in other places too?
-//            workingCopy.createTag(endName);
-//            log.atFine().log("Tag %s created", endName);
-//            workingCopy.push(asList(progressName), true);
-//            log.atFine().log("Changes pushed");
-//            workingCopy.checkoutExisting(progressName);
-//            log.atFine().log("Switched back to sequence progress branch");
-//        }
-
-//        private void doReconcile(){
-//            //todo invariant: on progress head; does this apply in other places too?
-//            //todo invariant: on last leaf run commit
-//            invariant(
-//                workingCopy.currentCommit().getParentCount() == 1,
-//                "todo"//todo
-//            );
-//            var parent = workingCopy.currentCommit().getParent(0);
-//            var sParent = parent.toObjectId().getName();
-//            log.atFine().log("Parent is: %s", sParent);
-//            workingCopy.checkoutExisting(sParent);
-//            log.atFine().log("Switched to parent commit");
-//            var meta = workingCopy.getIndexFile().getMetadata();
-//            log.atFine().log("Retrieved metadata: %s", meta);
-//            workingCopy.checkoutExisting(progressName);
-//            log.atFine().log("Switched back to sequence progress branch");
-//            workingCopy.getIndexFile().setMetadata(meta);
-//            log.atFine().log("Metadata set to the one retrieved from previous commit");
-//            getWorkingCopy().commit(progressName, reconciliationName);
-//            getWorkingCopy().push(asList(progressName), false);
-//            log.atFine().log("Commited and pushed");
-//        }
     }
 
     @Override
@@ -258,8 +184,5 @@ public class ExecuteLeaf implements Stage{
         progress.plan();
         progress.exec();
     }
-
-
-
 }
 

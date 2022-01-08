@@ -28,8 +28,6 @@ public class ExecuteSequence implements Stage{
     @NonNull StartPointFactory startPointFactory;
     @NonNull DefinitionFactory definitionFactory;
     @NonNull StageBody body;
-//    @Builder.Default
-//    boolean containsLeaves = false; //if false, then this is a node or root sequence; if true - leaf sequence
 
     @Setter WorkingCopy workingCopy;
 
@@ -44,7 +42,6 @@ public class ExecuteSequence implements Stage{
     private class Progress {
         boolean shouldCommitStart;
         boolean shouldTagStart;
-//        boolean shouldCommitReconciliation;
         boolean shouldTagEnd;
 
         String progressName;
@@ -53,7 +50,6 @@ public class ExecuteSequence implements Stage{
 
         String startName;
         String endName;
-//        String reconciliationName;
 
         String branchOffRef;
         ObjectId branchOffCommit;
@@ -62,7 +58,6 @@ public class ExecuteSequence implements Stage{
         public void init(){
             shouldCommitStart = true;
             shouldTagStart = true;
-//            shouldCommitReconciliation = containsLeaves;
             shouldTagEnd = true;
 
             progressName = buildRefName(sequenceId, PROGRESS);
@@ -74,7 +69,6 @@ public class ExecuteSequence implements Stage{
 
             startName = buildRefName(sequenceId, START);
             endName = buildRefName(sequenceId, END);
-//            reconciliationName = buildRefName(sequenceId, RECONCILE);
 
             branchOffRef = startPointFactory.apply(sequenceId);
             branchOffCommit = workingCopy.resolveToCommitId(branchOffRef);
@@ -109,15 +103,6 @@ public class ExecuteSequence implements Stage{
                 "If initial commit isn't present yet (%s), then start tag cannot be present neither (%s)",
                 shouldCommitStart, shouldTagStart
             );
-//            if (containsLeaves) {
-//                log.atInfo().log("Sequence contains leaves, may need to commit index reconciliation");
-//                if (sequenceCommits.isEmpty() || !sequenceCommits.get(sequenceCommits.size() - 1).getFullMessage().equals(reconciliationName)){
-//                    log.atInfo().log("Reconciliation commit %s missing", reconciliationName);
-//                    shouldCommitReconciliation = true;
-//                } else {
-//                    log.atInfo().log("Reconciliation commit %s present at the end of curren");
-//                }
-//            }
             if (workingCopy.tagExists(endName)){
                 log.atInfo().log("Tag %s already present", endName);
                 shouldTagEnd = false;
@@ -130,10 +115,6 @@ public class ExecuteSequence implements Stage{
                 "If start tag isn't present yet (%s), then end tag cannot be present neither (%s)",
                 shouldTagStart, shouldTagEnd
             );
-//            invariant(
-//                !(shouldCommitReconciliation && !shouldTagEnd),
-//                "If reconciliation commit isn't present yet, then end that cannot be present neither"
-//            );
             log.atInfo().log("Planning resulted in %s", this);
         }
 
@@ -155,11 +136,6 @@ public class ExecuteSequence implements Stage{
                 log.atInfo().log("Tag %s already present", startName);
             }
             body.run();
-//            if (shouldCommitReconciliation){
-//                log.atInfo().log("Reconciling index of current branch");
-//                doReconcile();
-//                log.atInfo().log("Reconciliation done");
-//            }
             if (shouldTagEnd){
                 log.atInfo().log("Creating tag %s", endName);
                 doTagEnd();
@@ -212,28 +188,6 @@ public class ExecuteSequence implements Stage{
             log.atFine().log("Switched back to sequence progress branch");
         }
 
-//        private void doReconcile(){
-//            //todo invariant: on progress head; does this apply in other places too?
-//            //todo invariant: on last leaf run commit
-//            invariant(
-//                workingCopy.currentCommit().getParentCount() == 1,
-//                "todo"//todo
-//            );
-//            var parent = workingCopy.currentCommit().getParent(0);
-//            var sParent = parent.toObjectId().getName();
-//            log.atFine().log("Parent is: %s", sParent);
-//            workingCopy.checkoutExisting(sParent);
-//            log.atFine().log("Switched to parent commit");
-//            var meta = workingCopy.getIndexFile().getMetadata();
-//            log.atFine().log("Retrieved metadata: %s", meta);
-//            workingCopy.checkoutExisting(progressName);
-//            log.atFine().log("Switched back to sequence progress branch");
-//            workingCopy.getIndexFile().setMetadata(meta);
-//            log.atFine().log("Metadata set to the one retrieved from previous commit");
-//            getWorkingCopy().commit(progressName, reconciliationName);
-//            getWorkingCopy().push(asList(progressName), false);
-//            log.atFine().log("Commited and pushed");
-//        }
     }
 
     @Override
