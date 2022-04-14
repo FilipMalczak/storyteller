@@ -18,16 +18,21 @@ repositories {
 
 dependencyManagement {
     dependencies {
-        // https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit
-        dependency 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
         dependency 'org.projectlombok:lombok:1.18.20'
-//        dependency 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
         dependency 'org.junit.jupiter:junit-jupiter-api:5.8.1'
         dependency 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
+
+        dependency 'org.dizitart:nitrite:3.4.4'
 
         dependency group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
         dependency 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.1'
         dependency 'org.apache.logging.log4j:log4j-api:2.14.1'
+
+        //todo I hate bringing it in just for a single method (delete dir)
+        // https://mvnrepository.com/artifact/commons-io/commons-io
+        dependency 'commons-io:commons-io:2.11.0'
+
 
         dependency 'com.google.code.gson:gson:2.8.9'
         dependency 'io.github.glytching:junit-extensions:2.5.0'
@@ -42,10 +47,9 @@ dependencyManagement {
 }
 
 dependencies {
-    implementation 'org.eclipse.jgit:org.eclipse.jgit'
-//    implementation 'com.fasterxml.jackson.core:jackson-databind'
-
     implementation 'com.google.code.gson:gson'
+
+    implementation 'org.dizitart:nitrite'
 
     compileOnly 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
@@ -60,7 +64,9 @@ dependencies {
     implementation 'com.google.flogger:flogger-slf4j-backend'
     testImplementation 'org.apache.logging.log4j:log4j-api'
 
-    implementation 'org.valid4j:valid4j:0.5.0'
+    implementation 'commons-io:commons-io'
+
+    implementation 'org.valid4j:valid4j'
 
     runtimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl'
     testRuntimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl'

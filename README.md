@@ -1,5 +1,5 @@
 # Storyteller
 
-GIT as DB. Reearch scenarios given some love
+GIT as DB. Research scenarios given some love
 
 > todo add license.
