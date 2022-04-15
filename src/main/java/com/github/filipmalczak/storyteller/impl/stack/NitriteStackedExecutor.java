@@ -1,7 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.stack;
 
 import com.github.filipmalczak.storyteller.impl.stack.data.NitriteManagers;
-import com.github.filipmalczak.storyteller.impl.storage.IdSerializer;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteReadStorage;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteReadWriteStorage;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
@@ -24,7 +23,7 @@ import static org.valid4j.Assertive.require;
 @RequiredArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class NitriteStackedExecutor<Id, Definition, Type extends Enum<Type> & TaskType> implements StackedExecutor<Id, Definition, Type> {
+public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements StackedExecutor<Id, Definition, Type> {
     @NonNull NitriteManagers<Id, Definition, Type> managers;
     @NonNull HistoryTracker<Id> tracker;
     @NonNull NitriteStorageConfig<Id> storageConfig;
@@ -34,7 +33,7 @@ public class NitriteStackedExecutor<Id, Definition, Type extends Enum<Type> & Ta
     @NonNull Queue<Id> expected;
 
     @Override
-    public Task<Id, Definition, Type> execute(Definition definition, Type type, TaskBody<Id, Definition, Type> body) {
+    public Task<Id, Definition, Type> executeTask(Definition definition, Type type, TaskBody<Id, Definition, Type> body) {
         var generator = idIdGeneratorFactory.over(definition, type);
         Id id;
         if (type.isRoot()) {
@@ -113,7 +112,9 @@ public class NitriteStackedExecutor<Id, Definition, Type extends Enum<Type> & Ta
     }
 
     private boolean isFinished(Task task){
-        var entries = task.getJournalEntries().toList();
+        var entries = new ArrayList<>(task.getJournalEntries().toList());
+        if (entries.isEmpty())
+            return false;
         reverse(entries);
         var firstNonSkip = entries.stream().dropWhile(e -> e instanceof SkipAlreadyExecuted).findFirst();
         require(firstNonSkip.isPresent(), "Journal has to consist of something else than just 'skip' records");
@@ -131,9 +132,14 @@ public class NitriteStackedExecutor<Id, Definition, Type extends Enum<Type> & Ta
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    @RequiredArgsConstructor
+    @ToString
     private static class AlreadyRecordedException extends RuntimeException {
         @NonNull Exception alreadyRecorded;
+
+        public AlreadyRecordedException(@NonNull Exception alreadyRecorded) {
+            super(alreadyRecorded);
+            this.alreadyRecorded = alreadyRecorded;
+        }
     }
 
     @SneakyThrows

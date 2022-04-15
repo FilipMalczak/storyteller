@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.Singular;
 import lombok.Value;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -15,10 +16,10 @@ public class Task<Id, Definition, Type extends Enum<Type> & TaskType> {
     @NonNull Id id;
     @NonNull Definition definition;
     @NonNull Type type;
-    @Singular
-    List<Task<Id, Definition, Type>>  subtasks;
-    @Singular("journalEntry")
-    List<JournalEntry> journal;
+    @Builder.Default
+    List<Task<Id, Definition, Type>>  subtasks = new LinkedList<>();
+    @Builder.Default
+    List<JournalEntry> journal = new LinkedList<>();
 
     public JournalEntry record(JournalEntry entry){
         journal.add(entry);

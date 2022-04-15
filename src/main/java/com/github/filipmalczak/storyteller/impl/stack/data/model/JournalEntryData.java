@@ -13,9 +13,9 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class JournalEntryData<TaskId> {
+public class JournalEntryData<TaskId extends Comparable<TaskId>> {
     @Id
-    NitriteId id;
+    String id;
     TaskId taskId;
     EntryType type;
     String sessionId;

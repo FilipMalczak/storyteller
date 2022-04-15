@@ -18,7 +18,7 @@ import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
 
 @Setter(AccessLevel.PACKAGE)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class NitritieJournalManager<TaskId> implements JournalEntryManager<TaskId> {
+public class NitritieJournalManager<TaskId extends Comparable<TaskId>> implements JournalEntryManager<TaskId> {
     @NonNull ObjectRepository<JournalEntryData> repository;
     @NonNull JournalEntrySerializer serializer;
 

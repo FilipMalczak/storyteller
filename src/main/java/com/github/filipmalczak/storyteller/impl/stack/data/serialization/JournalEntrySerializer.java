@@ -19,6 +19,7 @@ import org.dizitart.no2.NitriteId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.github.filipmalczak.storyteller.impl.TimeUtils.toTimestamp;
 import static com.github.filipmalczak.storyteller.stack.task.journal.EntryType.*;
@@ -55,11 +56,11 @@ public class JournalEntrySerializer {
 
 
 
-    public <TaskId> JournalEntryData<TaskId> fromEntry(Task<TaskId, ?, ?> task, JournalEntry entry){
+    public <TaskId extends Comparable<TaskId>> JournalEntryData<TaskId> fromEntry(Task<TaskId, ?, ?> task, JournalEntry entry){
         return fromEntry(task.getId(), entry);
     }
 
-    public <TaskId> JournalEntryData<TaskId> fromEntry(TaskId taskId, JournalEntry entry){
+    public <TaskId extends Comparable<TaskId>> JournalEntryData<TaskId> fromEntry(TaskId taskId, JournalEntry entry){
         Map<String, Object> additional = new HashMap<>();
         if (entry instanceof CatchException){
             additional.put("message", ((CatchException) entry).getMessage());
@@ -71,7 +72,7 @@ public class JournalEntrySerializer {
         }
         String id = taskId.toString()+"::"+toTimestamp(entry.getHappenedAt());
         return new JournalEntryData<>(
-            NitriteId.newId(),
+            UUID.randomUUID().toString(),
             taskId,
             toType(entry),
             entry.getSession().getId(),

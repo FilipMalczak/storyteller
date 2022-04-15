@@ -18,7 +18,7 @@ import static org.valid4j.Assertive.require;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter(value = AccessLevel.PACKAGE)
-public class NitriteTaskManager<Id, Definition, Type extends Enum<Type> & TaskType> implements TaskManager<Id, Definition, Type> {
+public class NitriteTaskManager<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements TaskManager<Id, Definition, Type> {
     @NonNull ObjectRepository<TaskData> repository;
     @NonNull TaskSerializer<Id, Definition, Type> serializer;
     @NonNull JournalEntryManager<Id> journalEntryManager;

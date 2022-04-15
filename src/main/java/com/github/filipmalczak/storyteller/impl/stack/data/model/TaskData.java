@@ -11,8 +11,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaskData<TaskId, Definition, Type extends Enum<Type> & TaskType> {
-    @Id
+public class TaskData<TaskId extends Comparable<TaskId>, Definition, Type extends Enum<Type> & TaskType> {
+//    @Id //fixme this would require TaskId to be comparable
     TaskId id;
     Definition definition;
     Type type;

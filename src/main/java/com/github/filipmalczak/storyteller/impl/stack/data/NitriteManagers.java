@@ -15,7 +15,7 @@ import org.dizitart.no2.Nitrite;
 
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class NitriteManagers<Id, Definition, Type extends Enum<Type> & TaskType> {
+public class NitriteManagers<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> {
     @NonNull TaskManager<Id, Definition, Type> taskManager;
     @NonNull SessionManager sessionManager;
     @NonNull JournalEntryManager<Id> journalEntryManager;

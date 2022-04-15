@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TaskSerializer<TaskId, Definition, Type extends Enum<Type> & TaskType>  {
+public class TaskSerializer<TaskId extends Comparable<TaskId>, Definition, Type extends Enum<Type> & TaskType>  {
     @NonNull JournalEntryManager<TaskId> journalEntryManager;
     @NonNull TaskManager<TaskId, Definition, Type> taskManager;
 

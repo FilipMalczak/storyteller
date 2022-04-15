@@ -1,11 +1,17 @@
 package com.github.filipmalczak.storyteller.stack;
 
-import com.github.filipmalczak.storyteller.stack.task.Task;
-import com.github.filipmalczak.storyteller.stack.task.TaskBody;
-import com.github.filipmalczak.storyteller.stack.task.TaskType;
+import com.github.filipmalczak.storyteller.stack.task.*;
 
 public interface StackedExecutor<Id, Definition, Type extends Enum<Type> & TaskType> {
-    Task<Id, Definition, Type> execute(Definition definition, Type type, TaskBody<Id, Definition, Type> body);
+    Task<Id, Definition, Type> executeTask(Definition definition, Type type, TaskBody<Id, Definition, Type> body);
+
+    default Task<Id, Definition, Type> execute(Definition definition, Type type, NodeBody<Id, Definition, Type> body){
+        return executeTask(definition, type, body);
+    }
+
+    default Task<Id, Definition, Type> execute(Definition definition, Type type, LeafBody body){
+        return executeTask(definition, type, body);
+    }
 //    Task<Id, Definition, Type> execute(Definition definition, Type type, TaskBody<Id, Definition, Type> body, SkippingStrategy strategy);
 //
 //    default Task<Id, Definition, Type> run(Definition definition, Type type, TaskBody<Id, Definition, Type> body){
