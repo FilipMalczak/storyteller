@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
-public class NitriteReadStorage<Id> implements ReadStorage {
+public class NitriteReadStorage<Id extends Comparable<Id>> implements ReadStorage {
     @NonNull NitriteStorageConfig<Id> config;
     @NonNull HistoryTracker<Id> tracker;
     @NonNull Id current;

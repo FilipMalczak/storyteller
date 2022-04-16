@@ -1,19 +1,21 @@
 package com.github.filipmalczak.storyteller.impl.stack;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.github.filipmalczak.storyteller.api.stack.StackedExecutorFactory;
 import com.github.filipmalczak.storyteller.impl.stack.data.NitriteManagers;
 import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.api.stack.StackedExecutor;
-import com.github.filipmalczak.storyteller.api.stack.task.IdGeneratorFactory;
+import com.github.filipmalczak.storyteller.api.stack.task.id.IdGeneratorFactory;
 import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import org.dizitart.no2.Nitrite;
 
 import java.util.LinkedList;
 
-public class StackedExecutorFactory {
-    public <Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> StackedExecutor<Id, Definition, Type>
-        create(NitriteStorageConfig storageConfig, IdGeneratorFactory<Id, Definition, Type> generatorFactory){
-        var nitriteFile = storageConfig.getDataStorage().resolve("index.no2");
+public class NitriteStackedExecutorFactory<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>
+    implements StackedExecutorFactory<Id, Definition, Type, NitriteStackConfig<Id, Definition, Type>> {
+    public StackedExecutor<Id, Definition, Type>
+        create(NitriteStackConfig<Id, Definition, Type> config){
+        var nitriteFile = config.getStorageConfig().getDataStorage().resolve("index.no2");
         var no2 = Nitrite.builder()
             .compressed()
             .filePath(nitriteFile.toFile())
@@ -23,8 +25,8 @@ public class StackedExecutorFactory {
         return new NitriteStackedExecutor<Id, Definition, Type>(
             managers,
             new HistoryTracker<>(managers.getHistoryManager()),
-            storageConfig,
-            generatorFactory,
+            config.getStorageConfig(),
+            config.getGeneratorFactory(),
             new LinkedList<>()
         );
     }

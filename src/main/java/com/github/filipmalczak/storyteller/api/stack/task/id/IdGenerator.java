@@ -1,4 +1,6 @@
-package com.github.filipmalczak.storyteller.api.stack.task;
+package com.github.filipmalczak.storyteller.api.stack.task.id;
+
+import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 
 public interface IdGenerator<Id, Definition, Type extends Enum<Type> & TaskType> {
     Definition definition();

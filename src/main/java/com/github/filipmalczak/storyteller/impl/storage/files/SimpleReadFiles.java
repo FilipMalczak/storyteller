@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
 @Flogger
-public class SimpleReadFiles<Id> implements ReadFilesApi {
+public class SimpleReadFiles<Id extends Comparable<Id>> implements ReadFilesApi {
     @NonNull NitriteStorageConfig<Id> config;
     @NonNull HistoryTracker<Id> tracker;
     @NonNull Id current;

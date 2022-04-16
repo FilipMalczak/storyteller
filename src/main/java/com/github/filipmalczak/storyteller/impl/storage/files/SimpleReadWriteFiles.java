@@ -17,7 +17,7 @@ import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.valid4j.Assertive.require;
 
 @Flogger
-public class SimpleReadWriteFiles<Id> extends SimpleReadFiles<Id> implements ReadWriteFilesApi {
+public class SimpleReadWriteFiles<Id extends Comparable<Id>> extends SimpleReadFiles<Id> implements ReadWriteFilesApi {
 
     public SimpleReadWriteFiles(@NonNull NitriteStorageConfig<Id> config, @NonNull HistoryTracker<Id> tracker, @NonNull Id current) {
         super(config, tracker, current);

@@ -1,5 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.stack;
 
+import com.github.filipmalczak.storyteller.impl.testimpl.TestStackFactory;
 import com.github.filipmalczak.storyteller.utils.ExecutionTracker;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialIdGeneratorFactory;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
@@ -16,28 +17,17 @@ import static org.apache.commons.io.FileUtils.deleteDirectory;
 
 class TaskSkippingTests {
     private ExecutionTracker<Integer> tracker;
+    private static final TestStackFactory FACTORY = new TestStackFactory("TaskSkippingTests");
 
     @BeforeEach
     private void setup(){
         tracker = new ExecutionTracker<>();
     }
 
-    @SneakyThrows
-    private NitriteStorageConfig<String> forTest(String name){
-        var dir = new File(new File("./test_data/task_skipping"), name).getAbsoluteFile();
-        if (dir.exists())
-            deleteDirectory(dir);
-        dir.mkdirs();
-        return new NitriteStorageConfig<String>(
-            dir.toPath(),
-            s -> s
-        );
-    }
-
     @Test
     @DisplayName("r(n(l))")
     void runThreeTasks(){
-        var exec = new StackedExecutorFactory().create(forTest("runThreeTasks"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("runThreeTasks");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -50,7 +40,7 @@ class TaskSkippingTests {
     @Test
     @DisplayName("r(n(l)) -> r(n(l))")
     void runThreeTasksTwice(){
-        var exec = new StackedExecutorFactory().create(forTest("runThreeTasksTwice"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("runThreeTasksTwice");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -81,7 +71,7 @@ class TaskSkippingTests {
     @Test
     @DisplayName("r(n(l)) -> r(n(l, lNew))")
     void runThreeThenFourTasks(){
-        var exec = new StackedExecutorFactory().create(forTest("runThreeThenFourTasks"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("runThreeThenFourTasks");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -117,7 +107,7 @@ class TaskSkippingTests {
     @Test
     @DisplayName("r(n(l)) -> r(n(l, lNew)) -> r(n(l, lNew))")
     void runThreeTasksOnceThenFourTasksTwice(){
-        var exec = new StackedExecutorFactory().create(forTest("runThreeTasksOnceThenFourTasksTwice"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("runThreeTasksOnceThenFourTasksTwice");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -169,7 +159,7 @@ class TaskSkippingTests {
     @Test
     @DisplayName("r(n(l1, l2)) -> r(n(l1, lNew, l2))")
     void runTwoLeafsThenInsertOneInBetween(){
-        var exec = new StackedExecutorFactory().create(forTest("runTwoLeafsThenInsertOneInBetween"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("runTwoLeafsThenInsertOneInBetween");
         var gathered = new ArrayList<Integer>();
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
@@ -213,7 +203,7 @@ class TaskSkippingTests {
     @Test
     @DisplayName("r(n(l1, l2, l3)) -> r(n(l1, l2, lNew, l3))")
     void runThreeLeafsThenInsertOneBeforeThird(){
-        var exec = new StackedExecutorFactory().create(forTest("runThreeLeafsThenInsertOneBeforeThird"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("runThreeLeafsThenInsertOneBeforeThird");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -264,7 +254,7 @@ class TaskSkippingTests {
     @Test
     @DisplayName("r(n(l1, l2, l3)) -> r(n(l1, lNew, l2, l3))")
     void runThreeLeafsThenInsertOneAfterFirst(){
-        var exec = new StackedExecutorFactory().create(forTest("runThreeLeafsThenInsertOneAfterFirst"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("runThreeLeafsThenInsertOneAfterFirst");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -315,7 +305,7 @@ class TaskSkippingTests {
     @Test
     @DisplayName("r(n1(l1, l2), n2(l3, l4)) -> r(n1(l1, lNew, l2), n2(l3, l4))")
     void runTwoNodesOfTwoLeavesThenInsertAfterFirstLeaf(){
-        var exec = new StackedExecutorFactory().create(forTest("runTwoNodesOfTwoLeavesThenInsertAfterFirstLeaf"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("runTwoNodesOfTwoLeavesThenInsertAfterFirstLeaf");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -382,7 +372,7 @@ class TaskSkippingTests {
     @Test
     @DisplayName("r(n1(l1, l2), n2(l3, l4)) -> r(n1(l1, l2), n2(l3, lNew, l4))")
     void runTwoNodesOfTwoLeavesThenInsertAfterThirdLeaf(){
-        var exec = new StackedExecutorFactory().create(forTest("runTwoNodesOfTwoLeavesThenInsertAfterThirdLeaf"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("runTwoNodesOfTwoLeavesThenInsertAfterThirdLeaf");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {

@@ -11,12 +11,12 @@ import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class NitriteReadWriteStorage extends NitriteReadStorage implements ReadWriteStorage {
+public class NitriteReadWriteStorage<Id extends Comparable<Id>> extends NitriteReadStorage<Id> implements ReadWriteStorage {
     ReadWriteFilesApi filesApi;
 
-    public NitriteReadWriteStorage(@NonNull NitriteStorageConfig config, @NonNull HistoryTracker tracker, @NotNull Object current) {
+    public NitriteReadWriteStorage(@NonNull NitriteStorageConfig<Id> config, @NonNull HistoryTracker<Id> tracker, @NotNull Id current) {
         super(config, tracker, current);
-        this.filesApi = new SimpleReadWriteFiles(config, tracker, current);
+        this.filesApi = new SimpleReadWriteFiles<Id>(config, tracker, current);
     }
 
     @Override

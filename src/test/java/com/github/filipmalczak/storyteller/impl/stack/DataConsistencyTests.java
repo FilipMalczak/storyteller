@@ -1,6 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.stack;
 
 import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
+import com.github.filipmalczak.storyteller.impl.testimpl.TestStackFactory;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialIdGeneratorFactory;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
 import com.github.filipmalczak.storyteller.utils.ExecutionTracker;
@@ -17,28 +18,17 @@ import static org.apache.commons.io.FileUtils.deleteDirectory;
 public class DataConsistencyTests {
     //todo extract abstract test
     private ExecutionTracker<String> tracker;
+    private static final TestStackFactory FACTORY = new TestStackFactory("DataConsistencyTests");
 
     @BeforeEach
     private void setup(){
         tracker = new ExecutionTracker<>();
     }
 
-    @SneakyThrows
-    private NitriteStorageConfig<String> forTest(String name){
-        var dir = new File(new File("./test_data/data_consistency"), name).getAbsoluteFile();
-        if (dir.exists())
-            deleteDirectory(dir);
-        dir.mkdirs();
-        return new NitriteStorageConfig<String>(
-            dir.toPath(),
-            s -> s
-        );
-    }
-
     @Test
     @DisplayName("r(n(l(w:foo->a)))")
     void oneLeafNoDirectoriesSingleRun(){
-        var exec = new StackedExecutorFactory().create(forTest("oneLeafNoDirectoriesSingleRun"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("oneLeafNoDirectoriesSingleRun");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -55,7 +45,7 @@ public class DataConsistencyTests {
     @Test
     @DisplayName("r(n(l(w:foo->a))) x2")
     void oneLeafNoDirectoriesTwoRuns(){
-        var exec = new StackedExecutorFactory().create(forTest("oneLeafNoDirectoriesTwoRuns"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("oneLeafNoDirectoriesTwoRuns");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -84,7 +74,7 @@ public class DataConsistencyTests {
     @Test
     @DisplayName("r(n(l1(w:foo->a), l2(w:foo->b))")
     void twoLeavesNoDirectoriesSingleRun(){
-        var exec = new StackedExecutorFactory().create(forTest("twoLeavesNoDirectoriesSingleRun"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("twoLeavesNoDirectoriesSingleRun");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -107,7 +97,7 @@ public class DataConsistencyTests {
     @Test
     @DisplayName("r(n(l1(w:foo->a), l2(w:foo->b)) x2")
     void twoLeavesNoDirectoriesTwoRuns(){
-        var exec = new StackedExecutorFactory().create(forTest("twoLeavesNoDirectoriesSingleRun"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("twoLeavesNoDirectoriesSingleRun");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -148,7 +138,7 @@ public class DataConsistencyTests {
     @Test
     @DisplayName("r(n1(l1(w:foo->a, bar->x), l2(w:foo->b), n2(l3(w:foo->c)))")
     void twoLeavesThenOneLeafNoDirectoriesSingleRun(){
-        var exec = new StackedExecutorFactory().create(forTest("twoLeavesThenOneLeafNoDirectoriesSingleRun"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("twoLeavesThenOneLeafNoDirectoriesSingleRun");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -205,7 +195,7 @@ public class DataConsistencyTests {
     @Test
     @DisplayName("r(n1(l1(w:foo->a, bar->x), l2(w:foo->b), n2(l3(w:foo->c)))")
     void twoLeavesThenOneLeafNoDirectoriesTwoRuns(){
-        var exec = new StackedExecutorFactory().create(forTest("twoLeavesThenOneLeafNoDirectoriesTwoRuns"), new TrivialIdGeneratorFactory());
+        var exec = FACTORY.create("twoLeavesThenOneLeafNoDirectoriesTwoRuns");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
