@@ -8,8 +8,8 @@ import java.time.ZonedDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public final class RunIntructions extends Perform {
-    public RunIntructions(Session session, ZonedDateTime happenedAt) {
+public final class DisownedByParent extends AbstractJournalEntry {
+    public DisownedByParent(Session session, ZonedDateTime happenedAt) {
         super(session, happenedAt);
     }
 }

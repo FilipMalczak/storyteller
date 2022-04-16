@@ -3,7 +3,6 @@ package com.github.filipmalczak.storyteller.stack.task;
 import com.github.filipmalczak.storyteller.stack.task.journal.entries.JournalEntry;
 import lombok.Builder;
 import lombok.NonNull;
-import lombok.Singular;
 import lombok.Value;
 
 import java.util.LinkedList;

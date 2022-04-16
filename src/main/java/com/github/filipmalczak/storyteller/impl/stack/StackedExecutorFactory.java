@@ -8,9 +8,7 @@ import com.github.filipmalczak.storyteller.stack.task.IdGeneratorFactory;
 import com.github.filipmalczak.storyteller.stack.task.TaskType;
 import org.dizitart.no2.Nitrite;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Optional;
 
 public class StackedExecutorFactory {
     public <Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> StackedExecutor<Id, Definition, Type>
@@ -27,8 +25,6 @@ public class StackedExecutorFactory {
             new HistoryTracker<>(managers.getHistoryManager()),
             storageConfig,
             generatorFactory,
-            new ArrayList<>(),
-            Optional.empty(),
             new LinkedList<>()
         );
     }

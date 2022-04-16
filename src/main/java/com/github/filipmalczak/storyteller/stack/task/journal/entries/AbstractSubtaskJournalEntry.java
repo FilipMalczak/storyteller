@@ -1,6 +1,7 @@
 package com.github.filipmalczak.storyteller.stack.task.journal.entries;
 
 import com.github.filipmalczak.storyteller.stack.Session;
+import com.github.filipmalczak.storyteller.stack.task.Task;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -9,17 +10,15 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.ZonedDateTime;
 
-@Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public final class CatchException extends AbstractJournalEntry {
-    String message;
-    String fullStackTrace;
+public sealed class AbstractSubtaskJournalEntry extends AbstractJournalEntry implements ReferencesSubtask permits BodyChanged, SubtaskDefined, SubtaskDisowned {
+    Task referenced;
 
-    public CatchException(Session session, ZonedDateTime happenedAt, String message, String fullStackTrace) {
+    public AbstractSubtaskJournalEntry(Session session, ZonedDateTime happenedAt, Task referenced) {
         super(session, happenedAt);
-        this.message = message;
-        this.fullStackTrace = fullStackTrace;
+        this.referenced = referenced;
     }
 }

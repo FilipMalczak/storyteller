@@ -1,11 +1,8 @@
 package com.github.filipmalczak.storyteller.storage;
 
-import com.github.filipmalczak.storyteller.storage.envelope.FileEnvelope;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 

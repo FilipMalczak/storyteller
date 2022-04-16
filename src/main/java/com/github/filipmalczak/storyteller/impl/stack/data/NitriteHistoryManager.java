@@ -1,6 +1,5 @@
 package com.github.filipmalczak.storyteller.impl.stack.data;
 
-import com.github.filipmalczak.storyteller.impl.stack.data.model.SessionData;
 import com.github.filipmalczak.storyteller.impl.stack.data.model.TaskHistoryData;
 import lombok.AccessLevel;
 import lombok.NonNull;

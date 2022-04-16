@@ -1,6 +1,5 @@
 package com.github.filipmalczak.storyteller.impl.storage;
 
-import com.github.filipmalczak.storyteller.impl.stack.HistoryTracker;
 import lombok.NonNull;
 import lombok.Value;
 

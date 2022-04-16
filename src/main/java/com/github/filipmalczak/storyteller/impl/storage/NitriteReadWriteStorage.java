@@ -6,8 +6,6 @@ import com.github.filipmalczak.storyteller.storage.ReadWriteStorage;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.Path;
-
 public class NitriteReadWriteStorage extends NitriteReadStorage implements ReadWriteStorage {
 
 

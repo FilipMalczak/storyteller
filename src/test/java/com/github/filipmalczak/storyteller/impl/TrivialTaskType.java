@@ -3,7 +3,6 @@ package com.github.filipmalczak.storyteller.impl;
 import com.github.filipmalczak.storyteller.stack.task.TaskType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 @AllArgsConstructor

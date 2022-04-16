@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public interface ReadFilesApi {
     boolean exists(Path path);

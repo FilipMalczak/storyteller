@@ -8,8 +8,8 @@ import java.time.ZonedDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public final class EndTask extends AbstractJournalEntry {
-    public EndTask(Session session, ZonedDateTime happenedAt) {
+public final class TaskStarted extends AbstractJournalEntry {
+    public TaskStarted(Session session, ZonedDateTime happenedAt) {
         super(session, happenedAt);
     }
 }

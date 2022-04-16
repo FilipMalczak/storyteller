@@ -5,7 +5,6 @@ import com.github.filipmalczak.storyteller.stack.task.journal.EntryType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.dizitart.no2.NitriteId;
 import org.dizitart.no2.objects.Id;
 
 import java.time.ZonedDateTime;

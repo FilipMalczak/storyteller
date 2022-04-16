@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static java.util.Collections.reverse;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.valid4j.Assertive.neverGetHere;
 import static org.valid4j.Assertive.require;
@@ -30,13 +31,21 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
     @NonNull HistoryTracker<Id> tracker;
     @NonNull NitriteStorageConfig<Id> storageConfig;
     @NonNull IdGeneratorFactory<Id, Definition, Type> idIdGeneratorFactory;
-    @NonNull List<Id> trace; //fixme this is only used for contract checks and debugging; remove it?
-    @NonNull Optional<Task<Id, Definition, Type>> parent;
-    @NonNull Queue<Id> expected;
+    @NonNull List<TraceEntry<Id, Definition, Type>> trace; // trace[0] - parent; trace[-1] - root; empty for root
+
+    private Optional<Deque<Id>> getExpected(){
+        return trace.stream().findFirst().map(TraceEntry::getExpectedSubtaskIds);
+    }
+
+    private Optional<Task<Id, Definition, Type>> getParent(){
+        return trace.stream().findFirst().map(TraceEntry::getExecutedTask);
+    }
 
     @Override
     public Task<Id, Definition, Type> executeTask(Definition definition, Type type, TaskBody<Id, Definition, Type> body) {
         log.atFine().log("Executing '%s' of type %s", definition, type);
+        var expected = getExpected();
+        var parent = getParent();
         log.atFine().log("Known subtasks of parent: %s", expected);
         var generator = idIdGeneratorFactory.over(definition, type);
         Id id;
@@ -56,25 +65,44 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
             }
         }
         boolean isDefined = false;
-        if (expected.isEmpty()) {
+        if (expected.isEmpty() || expected.get().isEmpty()) {
             id = generator.generate();
             log.atFine().log("Task wasn't defined yet; generated ID: %s", id);
             if (parent.isPresent() && isFinished(parent.get())){
                 log.atFine().log("Parent was finished; extending parent");
                 extend(parent.get());
+                disownExpectedUpTheTrace();
             }
         } else {
-            id = expected.remove();
-            require(generator.canReuse(id), "Expected task ID must be reusable");
-            isDefined = true;
-            log.atFine().log("Reusing ID of already defined task: %s", id);
+            var expectations = expected.get();
+            //we pop it here
+            id = expectations.removeFirst();
+            if (generator.canReuse(id)){
+                isDefined = true;
+                log.atFine().log("Reusing ID of already defined task: %s", id);
+            } else {
+                //so in case of conflict
+                var conflicting = managers.getTaskManager().findById(id);
+                require(conflicting.isPresent(), "Non-reusable ID must refer to an existing task");
+                var conflictingTask = conflicting.get();
+                log.atFine().log("Conflicting subtask of task %s: definition was %s, but is now %s", parent.get().getId(), conflictingTask.getDefinition(), definition);
+                require(conflictingTask.getDefinition(), not(equalTo(definition)));
+                recordConflictInParent(parent.get(), conflictingTask);
+                //we need to push it back to top
+                expectations.addFirst(id);
+                //so it can be disowned in correct order
+                disownExpectedUpTheTrace();
+                id = generator.generate();
+                log.atFine().log("Recovered from conflict; generated new ID: %s", id);
+            }
         }
+        final var finalId = id;
         var found = managers.getTaskManager().findById(id);
         log.atFine().log("Retrieved task: %s", found);
         var task = found
             .orElseGet(
                 () -> Task.<Id, Definition, Type>builder()
-                    .id(id)
+                    .id(finalId)
                     .definition(definition)
                     .type(type)
                     .build()
@@ -106,10 +134,6 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
         if (!finished) {
             end(task);
         }
-        //todo I think integrate step is useless now
-        if (parent.isPresent() && !isIntegrated(parent.get(), task)){
-            integrateIntoParent(parent.get(), task);
-        }
         return task;
     }
 
@@ -117,7 +141,7 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
         var firstJournalEntry = task.getJournalEntries().findFirst();
         if (firstJournalEntry.isEmpty())
             return false;
-        require(firstJournalEntry.get() instanceof StartTask, "First journal entry must describe starting the task");
+        require(firstJournalEntry.get() instanceof TaskStarted, "First journal entry must describe starting the task");
         return true;
     }
 
@@ -126,9 +150,9 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
         if (entries.isEmpty())
             return false;
         reverse(entries);
-        var firstNonSkip = entries.stream().dropWhile(e -> e instanceof SkipAlreadyExecuted).findFirst();
+        var firstNonSkip = entries.stream().dropWhile(e -> e instanceof InstructionsSkipped).findFirst();
         require(firstNonSkip.isPresent(), "Journal has to consist of something else than just 'skip' records");
-        return firstNonSkip.get() instanceof EndTask;
+        return firstNonSkip.get() instanceof TaskEnded;
     }
 
     private void extend(Task task){
@@ -137,7 +161,7 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
     }
 
     private void start(Task task){
-        var entry = task.record(new StartTask(managers.getSessionManager().getCurrent(), ZonedDateTime.now()));
+        var entry = task.record(new TaskStarted(managers.getSessionManager().getCurrent(), ZonedDateTime.now()));
         managers.getJournalEntryManager().record(task, entry);
     }
 
@@ -176,18 +200,16 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
     }
 
     private void runNode(Task<Id, Definition, Type> task, NodeBody<Id, Definition, Type> body){
-        List<Id> newTrace = new LinkedList<>(trace);
-        newTrace.add(task.getId());
-        Queue<Id> newExpected = new LinkedList<>(task.getSubtasks().stream().map(Task::getId).toList());
+        var newTrace = new LinkedList<>(trace);
+        var newEntry = new TraceEntry<>(task, new LinkedList<>(task.getSubtasks().stream().map(Task::getId).toList()));
+        newTrace.addFirst(newEntry);
         body.perform(
             new NitriteStackedExecutor<>(
                 managers,
                 tracker,
                 storageConfig,
                 idIdGeneratorFactory,
-                newTrace,
-                Optional.of(task),
-                newExpected
+                newTrace
             ),
             new NitriteReadStorage(storageConfig, tracker, task.getId())
         );
@@ -199,41 +221,66 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
 
     private void recordException(Task task, Exception e){
         //todo extract stack trace to string
-        var entry = task.record(new CatchException(managers.getSessionManager().getCurrent(), ZonedDateTime.now(), e.getMessage(), ""));
+        //todo prepare journal entry factory
+        var entry = task.record(new ExceptionCaught(managers.getSessionManager().getCurrent(), ZonedDateTime.now(), e.getMessage(), ""));
         managers.getJournalEntryManager().record(task, entry);
     }
 
     private void recordRunning(Task task){
-        var entry = task.record(new RunIntructions(managers.getSessionManager().getCurrent(), ZonedDateTime.now()));
+        var entry = task.record(new InstructionsRan(managers.getSessionManager().getCurrent(), ZonedDateTime.now()));
         managers.getJournalEntryManager().record(task, entry);
     }
 
     private void recordSkipping(Task task){
-        var entry = task.record(new SkipAlreadyExecuted(managers.getSessionManager().getCurrent(), ZonedDateTime.now()));
+        var entry = task.record(new InstructionsSkipped(managers.getSessionManager().getCurrent(), ZonedDateTime.now()));
         managers.getJournalEntryManager().record(task, entry);
     }
 
     private void end(Task task){
-        var entry = task.record(new EndTask(managers.getSessionManager().getCurrent(), ZonedDateTime.now()));
+        var entry = task.record(new TaskEnded(managers.getSessionManager().getCurrent(), ZonedDateTime.now()));
         managers.getJournalEntryManager().record(task, entry);
-    }
-
-    private boolean isIntegrated(Task<?,?,?> parent, Task<Id, ?, ?> child){
-        return parent.getJournalEntries()
-            .filter(e -> e instanceof IntegrateSubtask)
-            .map(e -> (IntegrateSubtask) e)
-            .anyMatch(e -> e.getIntegrated().getId().equals(child.getId()));
     }
 
     private void defineInParent(Task<Id, Definition, Type> parent, Task child){
         parent.getSubtasks().add(child);
-        var entry = parent.record(new DefineSubtask(managers.getSessionManager().getCurrent(), ZonedDateTime.now(), child));
+        var entry = parent.record(new SubtaskDefined(managers.getSessionManager().getCurrent(), ZonedDateTime.now(), child));
         managers.getTaskManager().update(parent);
         managers.getJournalEntryManager().record(parent, entry);
     }
 
-    private void integrateIntoParent(Task<Id, Definition, Type> parent, Task<Id, ?, ?> child){
-        var entry = parent.record(new IntegrateSubtask(managers.getSessionManager().getCurrent(), ZonedDateTime.now(), child));
+    private void recordConflictInParent(Task<Id, Definition, Type> parent, Task conflictingTask){
+        var entry = parent.record(new BodyChanged(managers.getSessionManager().getCurrent(), ZonedDateTime.now(), conflictingTask));
         managers.getJournalEntryManager().record(parent, entry);
+    }
+
+    private void disownExpectedUpTheTrace(){
+        for (var entry: trace){
+            disown(entry.getExecutedTask(), entry.getExpectedSubtaskIds());
+        }
+    }
+
+    private void disown(Task<Id, Definition, Type> task, Deque<Id> toDisown){
+        if (toDisown.isEmpty()){
+            log.atFine().log("No subtasks to disown for task %s", task.getId());
+        } else {
+            var pivot = toDisown.peekFirst();
+            var currentSubtasks = task.getSubtasks();
+            var keptSubtasks = currentSubtasks.stream().takeWhile(x -> !x.getId().equals(pivot)).toList();
+            var disownedSubtasks = currentSubtasks.subList(keptSubtasks.size(), currentSubtasks.size());
+            require(
+                disownedSubtasks.stream().map(Task::getId).toList().equals(toDisown.stream().toList()),
+                "All the disowned tasks must be at the end of the subtask list of the parent"
+            );
+            log.atFine().log("Disowning %s subtasks of task %s: %s", disownedSubtasks.size(), task.getId(), toDisown);
+            disownedSubtasks.clear();
+            toDisown.clear();
+            for (var disowned: disownedSubtasks){
+                var disownedEntry = task.record(new SubtaskDisowned(managers.getSessionManager().getCurrent(), ZonedDateTime.now(), disowned));
+                var orphanedEntry = disowned.record(new DisownedByParent(managers.getSessionManager().getCurrent(), ZonedDateTime.now()));
+                managers.getJournalEntryManager().record(task, disownedEntry);
+                managers.getJournalEntryManager().record(disowned, orphanedEntry);
+            }
+            managers.getTaskManager().update(task);
+        }
     }
 }

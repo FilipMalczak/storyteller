@@ -5,16 +5,14 @@ import com.github.filipmalczak.storyteller.impl.stack.data.TaskManager;
 import com.github.filipmalczak.storyteller.impl.stack.data.model.JournalEntryData;
 import com.github.filipmalczak.storyteller.stack.Session;
 import com.github.filipmalczak.storyteller.stack.task.Task;
-import com.github.filipmalczak.storyteller.stack.task.journal.entries.CatchException;
-import com.github.filipmalczak.storyteller.stack.task.journal.entries.DefineSubtask;
-import com.github.filipmalczak.storyteller.stack.task.journal.entries.IntegrateSubtask;
+import com.github.filipmalczak.storyteller.stack.task.journal.entries.ExceptionCaught;
 import com.github.filipmalczak.storyteller.stack.task.journal.entries.JournalEntry;
+import com.github.filipmalczak.storyteller.stack.task.journal.entries.ReferencesSubtask;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
-import org.dizitart.no2.NitriteId;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -33,28 +31,32 @@ public class JournalEntrySerializer {
     @SneakyThrows
     public <T extends JournalEntry> T toEntry(JournalEntryData data){
         Class<T> resultClass = (Class<T>) data.getType().getEntryClass();
-        if (data.getType() == CATCH){
-            return (T) new CatchException(
-                sessionManager.getById(data.getSessionId()),
-                data.getHappenedAt(),
-                (String) data.getAdditionalFields().get("message"),
-                (String) data.getAdditionalFields().get("stackTrace")
-            );
+        if (describesException(data.getType())){
+            return (T) resultClass
+                .getConstructor(Session.class, ZonedDateTime.class, String.class, String.class)
+                .newInstance(
+                    sessionManager.getById(data.getSessionId()),
+                    data.getHappenedAt(),
+                    (String) data.getAdditionalFields().get("message"),
+                    (String) data.getAdditionalFields().get("stackTrace")
+                );
         }
-        if (data.getType() == DEFINE || data.getType() == INTEGRATE) {
-            return (T) resultClass.getConstructor(Session.class, ZonedDateTime.class, Task.class).newInstance(
-                sessionManager.getById(data.getSessionId()),
-                data.getHappenedAt(),
-                (Task) taskManager.getById(data.getAdditionalFields().get("referenced"))
-            );
+        if (referencesSubtask(data.getType())) {
+            return (T) resultClass
+                .getConstructor(Session.class, ZonedDateTime.class, Task.class)
+                .newInstance(
+                    sessionManager.getById(data.getSessionId()),
+                    data.getHappenedAt(),
+                    (Task) taskManager.getById(data.getAdditionalFields().get("referenced"))
+                );
         }
-        return (T) resultClass.getConstructor(Session.class, ZonedDateTime.class).newInstance(
-            sessionManager.getById(data.getSessionId()),
-            data.getHappenedAt()
-        );
+        return (T) resultClass
+            .getConstructor(Session.class, ZonedDateTime.class)
+            .newInstance(
+                sessionManager.getById(data.getSessionId()),
+                data.getHappenedAt()
+            );
     }
-
-
 
     public <TaskId extends Comparable<TaskId>> JournalEntryData<TaskId> fromEntry(Task<TaskId, ?, ?> task, JournalEntry entry){
         return fromEntry(task.getId(), entry);
@@ -62,19 +64,18 @@ public class JournalEntrySerializer {
 
     public <TaskId extends Comparable<TaskId>> JournalEntryData<TaskId> fromEntry(TaskId taskId, JournalEntry entry){
         Map<String, Object> additional = new HashMap<>();
-        if (entry instanceof CatchException){
-            additional.put("message", ((CatchException) entry).getMessage());
-            additional.put("stackTrace", ((CatchException) entry).getFullStackTrace());
-        } else if (entry instanceof DefineSubtask){
-            additional.put("referenced", ((DefineSubtask) entry).getDefined().getId());
-        } else if (entry instanceof IntegrateSubtask){
-            additional.put("referenced", ((IntegrateSubtask) entry).getIntegrated().getId());
+        var type = toType(entry);
+        if (describesException(type)){
+            additional.put("message", ((ExceptionCaught) entry).getMessage());
+            additional.put("stackTrace", ((ExceptionCaught) entry).getFullStackTrace());
+        } else if (referencesSubtask(type)){
+            additional.put("referenced", ((ReferencesSubtask) entry).getReferenced().getId());
         }
         String id = taskId.toString()+"::"+toTimestamp(entry.getHappenedAt());
         return new JournalEntryData<>(
             UUID.randomUUID().toString(),
             taskId,
-            toType(entry),
+            type,
             entry.getSession().getId(),
             entry.getHappenedAt(),
             additional

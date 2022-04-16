@@ -13,7 +13,6 @@ import org.dizitart.no2.objects.ObjectRepository;
 import java.util.stream.Stream;
 
 import static com.github.filipmalczak.storyteller.impl.IterationUtils.toStream;
-import static org.dizitart.no2.objects.filters.ObjectFilters.and;
 import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
 
 @Setter(AccessLevel.PACKAGE)

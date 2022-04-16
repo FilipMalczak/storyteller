@@ -1,9 +1,10 @@
 package com.github.filipmalczak.storyteller.impl;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.dizitart.no2.objects.Id;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @AllArgsConstructor
