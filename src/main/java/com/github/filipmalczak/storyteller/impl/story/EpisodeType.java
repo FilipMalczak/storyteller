@@ -1,4 +1,4 @@
-package com.github.filipmalczak.storyteller.api.story;
+package com.github.filipmalczak.storyteller.impl.story;
 
 import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import lombok.AccessLevel;
@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Getter
-public enum Episodes implements TaskType {
+public enum EpisodeType implements TaskType {
     STORY(true, false),
     ARC(false, false),
     THREAD(false, false),
