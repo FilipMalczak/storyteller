@@ -9,6 +9,7 @@ import com.github.filipmalczak.storyteller.stack.task.*;
 import com.github.filipmalczak.storyteller.stack.task.journal.entries.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.flogger.Flogger;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -23,6 +24,7 @@ import static org.valid4j.Assertive.require;
 @RequiredArgsConstructor
 @ToString
 @EqualsAndHashCode
+@Flogger
 public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements StackedExecutor<Id, Definition, Type> {
     @NonNull NitriteManagers<Id, Definition, Type> managers;
     @NonNull HistoryTracker<Id> tracker;
@@ -34,6 +36,8 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
 
     @Override
     public Task<Id, Definition, Type> executeTask(Definition definition, Type type, TaskBody<Id, Definition, Type> body) {
+        log.atFine().log("Executing '%s' of type %s", definition, type);
+        log.atFine().log("Known subtasks of parent: %s", expected);
         var generator = idIdGeneratorFactory.over(definition, type);
         Id id;
         if (type.isRoot()) {
@@ -54,15 +58,19 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
         boolean isDefined = false;
         if (expected.isEmpty()) {
             id = generator.generate();
+            log.atFine().log("Task wasn't defined yet; generated ID: %s", id);
             if (parent.isPresent() && isFinished(parent.get())){
+                log.atFine().log("Parent was finished; extending parent");
                 extend(parent.get());
             }
         } else {
             id = expected.remove();
             require(generator.canReuse(id), "Expected task ID must be reusable");
             isDefined = true;
+            log.atFine().log("Reusing ID of already defined task: %s", id);
         }
         var found = managers.getTaskManager().findById(id);
+        log.atFine().log("Retrieved task: %s", found);
         var task = found
             .orElseGet(
                 () -> Task.<Id, Definition, Type>builder()
@@ -74,6 +82,8 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
         if (found.isPresent()) {
             require(task.getDefinition(), equalTo(definition));
             require(task.getType(), equalTo(type));
+        } else {
+            managers.getTaskManager().register(task);
         }
         if (parent.isPresent() && !isDefined){
             defineInParent(parent.get(), task);
@@ -216,7 +226,9 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
     }
 
     private void defineInParent(Task<Id, Definition, Type> parent, Task child){
+        parent.getSubtasks().add(child);
         var entry = parent.record(new DefineSubtask(managers.getSessionManager().getCurrent(), ZonedDateTime.now(), child));
+        managers.getTaskManager().update(parent);
         managers.getJournalEntryManager().record(parent, entry);
     }
 

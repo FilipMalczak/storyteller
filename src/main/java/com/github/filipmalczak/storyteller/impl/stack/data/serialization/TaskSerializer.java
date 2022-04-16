@@ -10,6 +10,8 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+import java.util.LinkedList;
+
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TaskSerializer<TaskId extends Comparable<TaskId>, Definition, Type extends Enum<Type> & TaskType>  {
@@ -21,8 +23,8 @@ public class TaskSerializer<TaskId extends Comparable<TaskId>, Definition, Type 
             .id(data.getId())
             .definition(data.getDefinition())
             .type(data.getType())
-            .subtasks(data.getSubtasks().stream().map(taskManager::getById).toList())
-            .journal(journalEntryManager.findByTaskId(data.getId()).toList())
+            .subtasks(new LinkedList<>(data.getSubtasks().stream().map(taskManager::getById).toList()))
+            .journal(new LinkedList<>(journalEntryManager.findByTaskId(data.getId()).toList()))
             .build();
     }
 

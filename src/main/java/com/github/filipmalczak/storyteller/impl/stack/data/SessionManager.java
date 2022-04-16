@@ -12,4 +12,6 @@ public interface SessionManager {
     }
 
     Session getCurrent();
+
+    //fixme without start/close called at root level running the same story twice in a single runtime will result in single session
 }
