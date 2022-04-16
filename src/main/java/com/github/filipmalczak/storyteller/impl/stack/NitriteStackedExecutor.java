@@ -3,10 +3,10 @@ package com.github.filipmalczak.storyteller.impl.stack;
 import com.github.filipmalczak.storyteller.impl.stack.data.NitriteManagers;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteReadStorage;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteReadWriteStorage;
-import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
-import com.github.filipmalczak.storyteller.stack.StackedExecutor;
-import com.github.filipmalczak.storyteller.stack.task.*;
-import com.github.filipmalczak.storyteller.stack.task.journal.entries.*;
+import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
+import com.github.filipmalczak.storyteller.api.stack.StackedExecutor;
+import com.github.filipmalczak.storyteller.api.stack.task.*;
+import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
@@ -28,7 +28,7 @@ import static org.valid4j.Assertive.require;
 @Flogger
 public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements StackedExecutor<Id, Definition, Type> {
     @NonNull NitriteManagers<Id, Definition, Type> managers;
-    @NonNull HistoryTracker<Id> tracker;
+    @NonNull HistoryTracker<Id> history;
     @NonNull NitriteStorageConfig<Id> storageConfig;
     @NonNull IdGeneratorFactory<Id, Definition, Type> idIdGeneratorFactory;
     @NonNull List<TraceEntry<Id, Definition, Type>> trace; // trace[0] - parent; trace[-1] - root; empty for root
@@ -121,15 +121,15 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
         if (!isStarted(task)){
             start(task);
         }
-        tracker.put(id, parent.map(Task::getId).map(tracker::get).map(Stream::toList).orElseGet(ArrayList::new));
+        history.put(id, parent.map(Task::getId).map(history::get).map(Stream::toList).orElseGet(ArrayList::new));
         if (!skip) {
             runBody(task, body);
             finished = isFinished(task);
         } else {
             recordSkipping(task);
         }
-        if (parent.isPresent()){
-            tracker.add(parent.get().getId(), id);
+        for (var traceEntry: trace){
+            history.add(traceEntry.getExecutedTask().getId(), id);
         }
         if (!finished) {
             end(task);
@@ -206,17 +206,17 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
         body.perform(
             new NitriteStackedExecutor<>(
                 managers,
-                tracker,
+                history,
                 storageConfig,
                 idIdGeneratorFactory,
                 newTrace
             ),
-            new NitriteReadStorage(storageConfig, tracker, task.getId())
+            new NitriteReadStorage(storageConfig, history, task.getId())
         );
     }
 
     private void runLeaf(Task<Id, Definition, Type> task, LeafBody body){
-        body.perform(new NitriteReadWriteStorage(storageConfig, tracker, task.getId()));
+        body.perform(new NitriteReadWriteStorage(storageConfig, history, task.getId()));
     }
 
     private void recordException(Task task, Exception e){

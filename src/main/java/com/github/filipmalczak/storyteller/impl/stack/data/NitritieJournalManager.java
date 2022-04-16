@@ -2,8 +2,8 @@ package com.github.filipmalczak.storyteller.impl.stack.data;
 
 import com.github.filipmalczak.storyteller.impl.stack.data.model.JournalEntryData;
 import com.github.filipmalczak.storyteller.impl.stack.data.serialization.JournalEntrySerializer;
-import com.github.filipmalczak.storyteller.stack.task.Task;
-import com.github.filipmalczak.storyteller.stack.task.journal.entries.JournalEntry;
+import com.github.filipmalczak.storyteller.api.stack.task.Task;
+import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.JournalEntry;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.Setter;

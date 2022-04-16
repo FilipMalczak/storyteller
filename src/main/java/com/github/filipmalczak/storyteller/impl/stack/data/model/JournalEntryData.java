@@ -1,7 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.stack.data.model;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.github.filipmalczak.storyteller.stack.task.journal.EntryType;
+import com.github.filipmalczak.storyteller.api.stack.task.journal.EntryType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

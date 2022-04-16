@@ -3,11 +3,11 @@ package com.github.filipmalczak.storyteller.impl.stack.data.serialization;
 import com.github.filipmalczak.storyteller.impl.stack.data.SessionManager;
 import com.github.filipmalczak.storyteller.impl.stack.data.TaskManager;
 import com.github.filipmalczak.storyteller.impl.stack.data.model.JournalEntryData;
-import com.github.filipmalczak.storyteller.stack.Session;
-import com.github.filipmalczak.storyteller.stack.task.Task;
-import com.github.filipmalczak.storyteller.stack.task.journal.entries.ExceptionCaught;
-import com.github.filipmalczak.storyteller.stack.task.journal.entries.JournalEntry;
-import com.github.filipmalczak.storyteller.stack.task.journal.entries.ReferencesSubtask;
+import com.github.filipmalczak.storyteller.api.stack.Session;
+import com.github.filipmalczak.storyteller.api.stack.task.Task;
+import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.ExceptionCaught;
+import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.JournalEntry;
+import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.ReferencesSubtask;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.Setter;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.github.filipmalczak.storyteller.impl.TimeUtils.toTimestamp;
-import static com.github.filipmalczak.storyteller.stack.task.journal.EntryType.*;
+import static com.github.filipmalczak.storyteller.api.stack.task.journal.EntryType.*;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter

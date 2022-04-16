@@ -2,10 +2,10 @@ package com.github.filipmalczak.storyteller.impl.stack;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.filipmalczak.storyteller.impl.stack.data.NitriteManagers;
-import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
-import com.github.filipmalczak.storyteller.stack.StackedExecutor;
-import com.github.filipmalczak.storyteller.stack.task.IdGeneratorFactory;
-import com.github.filipmalczak.storyteller.stack.task.TaskType;
+import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
+import com.github.filipmalczak.storyteller.api.stack.StackedExecutor;
+import com.github.filipmalczak.storyteller.api.stack.task.IdGeneratorFactory;
+import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import org.dizitart.no2.Nitrite;
 
 import java.util.LinkedList;

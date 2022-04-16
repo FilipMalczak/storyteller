@@ -2,8 +2,8 @@ package com.github.filipmalczak.storyteller.impl.stack.data;
 
 import com.github.filipmalczak.storyteller.impl.stack.data.model.TaskData;
 import com.github.filipmalczak.storyteller.impl.stack.data.serialization.TaskSerializer;
-import com.github.filipmalczak.storyteller.stack.task.Task;
-import com.github.filipmalczak.storyteller.stack.task.TaskType;
+import com.github.filipmalczak.storyteller.api.stack.task.Task;
+import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.Setter;

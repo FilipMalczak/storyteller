@@ -3,9 +3,8 @@ package com.github.filipmalczak.storyteller.impl.stack;
 import com.github.filipmalczak.storyteller.utils.ExecutionTracker;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialIdGeneratorFactory;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
-import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
+import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
 import lombok.SneakyThrows;
-import lombok.extern.flogger.Flogger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,6 @@ import java.util.ArrayList;
 
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 
-@Flogger
 class TaskSkippingTests {
     private ExecutionTracker<Integer> tracker;
 
@@ -26,7 +24,7 @@ class TaskSkippingTests {
 
     @SneakyThrows
     private NitriteStorageConfig<String> forTest(String name){
-        var dir = new File(new File("./test_data"), name).getAbsoluteFile();
+        var dir = new File(new File("./test_data/task_skipping"), name).getAbsoluteFile();
         if (dir.exists())
             deleteDirectory(dir);
         dir.mkdirs();

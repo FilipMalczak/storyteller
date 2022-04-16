@@ -1,6 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.stack.data.model;
 
-import com.github.filipmalczak.storyteller.stack.Session;
+import com.github.filipmalczak.storyteller.api.stack.Session;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

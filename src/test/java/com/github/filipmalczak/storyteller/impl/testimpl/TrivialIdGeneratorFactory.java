@@ -1,7 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.testimpl;
 
-import com.github.filipmalczak.storyteller.stack.task.IdGenerator;
-import com.github.filipmalczak.storyteller.stack.task.IdGeneratorFactory;
+import com.github.filipmalczak.storyteller.api.stack.task.IdGenerator;
+import com.github.filipmalczak.storyteller.api.stack.task.IdGeneratorFactory;
 
 import static java.lang.Math.min;
 
