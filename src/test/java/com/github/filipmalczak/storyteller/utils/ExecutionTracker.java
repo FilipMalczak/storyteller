@@ -1,4 +1,4 @@
-package com.github.filipmalczak.storyteller.impl;
+package com.github.filipmalczak.storyteller.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

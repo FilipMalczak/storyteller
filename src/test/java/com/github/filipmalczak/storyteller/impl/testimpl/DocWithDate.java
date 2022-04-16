@@ -1,4 +1,4 @@
-package com.github.filipmalczak.storyteller.impl;
+package com.github.filipmalczak.storyteller.impl.testimpl;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

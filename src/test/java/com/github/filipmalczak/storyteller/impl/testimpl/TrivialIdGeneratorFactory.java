@@ -1,4 +1,4 @@
-package com.github.filipmalczak.storyteller.impl;
+package com.github.filipmalczak.storyteller.impl.testimpl;
 
 import com.github.filipmalczak.storyteller.stack.task.IdGenerator;
 import com.github.filipmalczak.storyteller.stack.task.IdGeneratorFactory;

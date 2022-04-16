@@ -1,6 +1,8 @@
 package com.github.filipmalczak.storyteller.impl;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.github.filipmalczak.storyteller.impl.testimpl.DocWithDate;
+import com.github.filipmalczak.storyteller.impl.testimpl.SimpleDoc;
 import lombok.SneakyThrows;
 import org.dizitart.no2.Nitrite;
 import org.junit.jupiter.api.Test;
