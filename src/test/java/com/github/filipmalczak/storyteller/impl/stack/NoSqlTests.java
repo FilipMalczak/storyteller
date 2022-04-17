@@ -11,8 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Path;
-
 import static com.github.filipmalczak.storyteller.impl.IterationUtils.toStream;
 import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
 

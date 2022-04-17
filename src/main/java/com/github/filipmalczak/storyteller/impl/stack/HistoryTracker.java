@@ -4,7 +4,9 @@ import com.github.filipmalczak.storyteller.impl.stack.data.HistoryManager;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor

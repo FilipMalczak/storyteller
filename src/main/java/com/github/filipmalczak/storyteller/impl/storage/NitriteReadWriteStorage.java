@@ -1,8 +1,8 @@
 package com.github.filipmalczak.storyteller.impl.storage;
 
-import com.github.filipmalczak.storyteller.impl.stack.HistoryTracker;
-import com.github.filipmalczak.storyteller.api.storage.files.ReadWriteFilesApi;
 import com.github.filipmalczak.storyteller.api.storage.ReadWriteStorage;
+import com.github.filipmalczak.storyteller.api.storage.files.ReadWriteFilesApi;
+import com.github.filipmalczak.storyteller.impl.stack.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.storage.files.SimpleReadWriteFiles;
 import lombok.AccessLevel;

@@ -1,7 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.stack.data;
 
-import com.github.filipmalczak.storyteller.impl.stack.data.model.SessionData;
 import com.github.filipmalczak.storyteller.api.stack.Session;
+import com.github.filipmalczak.storyteller.impl.stack.data.model.SessionData;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.Setter;

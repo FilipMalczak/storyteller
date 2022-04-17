@@ -3,7 +3,6 @@ package com.github.filipmalczak.storyteller.impl.stack;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 

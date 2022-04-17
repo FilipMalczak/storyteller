@@ -1,16 +1,17 @@
 package com.github.filipmalczak.storyteller.impl.stack;
 
+import com.github.filipmalczak.storyteller.api.stack.StackedExecutor;
+import com.github.filipmalczak.storyteller.api.stack.task.Task;
+import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import com.github.filipmalczak.storyteller.api.stack.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.stack.task.body.NodeBody;
 import com.github.filipmalczak.storyteller.api.stack.task.body.TaskBody;
 import com.github.filipmalczak.storyteller.api.stack.task.id.IdGeneratorFactory;
+import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.*;
 import com.github.filipmalczak.storyteller.impl.stack.data.NitriteManagers;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteReadStorage;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteReadWriteStorage;
 import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
-import com.github.filipmalczak.storyteller.api.stack.StackedExecutor;
-import com.github.filipmalczak.storyteller.api.stack.task.*;
-import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
@@ -18,7 +19,6 @@ import org.dizitart.no2.Nitrite;
 
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static java.util.Collections.reverse;
 import static org.hamcrest.CoreMatchers.not;

@@ -1,19 +1,13 @@
 package com.github.filipmalczak.storyteller.impl.stack;
 
 import com.github.filipmalczak.storyteller.impl.testimpl.TestStackFactory;
-import com.github.filipmalczak.storyteller.utils.ExecutionTracker;
-import com.github.filipmalczak.storyteller.impl.testimpl.TrivialIdGeneratorFactory;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
-import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
-import lombok.SneakyThrows;
+import com.github.filipmalczak.storyteller.utils.ExecutionTracker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.util.ArrayList;
-
-import static org.apache.commons.io.FileUtils.deleteDirectory;
 
 class TaskSkippingTests {
     private ExecutionTracker<Integer> tracker;

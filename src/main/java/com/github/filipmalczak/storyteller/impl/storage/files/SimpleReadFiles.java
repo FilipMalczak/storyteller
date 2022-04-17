@@ -1,7 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.storage.files;
 
-import com.github.filipmalczak.storyteller.impl.stack.HistoryTracker;
 import com.github.filipmalczak.storyteller.api.storage.files.ReadFilesApi;
+import com.github.filipmalczak.storyteller.impl.stack.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

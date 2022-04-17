@@ -1,12 +1,12 @@
 package com.github.filipmalczak.storyteller.impl.stack.data;
 
+import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import com.github.filipmalczak.storyteller.impl.stack.data.model.JournalEntryData;
 import com.github.filipmalczak.storyteller.impl.stack.data.model.SessionData;
 import com.github.filipmalczak.storyteller.impl.stack.data.model.TaskData;
 import com.github.filipmalczak.storyteller.impl.stack.data.model.TaskHistoryData;
 import com.github.filipmalczak.storyteller.impl.stack.data.serialization.JournalEntrySerializer;
 import com.github.filipmalczak.storyteller.impl.stack.data.serialization.TaskSerializer;
-import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;

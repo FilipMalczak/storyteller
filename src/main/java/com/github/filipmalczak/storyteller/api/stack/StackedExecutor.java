@@ -1,6 +1,7 @@
 package com.github.filipmalczak.storyteller.api.stack;
 
-import com.github.filipmalczak.storyteller.api.stack.task.*;
+import com.github.filipmalczak.storyteller.api.stack.task.Task;
+import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import com.github.filipmalczak.storyteller.api.stack.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.stack.task.body.NodeBody;
 import com.github.filipmalczak.storyteller.api.stack.task.body.TaskBody;

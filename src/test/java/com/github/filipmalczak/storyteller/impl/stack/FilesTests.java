@@ -1,19 +1,13 @@
 package com.github.filipmalczak.storyteller.impl.stack;
 
-import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.testimpl.TestStackFactory;
-import com.github.filipmalczak.storyteller.impl.testimpl.TrivialIdGeneratorFactory;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
 import com.github.filipmalczak.storyteller.utils.ExecutionTracker;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.nio.file.Path;
-
-import static org.apache.commons.io.FileUtils.deleteDirectory;
 
 public class FilesTests {
     //todo extract abstract test

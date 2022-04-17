@@ -3,7 +3,6 @@ package com.github.filipmalczak.storyteller.api.storage.files;
 import com.github.filipmalczak.storyteller.api.storage.utils.StoredFileReader;
 
 import java.io.InputStream;
-import java.io.LineNumberReader;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 import java.util.function.Function;
