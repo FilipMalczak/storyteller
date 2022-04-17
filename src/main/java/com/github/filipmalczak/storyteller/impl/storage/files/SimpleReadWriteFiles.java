@@ -3,8 +3,10 @@ package com.github.filipmalczak.storyteller.impl.storage.files;
 import com.github.filipmalczak.storyteller.impl.stack.HistoryTracker;
 import com.github.filipmalczak.storyteller.api.storage.files.ReadWriteFilesApi;
 import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
+import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
 
 import java.io.File;
@@ -18,7 +20,9 @@ import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.valid4j.Assertive.require;
 
 @Flogger
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SimpleReadWriteFiles<Id extends Comparable<Id>> extends SimpleReadFiles<Id> implements ReadWriteFilesApi {
+    File currentDir;
 
     protected Stream<Id> getLeavesHistory(){
         return Stream.concat(Stream.of(current), super.getLeavesHistory());
@@ -26,13 +30,13 @@ public class SimpleReadWriteFiles<Id extends Comparable<Id>> extends SimpleReadF
 
     public SimpleReadWriteFiles(@NonNull NitriteStorageConfig<Id> config, @NonNull HistoryTracker<Id> tracker, @NonNull Id current) {
         super(config, tracker, current);
+        Path currentWorkspace = getFilesPath().resolve(config.getSerializer().toString(current));
+        currentDir = currentWorkspace.toFile();
         ensureEmptyCurrent();
     }
 
     @SneakyThrows
     private void ensureEmptyCurrent(){
-        Path currentWorkspace = getFilesPath().resolve(config.getSerializer().toString(current));
-        File currentDir = currentWorkspace.toFile();
         if (currentDir.exists()){
             require(currentDir.isDirectory(), "Preexisting task workspace must be a directory");
             deleteDirectory(currentDir);
@@ -50,5 +54,10 @@ public class SimpleReadWriteFiles<Id extends Comparable<Id>> extends SimpleReadF
         try (var stream = new FileOutputStream(f)) {
             writer.accept(stream);
         }
+    }
+
+    @SneakyThrows
+    public void purge(){
+        deleteDirectory(currentDir);
     }
 }

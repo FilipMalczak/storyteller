@@ -15,7 +15,7 @@ import java.nio.file.Path;
 
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 
-public class DataConsistencyTests {
+public class FilesTests {
     //todo extract abstract test
     private ExecutionTracker<String> tracker;
     private static final TestStackFactory FACTORY = new TestStackFactory("DataConsistencyTests");

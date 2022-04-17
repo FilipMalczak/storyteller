@@ -9,11 +9,12 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import org.dizitart.no2.Nitrite;
+import org.dizitart.no2.tool.Exporter;
 import org.jetbrains.annotations.NotNull;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class NitriteReadWriteStorage<Id extends Comparable<Id>> extends NitriteReadStorage<Id> implements ReadWriteStorage<Nitrite> {
-    ReadWriteFilesApi filesApi;
+    SimpleReadWriteFiles filesApi;
 
     public NitriteReadWriteStorage(@NonNull NitriteStorageConfig<Id> config, @NonNull HistoryTracker<Id> tracker, @NotNull Id current) {
         super(config, tracker, current);
@@ -23,6 +24,18 @@ public class NitriteReadWriteStorage<Id extends Comparable<Id>> extends NitriteR
     @Override
     public ReadWriteFilesApi files(){
         return filesApi;
+    }
+
+    public void flush(){
+        var exporter = Exporter.of(nitrite);
+        exporter.exportTo(getNitriteFile(current));
+    }
+
+    public void purge(){
+        filesApi.purge();
+        var currentNitriteFile = getNitriteFile(current);
+        if (currentNitriteFile.exists())
+            currentNitriteFile.delete();
     }
 }
 ;

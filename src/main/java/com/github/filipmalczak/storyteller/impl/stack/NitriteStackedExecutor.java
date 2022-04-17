@@ -222,7 +222,13 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
     }
 
     private void runLeaf(Task<Id, Definition, Type> task, LeafBody<Id, Definition, Type, Nitrite> body){
-        body.perform(new NitriteReadWriteStorage(storageConfig, history, task.getId()));
+        var storage = new NitriteReadWriteStorage(storageConfig, history, task.getId());
+        try {
+            body.perform(storage);
+            storage.flush();
+        } catch (Exception e){
+            storage.purge();
+        }
     }
 
     private void recordException(Task task, Exception e){
