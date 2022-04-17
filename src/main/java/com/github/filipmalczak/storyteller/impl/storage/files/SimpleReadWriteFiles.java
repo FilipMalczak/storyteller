@@ -12,12 +12,17 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.valid4j.Assertive.require;
 
 @Flogger
 public class SimpleReadWriteFiles<Id extends Comparable<Id>> extends SimpleReadFiles<Id> implements ReadWriteFilesApi {
+
+    protected Stream<Id> getLeavesHistory(){
+        return Stream.concat(Stream.of(current), super.getLeavesHistory());
+    }
 
     public SimpleReadWriteFiles(@NonNull NitriteStorageConfig<Id> config, @NonNull HistoryTracker<Id> tracker, @NonNull Id current) {
         super(config, tracker, current);

@@ -121,12 +121,13 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
         if (parent.isPresent() && !isDefined){
             defineInParent(parent.get(), task);
         }
+        boolean isLeaf = type.isLeaf();
         boolean finished = isFinished(task);
-        boolean skip = body instanceof LeafBody && finished;
+        boolean skip = isLeaf && finished;
         if (!isStarted(task)){
             start(task);
         }
-        history.put(id, parent.map(Task::getId).map(history::get).map(Stream::toList).orElseGet(ArrayList::new));
+        history.start(id, parent.map(Task::getId));
         if (!skip) {
             runBody(task, body);
             finished = isFinished(task);
@@ -134,7 +135,7 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
             recordSkipping(task);
         }
         for (var traceEntry: trace){
-            history.add(traceEntry.getExecutedTask().getId(), id);
+            history.add(traceEntry.getExecutedTask().getId(), id, isLeaf);
         }
         if (!finished) {
             end(task);
