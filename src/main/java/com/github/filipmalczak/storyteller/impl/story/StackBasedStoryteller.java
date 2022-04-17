@@ -16,19 +16,19 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
-public class StackBasedStoryteller implements Storyteller {
-    StackedExecutor<String, String, EpisodeType> executor;
+public class StackBasedStoryteller<NoSql> implements Storyteller<NoSql> {
+    StackedExecutor<String, String, EpisodeType, NoSql> executor;
 
-    private NodeBody<String, String, EpisodeType> arcToNodeBody(StructureBody<ArcClosure, ReadStorage> body){
+    private NodeBody<String, String, EpisodeType, NoSql> arcToNodeBody(StructureBody<ArcClosure<NoSql>, ReadStorage<NoSql>> body){
         return (exec, storage) -> body.action(
-            new ArcClosure() {
+            new ArcClosure<>() {
                 @Override
-                public void thread(String threadName, StructureBody<ThreadClosure, ReadStorage> body) {
+                public void thread(String threadName, StructureBody<ThreadClosure<NoSql>, ReadStorage<NoSql>> body) {
                     exec.execute(threadName, EpisodeType.THREAD, threadToNodeBody(body));
                 }
 
                 @Override
-                public void arc(String arcName, StructureBody<ArcClosure, ReadStorage> body) {
+                public void arc(String arcName, StructureBody<ArcClosure<NoSql>, ReadStorage<NoSql>> body) {
                     exec.execute(arcName, EpisodeType.ARC, arcToNodeBody(body));
                 }
             },
@@ -36,13 +36,13 @@ public class StackBasedStoryteller implements Storyteller {
         );
     }
 
-    private NodeBody<String, String, EpisodeType> threadToNodeBody(StructureBody<ThreadClosure, ReadStorage> body){
+    private NodeBody<String, String, EpisodeType, NoSql> threadToNodeBody(StructureBody<ThreadClosure<NoSql>, ReadStorage<NoSql>> body){
         //stop IDE from turning to lambda for consistency
         //noinspection Convert2Lambda
         return (exec, storage) -> body.action(
-            new ThreadClosure() {
+            new ThreadClosure<>() {
                 @Override
-                public void scene(String name, ActionBody<ReadWriteStorage> body) {
+                public void scene(String name, ActionBody<ReadWriteStorage<NoSql>> body) {
                     exec.execute(name, EpisodeType.SCENE, sceneToLeafBody(body));
                 }
             },
@@ -50,13 +50,13 @@ public class StackBasedStoryteller implements Storyteller {
         );
     }
 
-    private LeafBody sceneToLeafBody(ActionBody<ReadWriteStorage> body){
+    private LeafBody sceneToLeafBody(ActionBody<ReadWriteStorage<NoSql>> body){
         //keep this method for consistency
         return storage -> body.action(storage);
     }
 
     @Override
-    public void tell(String storyName, StructureBody<ArcClosure, ReadStorage> arcClosure) {
+    public void tell(String storyName, StructureBody<ArcClosure<NoSql>, ReadStorage<NoSql>> arcClosure) {
         executor.execute(storyName, EpisodeType.STORY, arcToNodeBody(arcClosure));
     }
 }

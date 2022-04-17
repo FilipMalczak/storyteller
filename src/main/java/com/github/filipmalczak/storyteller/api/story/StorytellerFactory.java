@@ -1,5 +1,5 @@
 package com.github.filipmalczak.storyteller.api.story;
 
-public interface StorytellerFactory<Config> {
-    Storyteller create(Config config);
+public interface StorytellerFactory<NoSql, Config> {
+    Storyteller<NoSql> create(Config config);
 }

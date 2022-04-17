@@ -12,8 +12,8 @@ import org.dizitart.no2.Nitrite;
 import java.util.LinkedList;
 
 public class NitriteStackedExecutorFactory<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>
-    implements StackedExecutorFactory<Id, Definition, Type, NitriteStackConfig<Id, Definition, Type>> {
-    public StackedExecutor<Id, Definition, Type>
+    implements StackedExecutorFactory<Id, Definition, Type, Nitrite, NitriteStackConfig<Id, Definition, Type>> {
+    public StackedExecutor<Id, Definition, Type, Nitrite>
         create(NitriteStackConfig<Id, Definition, Type> config){
         var nitriteFile = config.getStorageConfig().getDataStorage().resolve("index.no2");
         var no2 = Nitrite.builder()

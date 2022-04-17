@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
+import org.dizitart.no2.Nitrite;
 
 import java.io.File;
 
@@ -16,7 +17,7 @@ import static org.apache.commons.io.FileUtils.deleteDirectory;
 
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class TestStackFactory implements StackedExecutorFactory<String, String, TrivialTaskType, String> {
+public class TestStackFactory implements StackedExecutorFactory<String, String, TrivialTaskType, Nitrite, String> {
     String dirName;
     final static NitriteStackedExecutorFactory<String, String, TrivialTaskType> BASE_FACTORY = new NitriteStackedExecutorFactory<>();
     final static TrivialIdGeneratorFactory GENERATOR_FACTORY = new TrivialIdGeneratorFactory();
@@ -34,7 +35,7 @@ public class TestStackFactory implements StackedExecutorFactory<String, String, 
     }
 
     @Override
-    public StackedExecutor<String, String, TrivialTaskType> create(String s) {
+    public StackedExecutor<String, String, TrivialTaskType, Nitrite> create(String s) {
         return BASE_FACTORY.create(NitriteStackConfig.of(forTest(s), GENERATOR_FACTORY));
     }
 }

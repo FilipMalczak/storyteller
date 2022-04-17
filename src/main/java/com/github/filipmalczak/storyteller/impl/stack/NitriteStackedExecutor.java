@@ -14,6 +14,7 @@ import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
+import org.dizitart.no2.Nitrite;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -30,7 +31,7 @@ import static org.valid4j.Assertive.require;
 @ToString
 @EqualsAndHashCode
 @Flogger
-public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements StackedExecutor<Id, Definition, Type> {
+public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements StackedExecutor<Id, Definition, Type, Nitrite> {
     @NonNull NitriteManagers<Id, Definition, Type> managers;
     @NonNull HistoryTracker<Id> history;
     @NonNull NitriteStorageConfig<Id> storageConfig;
@@ -46,7 +47,7 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
     }
 
     @Override
-    public Task<Id, Definition, Type> executeTask(Definition definition, Type type, TaskBody<Id, Definition, Type> body) {
+    public Task<Id, Definition, Type> executeTask(Definition definition, Type type, TaskBody<Id, Definition, Type, Nitrite> body) {
         log.atFine().log("Executing '%s' of type %s", definition, type);
         var expected = getExpected();
         var parent = getParent();
@@ -181,14 +182,14 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
     }
 
     @SneakyThrows
-    private void runBody(Task<Id, Definition, Type> task, TaskBody<Id, Definition, Type> body){
+    private void runBody(Task<Id, Definition, Type> task, TaskBody<Id, Definition, Type, Nitrite> body){
         //todo missing define and integrate; are they still needed though?
         recordRunning(task);
         try {
             if (body instanceof NodeBody)
-                runNode(task, (NodeBody<Id, Definition, Type>) body);
+                runNode(task, (NodeBody<Id, Definition, Type, Nitrite>) body);
             else if (body instanceof LeafBody)
-                runLeaf(task, (LeafBody) body);
+                runLeaf(task, (LeafBody<Id, Definition, Type, Nitrite>) body);
             else
                 neverGetHere(); //todo this should be coverable with type system
         } catch (Exception e) {
@@ -203,7 +204,7 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
         }
     }
 
-    private void runNode(Task<Id, Definition, Type> task, NodeBody<Id, Definition, Type> body){
+    private void runNode(Task<Id, Definition, Type> task, NodeBody<Id, Definition, Type, Nitrite> body){
         var newTrace = new LinkedList<>(trace);
         var newEntry = new TraceEntry<>(task, new LinkedList<>(task.getSubtasks().stream().map(Task::getId).toList()));
         newTrace.addFirst(newEntry);
@@ -219,7 +220,7 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
         );
     }
 
-    private void runLeaf(Task<Id, Definition, Type> task, LeafBody body){
+    private void runLeaf(Task<Id, Definition, Type> task, LeafBody<Id, Definition, Type, Nitrite> body){
         body.perform(new NitriteReadWriteStorage(storageConfig, history, task.getId()));
     }
 

@@ -9,10 +9,11 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.dizitart.no2.Nitrite;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
-public class NitriteReadStorage<Id extends Comparable<Id>> implements ReadStorage {
+public class NitriteReadStorage<Id extends Comparable<Id>> implements ReadStorage<Nitrite> {
     @NonNull NitriteStorageConfig<Id> config;
     @NonNull HistoryTracker<Id> tracker;
     @NonNull Id current;
@@ -20,5 +21,10 @@ public class NitriteReadStorage<Id extends Comparable<Id>> implements ReadStorag
     @Override
     public ReadFilesApi files() {
         return new SimpleReadFiles(config, tracker, current);
+    }
+
+    @Override
+    public Nitrite documents() {
+        return null; //todo
     }
 }
