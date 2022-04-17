@@ -446,6 +446,9 @@ class TaskSkippingTests {
      * r(n1(l1, l2), n2(l3, l4)) -> r(n1(l1, l2), n2(lNew, l3, l4))
      * r(n1(l1, l2), n2(l3, l4)) -> r(nNew(l1, l2), n2(l3, l4))
      * r(n1(l1, l2), n2(l3, l4)) -> r(n1(l1, l2), nNew(l3, l4))
+     *
      * and more
+     *
+     * also: two leafes with the same name, but different placement
      */
 }

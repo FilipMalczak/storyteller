@@ -6,14 +6,11 @@ import com.github.filipmalczak.storyteller.api.storage.ReadStorage;
 import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.storage.files.SimpleReadFiles;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.tool.Importer;
-import org.dizitart.no2.tool.Recovery;
 
 import java.io.File;
 
@@ -28,10 +25,14 @@ public class NitriteReadStorage<Id extends Comparable<Id>> implements ReadStorag
         this.config = config;
         this.tracker = tracker;
         this.current = current;
-        initNitrite();
+        loadNitrite();
     }
 
-    protected void initNitrite(){
+    public void reload(){
+        loadNitrite();
+    }
+
+    protected void loadNitrite(){
         var latestLeaf = tracker.getLeaves(current).findFirst();
         var builder = Nitrite.builder();
         if (config.isEnableNo2OffHeapStorage())

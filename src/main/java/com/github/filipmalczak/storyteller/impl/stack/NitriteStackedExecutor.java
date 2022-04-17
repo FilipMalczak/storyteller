@@ -137,6 +137,7 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
         for (var traceEntry: trace){
             history.add(traceEntry.getExecutedTask().getId(), id, isLeaf);
         }
+        trace.stream().findFirst().ifPresent(e -> e.getStorage().reload());
         if (!finished) {
             end(task);
         }
@@ -206,8 +207,9 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
     }
 
     private void runNode(Task<Id, Definition, Type> task, NodeBody<Id, Definition, Type, Nitrite> body){
+        var storage = new NitriteReadStorage(storageConfig, history, task.getId());
         var newTrace = new LinkedList<>(trace);
-        var newEntry = new TraceEntry<>(task, new LinkedList<>(task.getSubtasks().stream().map(Task::getId).toList()));
+        var newEntry = new TraceEntry<>(task, new LinkedList<>(task.getSubtasks().stream().map(Task::getId).toList()), storage);
         newTrace.addFirst(newEntry);
         body.perform(
             new NitriteStackedExecutor<>(
@@ -217,7 +219,7 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
                 idIdGeneratorFactory,
                 newTrace
             ),
-            new NitriteReadStorage(storageConfig, history, task.getId())
+            storage
         );
     }
 
