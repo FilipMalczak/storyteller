@@ -5,7 +5,6 @@ import com.github.filipmalczak.storyteller.api.stack.task.Task;
 import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import com.github.filipmalczak.storyteller.api.stack.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.stack.task.body.NodeBody;
-import com.github.filipmalczak.storyteller.api.stack.task.body.TaskBody;
 import com.github.filipmalczak.storyteller.api.stack.task.id.IdGenerator;
 import com.github.filipmalczak.storyteller.api.stack.task.id.IdGeneratorFactory;
 import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.*;
@@ -18,13 +17,11 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
 import org.dizitart.no2.Nitrite;
 
-import java.time.ZonedDateTime;
 import java.util.*;
 
 import static java.util.Collections.reverse;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.valid4j.Assertive.neverGetHere;
 import static org.valid4j.Assertive.require;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -58,6 +55,7 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
     }
 
     private void recordEntry(Task<Id, Definition, Type> task, JournalEntry entry){
+        log.atFine().log("Recording for %s: %s", task.getId(), entry);
         managers
             .getJournalEntryManager()
             .record(
@@ -66,11 +64,27 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
             );
     }
 
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    private class TaskExecution {
+    @Override
+    public Task<Id, Definition, Type> execute(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body) {
+        var execution = new NodeExecution(definition, type, body);
+        execution.run();
+        return execution.getThisTask();
+    }
+
+    @Override
+    public Task<Id, Definition, Type> execute(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
+        var execution = new LeafExecution(definition, type, body);
+        execution.run();
+        return execution.getThisTask();
+    }
+
+
+    @FieldDefaults(level = AccessLevel.PROTECTED)
+    private abstract class AbstractTaskExecution<Body> {
         Definition definition;
         Type type;
-        TaskBody<Id, Definition, Type, Nitrite> body;
+        //        TaskBody<Id, Definition, Type, Nitrite> body;
+        Body body;
 
         Deque<Id> expectations;
         Optional<Task<Id, Definition, Type>> parent;
@@ -79,12 +93,10 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
         Id id;
         @Getter Task<Id, Definition, Type> thisTask;
 
-        boolean leaf;
         boolean defined;
-        boolean skip;
         boolean finished;
 
-        public TaskExecution(Definition definition, Type type, TaskBody<Id, Definition, Type, Nitrite> body) {
+        public AbstractTaskExecution(Definition definition, Type type, Body body) {
             this.definition = definition;
             this.type = type;
             this.body = body;
@@ -98,23 +110,13 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
             idGenerator = idIdGeneratorFactory.over(definition, type);
         }
 
-        private void validateContract(){
-            if (type.isRoot()) {
-                require(trace.isEmpty(), "Root task needs to be executed without any tasks at the stack");
-                require(parent.isEmpty(), "Root task cannot have a parent");
-                require(expectations.isEmpty(), "Root task cannot have expected ID");
-                require(body instanceof NodeBody, "Root task body must be implemented as %1", NodeBody.class.getCanonicalName());
-            } else {
-                require(!trace.isEmpty(), "Non-root task needs to be executed with at least one task at the stack");
-                require(parent.isPresent(), "Non-root task must have a parent");
-                require(!type.isChoice(), "Choice tasks should be executed with chooseNextSteps(...) method");
-                if (type.isLeaf()) {
-                    require(body instanceof LeafBody, "Leaf task body must be implemented as %1", LeafBody.class.getCanonicalName());
-                } else {
-                    require(body instanceof NodeBody, "Node task body must be implemented as %1", NodeBody.class.getCanonicalName());
-                }
-            }
+        protected void validateSubtaskContract(){
+            require(!trace.isEmpty(), "Non-root task needs to be executed with at least one task at the stack");
+            require(parent.isPresent(), "Non-root task must have a parent");
+            require(!type.isChoice(), "Choice tasks should be executed with chooseNextSteps(...) method");
         }
+
+        protected abstract void validateContract();
 
         private void build(){
             defined = false;
@@ -166,29 +168,52 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
             }
         }
 
+        protected abstract void handleRunning();
+
         private void lifecycle(){
-            if (parent.isPresent() && !defined){
-                defineInParent();
-            }
-            leaf = type.isLeaf();
+            if (parent.isPresent())
+                if (!defined){
+                    defineInParent();
+                } else {
+                    log.atFine().log("Subtask %s already defined", id);
+                }
             finished = isFinished();
-            skip = leaf && finished;
             if (!isStarted()){
                 record(journalEntryFactory.taskStarted());
+                log.atFine().log("Recorded the start of task %s", id);
+            } else {
+                log.atFine().log("Task %s already started", id);
             }
             history.start(id, parent.map(Task::getId));
-            if (!skip) {
-                runBody();
-                finished = isFinished();
-            } else {
-                record(journalEntryFactory.instructionsSkipped());
-            }
+            handleBody();
             for (var traceEntry: trace){
-                history.add(traceEntry.getExecutedTask().getId(), id, leaf);
+                history.add(traceEntry.getExecutedTask().getId(), id, type.isLeaf());
             }
             trace.stream().findFirst().ifPresent(e -> e.getStorage().reload());
             if (!finished) {
                 record(journalEntryFactory.taskEnded());
+                log.atFine().log("Recorded the end of task %s", id);
+            } else {
+                log.atFine().log("Task %s already finished", id);
+            }
+        }
+
+        @SneakyThrows
+        private void handleBody(){
+            try {
+                handleRunning();
+            } catch (Exception e) {
+                //todo test proper rethrowing of exceptions
+                if (e instanceof AlreadyRecordedException){
+                    if (type.isRoot()){
+                        throw ((AlreadyRecordedException) e).alreadyRecorded;
+                    } else {
+                        throw e;
+                    }
+                } else {
+                    record(journalEntryFactory.exceptionCaught(e));
+                    throw new AlreadyRecordedException(e);
+                }
             }
         }
 
@@ -225,59 +250,7 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
             return firstNonSkip.get() instanceof TaskEnded;
         }
 
-
-        @SneakyThrows
-        private void runBody(){
-            //todo missing define and integrate; are they still needed though?
-            record(journalEntryFactory.instructionsRan());
-            try {
-                if (body instanceof NodeBody)
-                    runNode(thisTask, (NodeBody<Id, Definition, Type, Nitrite>) body);
-                else if (body instanceof LeafBody)
-                    runLeaf(thisTask, (LeafBody<Id, Definition, Type, Nitrite>) body);
-                else
-                    neverGetHere(); //todo this should be coverable with type system
-            } catch (Exception e) {
-                //todo test proper rethrowing of exceptions
-                if (e instanceof AlreadyRecordedException){
-                    if (thisTask.getType().isRoot()){
-                        throw ((AlreadyRecordedException) e).alreadyRecorded;
-                    }
-                } else {
-                    record(journalEntryFactory.exceptionCaught(e));
-                    throw new AlreadyRecordedException(e);
-                }
-            }
-        }
-
-        private void runNode(Task<Id, Definition, Type> task, NodeBody<Id, Definition, Type, Nitrite> body){
-            var storage = new NitriteReadStorage(storageConfig, history, task.getId());
-            var newTrace = new LinkedList<>(trace);
-            var newEntry = new TraceEntry<>(task, new LinkedList<>(task.getSubtasks().stream().map(Task::getId).toList()), storage);
-            newTrace.addFirst(newEntry);
-            body.perform(
-                new NitriteStackedExecutor<>(
-                    managers,
-                    history,
-                    storageConfig,
-                    idIdGeneratorFactory,
-                    newTrace
-                ),
-                storage
-            );
-        }
-
-        private void runLeaf(Task<Id, Definition, Type> task, LeafBody<Id, Definition, Type, Nitrite> body){
-            var storage = new NitriteReadWriteStorage(storageConfig, history, task.getId());
-            try {
-                body.perform(storage);
-                storage.flush();
-            } catch (Exception e){
-                storage.purge();
-            }
-        }
-
-        private void record(JournalEntry entry){
+        protected void record(JournalEntry entry){
             recordEntry(thisTask, entry);
         }
 
@@ -287,6 +260,7 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
 
         private void defineInParent(){
             var p = parent.get();
+            log.atFine().log("Defining subtask %s in parent %s", id, p.getId());
             p.getSubtasks().add(thisTask);
             managers.getTaskManager().update(p);
             recordInParent(journalEntryFactory.subtaskDefined(thisTask));
@@ -322,11 +296,81 @@ public class NitriteStackedExecutor<Id extends Comparable<Id>, Definition, Type 
         }
     }
 
-    @Override
-    public Task<Id, Definition, Type> executeTask(Definition definition, Type type, TaskBody<Id, Definition, Type, Nitrite> body) {
-        var execution = new TaskExecution(definition, type, body);
-        execution.run();
-        return execution.getThisTask();
+    private class NodeExecution extends AbstractTaskExecution<NodeBody<Id, Definition, Type, Nitrite>> {
+
+        public NodeExecution(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body) {
+            super(definition, type, body);
+        }
+
+        @Override
+        protected void validateContract() {
+            if (type.isRoot()) {
+                require(trace.isEmpty(), "Root task needs to be executed without any tasks at the stack");
+                require(parent.isEmpty(), "Root task cannot have a parent");
+                require(expectations.isEmpty(), "Root task cannot have expected ID");
+                require(body instanceof NodeBody, "Root task body must be implemented as %1", NodeBody.class.getCanonicalName());
+            } else {
+                validateSubtaskContract();
+            }
+        }
+
+        private void runInstructions(){
+            var storage = new NitriteReadStorage(storageConfig, history, id);
+            var newTrace = new LinkedList<>(trace);
+            var newEntry = new TraceEntry<>(thisTask, new LinkedList<>(thisTask.getSubtasks().stream().map(Task::getId).toList()), storage);
+            newTrace.addFirst(newEntry);
+            body.perform(
+                new NitriteStackedExecutor<>(
+                    managers,
+                    history,
+                    storageConfig,
+                    idIdGeneratorFactory,
+                    newTrace
+                ),
+                storage
+            );
+        }
+
+        @Override
+        protected void handleRunning() {
+            log.atFine().log("Running instructions of task %s (as always for nodes)", id);
+            runInstructions();
+        }
+    }
+
+    private class LeafExecution extends AbstractTaskExecution<LeafBody<Id, Definition, Type, Nitrite>> {
+
+        public LeafExecution(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
+            super(definition, type, body);
+        }
+
+        @Override
+        protected void validateContract() {
+            validateSubtaskContract();
+        }
+
+        @Override
+        protected void handleRunning() {
+            if (!finished) {
+                log.atFine().log("Running instructions of unfinished leaf task %s", id);
+                record(journalEntryFactory.instructionsRan());
+                runInstructions();
+            } else {
+                log.atFine().log("Skipping already finished subtask %s", id);
+                record(journalEntryFactory.instructionsSkipped());
+            }
+        }
+
+        private void runInstructions(){
+            var storage = new NitriteReadWriteStorage(storageConfig, history, id);
+            try {
+                body.perform(storage);
+                storage.flush();
+            } catch (Exception e){
+                storage.purge();
+                throw e;
+            }
+        }
     }
 
 
