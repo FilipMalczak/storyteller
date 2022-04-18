@@ -10,11 +10,10 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Getter
 public enum EpisodeType implements TaskType {
-    STORY(true, false),
-    ARC(false, false),
-    THREAD(false, false),
-    SCENE(false, true);
+    STORY(TaskTypeModifier.ROOT),
+    ARC(TaskTypeModifier.NONE),
+    THREAD(TaskTypeModifier.NONE),
+    SCENE(TaskTypeModifier.LEAF);
 
-    boolean root;
-    boolean leaf;
+    TaskTypeModifier modifier;
 }
