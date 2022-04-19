@@ -2,7 +2,6 @@ package com.github.filipmalczak.storyteller.impl.stack;
 
 import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import com.github.filipmalczak.storyteller.api.stack.task.body.LeafBody;
-import com.github.filipmalczak.storyteller.api.stack.task.body.NodeBody;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteReadWriteStorage;
 import com.google.common.flogger.FluentLogger;
 import lombok.extern.flogger.Flogger;
@@ -12,8 +11,8 @@ import org.dizitart.no2.Nitrite;
 class LeafExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>
     extends AbstractTaskExecution<Id, Definition, Type, LeafBody<Id, Definition, Type, Nitrite>> {
 
-    public LeafExecution(NitriteStackedExecutor.NitriteStackedExecutorInternals<Id, Definition, Type> internals, Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
-        super(internals, definition, type, body);
+    public LeafExecution(NitriteStackedExecutor.NitriteStackedExecutorInternals<Id, Definition, Type> internals, Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> idDefinitionTypeNitriteLeafBody, SubtaskOrderingStrategy<Id> orderingStrategy) {
+        super(internals, definition, type, idDefinitionTypeNitriteLeafBody, orderingStrategy);
     }
 
     @Override

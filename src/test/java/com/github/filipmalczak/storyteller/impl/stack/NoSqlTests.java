@@ -12,6 +12,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static com.github.filipmalczak.storyteller.impl.IterationUtils.toStream;
+import static com.github.filipmalczak.storyteller.impl.testimpl.StringStringDoc.getOr;
+import static com.github.filipmalczak.storyteller.impl.testimpl.StringStringDoc.put;
 import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
 
 public class NoSqlTests {
@@ -21,25 +23,6 @@ public class NoSqlTests {
     @BeforeEach
     private void setup(){
         tracker = new ExecutionTracker<>();
-    }
-
-    private void put(ReadWriteStorage<Nitrite> storage, String k, String v){
-        storage
-            .documents()
-            .getRepository(StringStringDoc.class)
-            .update(new StringStringDoc(k, v), true);
-    }
-
-    private String getOr(ReadStorage<Nitrite> storage, String k, String def){
-        return toStream(
-            storage
-                .documents()
-                .getRepository(StringStringDoc.class)
-                .find(eq("id", k))
-        )
-            .findFirst()
-            .map(StringStringDoc::getTxt)
-            .orElse(def);
     }
 
     @Test

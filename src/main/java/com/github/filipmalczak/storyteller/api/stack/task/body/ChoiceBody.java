@@ -9,7 +9,11 @@ import java.util.function.Function;
 
 public interface ChoiceBody<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> {
     interface Insight<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> {
-        ReadStorage<NoSql> into(Task<Id, Definition, Type> subtask);
+        ReadStorage<NoSql> into(Id id);
+
+        default ReadStorage<NoSql> into(Task<Id, Definition, Type> subtask){
+            return into(subtask.getId());
+        }
     }
 
     class SubtaskNotFoundException extends RuntimeException {

@@ -1,17 +1,20 @@
 package com.github.filipmalczak.storyteller.impl.story;
 
+import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import com.github.filipmalczak.storyteller.api.stack.task.id.IdGenerator;
 import com.github.filipmalczak.storyteller.api.stack.task.id.IdGeneratorFactory;
 
-public class StandardIdGeneratorFactory implements IdGeneratorFactory<String, String, EpisodeType> {
+import static java.lang.Math.min;
+
+public class StandardIdGeneratorFactory<Type extends Enum<Type> & TaskType> implements IdGeneratorFactory<String, String, Type> {
     @Override
-    public IdGenerator<String, String, EpisodeType> over(String definition, EpisodeType episodeType) {
+    public IdGenerator<String, String, Type> over(String definition, Type episodeType) {
         String prefix = episodeType.toString()+
             "_"+
             definition
                 .replaceAll("([^\\w\\d-]+)", "_")
                 .replaceAll("[_]+", "_")
-                .substring(0, 32)+
+                .substring(0, min(32, definition.length()))+
             "_"+
             definition.hashCode();
         return new IdGenerator<>() {
@@ -21,11 +24,13 @@ public class StandardIdGeneratorFactory implements IdGeneratorFactory<String, St
             }
 
             @Override
-            public EpisodeType type() {
+            public Type type() {
                 return episodeType;
             }
             @Override
             public String generate() {
+                if (type().isRoot())
+                    return prefix;
                 return prefix+
                     "_"+
                     System.currentTimeMillis();
@@ -33,10 +38,12 @@ public class StandardIdGeneratorFactory implements IdGeneratorFactory<String, St
 
             @Override
             public boolean canReuse(String s) {
+                if (type().isRoot())
+                    return prefix.equals(s);
                 if (!s.startsWith(prefix))
                     return false;
                 try {
-                    Long.parseLong(s.replace(prefix, ""));
+                    Long.parseLong(s.replace(prefix+"_", ""));
                 } catch (NumberFormatException e){
                     return false;
                 }

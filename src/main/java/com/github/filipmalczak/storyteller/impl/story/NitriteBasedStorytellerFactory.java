@@ -20,7 +20,7 @@ public class NitriteBasedStorytellerFactory implements StorytellerFactory<Nitrit
                     .create(
                         NitriteStackConfig.of(
                             new NitriteStorageConfig<>(dataPath, s -> s),
-                            new StandardIdGeneratorFactory()
+                            new StandardIdGeneratorFactory<EpisodeType>()
                         )
                     )
             );

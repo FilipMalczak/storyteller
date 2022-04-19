@@ -15,10 +15,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import org.valid4j.Assertive;
 
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.Collections.reverse;
 import static org.hamcrest.CoreMatchers.not;
@@ -32,8 +29,9 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
     final Definition definition;
     final Type type;
     final Body body;
+    final SubtaskOrderingStrategy<Id> orderingStrategy;
 
-    Deque<Id> expectations;
+//    Expectations expectations;
     Optional<Task<Id, Definition, Type>> parent;
     IdGenerator<Id, Definition, Type> idGenerator;
 
@@ -46,10 +44,11 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
     
     protected abstract FluentLogger getLogger();
 
+//    protected abstract Expectations getExpected();
 
-    private Optional<Deque<Id>> getExpected(){
-        return internals.trace().stream().findFirst().map(TraceEntry::getExpectedSubtaskIds);
-    }
+//    private Optional<Deque<Id>> getExpected(){
+//        return internals.trace().stream().findFirst().map(TraceEntry::getExpectedSubtaskIds);
+//    }
 
     private Optional<Task<Id, Definition, Type>> getParent(){
         return internals.trace().stream().findFirst().map(TraceEntry::getExecutedTask);
@@ -57,9 +56,9 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
 
     private void init() {
         getLogger().atFine().log("Executing '%s' of type %s", definition, type);
-        expectations = getExpected().orElseGet(LinkedList::new);
+//        expectations = getExpected();
         parent = getParent();
-        getLogger().atFine().log("Known subtasks of parent: %s", expectations);
+//        getLogger().atFine().log("Known subtasks of parent: %s", expectations); //todo
         idGenerator = internals.idGeneratorFactory().over(definition, type);
     }
 
@@ -73,7 +72,7 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
 
     private void build() {
         defined = false;
-        if (expectations.isEmpty()) {
+        if (!orderingStrategy.hasExpectations()) {
             id = idGenerator.generate();
             getLogger().atFine().log("Task wasn't defined yet; generated ID: %s", id);
             if (parent.isPresent() && isParentFinished()) {
@@ -82,25 +81,17 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
                 disownExpectedUpTheTrace();
             }
         } else {
-            //we pop it here
-            id = expectations.removeFirst();
-            if (idGenerator.canReuse(id)) {
+            var candidates= orderingStrategy.getCandidatesForReusing();
+            getLogger().atFine().log("Candidate IDs for reusing: %s", candidates);
+            var reusable = candidates.stream().filter(idGenerator::canReuse).toList();
+            getLogger().atFine().log("Reusable IDs: %s", reusable);
+            require(reusable.size() < 2, "At most 1 ID can be reusable");
+            if (reusable.size() == 1) {
                 defined = true;
+                id = orderingStrategy.reuse(reusable.get(0));
                 getLogger().atFine().log("Reusing ID of already defined task: %s", id);
             } else {
-                //so in case of conflict
-                var conflicting = internals.managers().getTaskManager().findById(id);
-                Assertive.require(conflicting.isPresent(), "Non-reusable ID must refer to an existing task");
-                var conflictingTask = conflicting.get();
-                getLogger().atFine().log("Conflicting subtask of task %s: definition was %s, but is now %s", parent.get().getId(), conflictingTask.getDefinition(), definition);
-                Assertive.require(conflictingTask.getDefinition(), not(equalTo(definition)));
-                recordInParent(internals.journalEntryFactory().bodyChanged(conflictingTask));
-                //we need to push it back to top
-                expectations.addFirst(id);
-                //so it can be disowned in correct order
-                disownExpectedUpTheTrace();
-                id = idGenerator.generate();
-                getLogger().atFine().log("Recovered from conflict; generated new ID: %s", id);
+                orderingStrategy.onNoReusable(candidates);
             }
         }
         var found = internals.managers().getTaskManager().findById(id);
@@ -165,7 +156,11 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
                 }
             } else {
                 record(internals.journalEntryFactory().exceptionCaught(e));
-                throw new AlreadyRecordedException(e);
+                if (type.isRoot()) {
+                    throw e;
+                } else {
+                    throw new AlreadyRecordedException(e);
+                }
             }
         }
     }
@@ -217,7 +212,7 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
         recordEntry(thisTask, entry);
     }
 
-    private void recordInParent(JournalEntry entry) {
+    protected void recordInParent(JournalEntry entry) {
         recordEntry(parent.get(), entry);
     }
 
@@ -229,17 +224,26 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
         recordInParent(internals.journalEntryFactory().subtaskDefined(thisTask));
     }
 
-    private void disownExpectedUpTheTrace() {
+    protected void disownExpectedUpTheTrace() {
         for (var entry : internals.trace()) {
-            disown(entry.getExecutedTask(), entry.getExpectedSubtaskIds());
+            disownExpectationsThatAreLeft(entry);
+            //sublist(1), because
+//            var toDisown = new LinkedList<>(entry.getExpectedSubtaskIds());
+////            toDisown.remove(0);
+//            disown(entry.getExecutedTask(), toDisown);
         }
     }
 
-    private void disown(Task<Id, Definition, Type> task, Deque<Id> toDisown) {
+    private void disownExpectationsThatAreLeft(TraceEntry<Id, Definition, Type> entry) {
+        disownSubtasks(entry.getExecutedTask(), entry.getExpectedSubtaskIds());
+        entry.getExpectedSubtaskIds().clear();
+    }
+
+    private void disownSubtasks(Task<Id, Definition, Type> task, List<Id> toDisown) {
         if (toDisown.isEmpty()) {
             getLogger().atFine().log("No subtasks to disown for task %s", task.getId());
         } else {
-            var pivot = toDisown.peekFirst();
+            var pivot = toDisown.get(0);
             var currentSubtasks = task.getSubtasks();
             var keptSubtasks = currentSubtasks.stream().takeWhile(x -> !x.getId().equals(pivot)).toList();
             var disownedSubtasks = currentSubtasks.subList(keptSubtasks.size(), currentSubtasks.size());
@@ -254,7 +258,48 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
             }
             disownedSubtasks.clear();
             toDisown.clear();
+
+            //fioxme
             internals.managers().getTaskManager().update(task);
         }
+    }
+
+    public ExecutionFriend<Id, Definition, Type> getFriend(){
+        return new ExecutionFriend<Id, Definition, Type>() {
+            @Override
+            public void recordInParent(JournalEntry entry) {
+                AbstractTaskExecution.this.recordInParent(entry);
+            }
+
+            @Override
+            public void disownExpectedUpTheTrace() {
+                AbstractTaskExecution.this.disownExpectedUpTheTrace();
+            }
+
+            @Override
+            public void setId(Id id) {
+                AbstractTaskExecution.this.id = id;
+            }
+
+            @Override
+            public JournalEntryFactory journalEntryFactory() {
+                return AbstractTaskExecution.this.internals.journalEntryFactory();
+            }
+
+            @Override
+            public IdGenerator<Id, Definition, Type> idGenerator() {
+                return AbstractTaskExecution.this.idGenerator;
+            }
+
+            @Override
+            public Optional<Task<Id, Definition, Type>> findTask(Id id) {
+                return AbstractTaskExecution.this.internals.managers().getTaskManager().findById(id);
+            }
+
+            @Override
+            public Id parentId() {
+                return AbstractTaskExecution.this.parent.get().getId();
+            }
+        };
     }
 }

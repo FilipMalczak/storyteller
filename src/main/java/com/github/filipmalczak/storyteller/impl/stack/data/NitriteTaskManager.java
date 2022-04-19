@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.flogger.Flogger;
 import org.dizitart.no2.objects.ObjectRepository;
 
 import java.util.Optional;
@@ -18,6 +19,7 @@ import static org.valid4j.Assertive.require;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter(value = AccessLevel.PACKAGE)
+@Flogger
 public class NitriteTaskManager<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements TaskManager<Id, Definition, Type> {
     @NonNull ObjectRepository<TaskData> repository;
     @NonNull TaskSerializer<Id, Definition, Type> serializer;
@@ -34,15 +36,18 @@ public class NitriteTaskManager<Id extends Comparable<Id>, Definition, Type exte
 
     @Override
     public void register(Task<Id, Definition, Type> task) {
+        log.atFine().log("Registering task %s", task);
         require(findById(task.getId()).isEmpty(), "Task can only be registered once!");
         repository.insert(serializer.fromTask(task));
     }
 
     @Override
     public void update(Task<Id, Definition, Type> task) {
+        log.atFine().log("Updating task %s", task);
         //todo wrap in a transaction
         repository.update(serializer.fromTask(task));
         var existingEntries = journalEntryManager.findByTask(task).toList();
+        //todo I forgot that task manager persists journal entries too; they get persisted by executions too
         task
             .getJournalEntries()
             .filter(not(existingEntries::contains))

@@ -12,6 +12,8 @@ import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.tool.Exporter;
 import org.jetbrains.annotations.NotNull;
 
+import static com.github.filipmalczak.storyteller.impl.storage.NitriteFsUtils.getNitriteFile;
+
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class NitriteReadWriteStorage<Id extends Comparable<Id>> extends NitriteReadStorage<Id> implements ReadWriteStorage<Nitrite> {
     SimpleReadWriteFiles filesApi;
@@ -28,12 +30,12 @@ public class NitriteReadWriteStorage<Id extends Comparable<Id>> extends NitriteR
 
     public void flush(){
         var exporter = Exporter.of(nitrite);
-        exporter.exportTo(getNitriteFile(current));
+        exporter.exportTo(getNitriteFile(config, current));
     }
 
     public void purge(){
         filesApi.purge();
-        var currentNitriteFile = getNitriteFile(current);
+        var currentNitriteFile = getNitriteFile(config, current);
         if (currentNitriteFile.exists())
             currentNitriteFile.delete();
     }

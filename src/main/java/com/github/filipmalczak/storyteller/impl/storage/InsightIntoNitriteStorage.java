@@ -4,43 +4,37 @@ import com.github.filipmalczak.storyteller.api.storage.ReadStorage;
 import com.github.filipmalczak.storyteller.api.storage.files.ReadFilesApi;
 import com.github.filipmalczak.storyteller.impl.stack.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
-import com.github.filipmalczak.storyteller.impl.storage.files.SimpleReadFiles;
+import com.github.filipmalczak.storyteller.impl.storage.files.SimpleFilesInsight;
 import lombok.AccessLevel;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.dizitart.no2.Nitrite;
-import org.dizitart.no2.tool.Importer;
 
-import java.io.File;
+import java.util.Optional;
 
-import static com.github.filipmalczak.storyteller.impl.storage.NitriteFsUtils.*;
+import static com.github.filipmalczak.storyteller.impl.storage.NitriteFsUtils.load;
 
-@FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
-public class NitriteReadStorage<Id extends Comparable<Id>> implements ReadStorage<Nitrite> {
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class InsightIntoNitriteStorage<Id extends Comparable<Id>> implements ReadStorage<Nitrite> {
+
     @NonNull NitriteStorageConfig<Id> config;
     @NonNull HistoryTracker<Id> tracker;
     @NonNull Id current;
-    @NonFinal Nitrite nitrite;
+    @NonFinal
+    Nitrite nitrite;
 
-    public NitriteReadStorage(@NonNull NitriteStorageConfig<Id> config, @NonNull HistoryTracker<Id> tracker, @NonNull Id current) {
+    public InsightIntoNitriteStorage(@NonNull NitriteStorageConfig<Id> config, @NonNull HistoryTracker<Id> tracker, @NonNull Id current) {
         this.config = config;
         this.tracker = tracker;
         this.current = current;
-        loadNitrite();
+        nitrite = load(config, Optional.of(current));
     }
 
-    public void reload(){
-        loadNitrite();
-    }
-
-    protected void loadNitrite(){
-        var latestLeaf = tracker.getLeaves(current).findFirst();
-        nitrite = load(config, latestLeaf);
-    }
     @Override
     public ReadFilesApi files() {
-        return new SimpleReadFiles(config, tracker, current);
+        return new SimpleFilesInsight<>(config, tracker, current);
     }
 
     @Override

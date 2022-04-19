@@ -10,21 +10,14 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TraceEntry<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> {
     Task<Id, Definition, Type> executedTask;
-    final Deque<Id> expectedSubtaskIds; //cannot simply be queue, because in case of conflict we need to push back to the front
+    final List<Id> expectedSubtaskIds;
     NitriteReadStorage<Id> storage;
     //fixme could be fixed by using peek() and popping only if no conflict occurs
-
-    public TraceEntry(Deque<Id> expectedSubtaskIds) {
-        this.expectedSubtaskIds = expectedSubtaskIds;
-    }
-
-    public TraceEntry() {
-        this(new LinkedList<>());
-    }
 }

@@ -1,6 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.stack;
 
 import com.github.filipmalczak.storyteller.impl.stack.data.HistoryManager;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -9,10 +10,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class HistoryTracker<Id> {
-    @NonNull final Map<Id, TaskHistory<Id>> backend = new HashMap<>();
+    @NonNull final Map<Id, TaskHistory<Id>> backend;
     @NonNull final HistoryManager<Id> manager;
+
+    HistoryTracker(@NonNull HistoryManager<Id> manager) {
+        this(new HashMap<>(), manager);
+    }
 
     /**
      * Assumes the same order of history as in get()
@@ -67,5 +72,18 @@ public class HistoryTracker<Id> {
         if (backend.containsKey(taskId))
             return backend.get(taskId).getLeaves().stream();
         return Stream.empty();
+    }
+
+    public HistoryTracker<Id> copy(){
+        var map = new HashMap<Id, TaskHistory<Id>>();
+        for (var k: backend.keySet())
+            map.put(k, backend.get(k).copy());
+        return new HistoryTracker<>(map, manager);
+    }
+
+    public void mirror(HistoryTracker<Id> another){
+        //todo not the nicest way to do that
+        for (var k: another.backend.keySet())
+            backend.put(k, another.backend.get(k));
     }
 }
