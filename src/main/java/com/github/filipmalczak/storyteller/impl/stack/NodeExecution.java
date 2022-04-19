@@ -33,6 +33,7 @@ class NodeExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Typ
             require(body instanceof NodeBody, "Root task body must be implemented as %1", NodeBody.class.getCanonicalName());
         } else {
             validateSubtaskContract();
+            require(!type.isChoice(), "Choice tasks should be executed with chooseNextSteps(...) method");
         }
     }
 

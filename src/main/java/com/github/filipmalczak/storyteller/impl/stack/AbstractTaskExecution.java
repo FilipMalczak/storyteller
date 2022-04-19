@@ -65,7 +65,6 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
     protected void validateSubtaskContract() {
         require(!internals.trace().isEmpty(), "Non-root task needs to be executed with at least one task at the stack");
         require(parent.isPresent(), "Non-root task must have a parent");
-        require(!type.isChoice(), "Choice tasks should be executed with chooseNextSteps(...) method");
     }
 
     protected abstract void validateContract();
@@ -95,7 +94,7 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
             }
         }
         var found = internals.managers().getTaskManager().findById(id);
-        getLogger().atFine().log("Retrieved task: %s", found);
+        getLogger().atFine().log("Retrieved task: %s", found.map(t -> t.getId()+"::"+t.getDefinition()));
         thisTask = found
             .orElseGet(
                 () -> Task.<Id, Definition, Type>builder()
@@ -130,6 +129,7 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
         }
         internals.history().start(id, parent.map(Task::getId));
         handleBody();
+        internals.history().add(id, id, type.isLeaf());
         for (var traceEntry : internals.trace()) {
             internals.history().add(traceEntry.getExecutedTask().getId(), id, type.isLeaf());
         }

@@ -28,4 +28,15 @@ public class Task<Id, Definition, Type extends Enum<Type> & TaskType> {
     public Stream<JournalEntry> getJournalEntries() {
         return journal.stream();
     }
+
+    @Override
+    public String toString() {
+        return "Task(" +
+            "id=" + id +
+            ", definition=" + definition +
+            ", type=" + type +
+            ", subtasks=" + subtasks +
+            ", journal[" + journal.size()+"]" +
+            ')';
+    }
 }

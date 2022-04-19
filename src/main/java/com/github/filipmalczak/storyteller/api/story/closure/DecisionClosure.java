@@ -10,13 +10,9 @@ import java.util.stream.Stream;
 
 
 //todo
-public interface DecisionClosure<Key> {
-    void domain(Supplier<Stream<Key>> domain);
-    void research(ResearchBody<Key, ArcClosure> closure);
-    void criteria(CriteriaDefinition closure);
-
-    interface CriteriaDefinition<Eval> {
-        Function<ReadStorage, Eval> evaluator();
-        Comparator<Eval> comparatorForMaximization();
-    }
+public interface DecisionClosure<Key, Score, NoSql> {
+    DecisionClosure<Key, Score, NoSql> domain(Supplier<Stream<Key>> domain);
+    DecisionClosure<Key, Score, NoSql> research(ResearchBody<Key, ArcClosure<NoSql>> closure);
+    DecisionClosure<Key, Score, NoSql> resultEvaluator(Function<ReadStorage<NoSql>, Score> eval);
+    DecisionClosure<Key, Score, NoSql> scoreComparator(Comparator<Score> comparator);
 }

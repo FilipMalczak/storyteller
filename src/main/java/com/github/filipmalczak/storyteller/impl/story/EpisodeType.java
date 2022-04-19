@@ -12,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 public enum EpisodeType implements TaskType {
     STORY(TaskTypeModifier.ROOT),
     ARC(TaskTypeModifier.NONE),
+    DECISION(TaskTypeModifier.CHOICE),
     THREAD(TaskTypeModifier.NONE),
     SCENE(TaskTypeModifier.LEAF);
 

@@ -16,7 +16,7 @@ public class NitriteBasedStorytellerFactory implements StorytellerFactory<Nitrit
     public Storyteller<Nitrite> create(Path dataPath) {
         return new StackBasedStorytellerFactory()
             .create(
-                new NitriteStackedExecutorFactory<String, String, EpisodeType>()
+                new NitriteStackedExecutorFactory<String, SimpleDefinition, EpisodeType>()
                     .create(
                         NitriteStackConfig.of(
                             new NitriteStorageConfig<>(dataPath, s -> s),

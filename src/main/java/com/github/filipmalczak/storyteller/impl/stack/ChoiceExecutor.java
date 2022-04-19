@@ -69,7 +69,7 @@ public class ChoiceExecutor<Id extends Comparable<Id>, Definition, Type extends 
         return id -> {
             log.atFine().log("Insight into %s", id);
             require(histories.containsKey(id));
-            return new InsightIntoNitriteStorage<>(storageConfig, histories.get(id), id);
+            return new InsightIntoNitriteStorage<>(storageConfig, histories.get(id), histories.get(id).getLeaves(id).findFirst().get());
         };
     }
 }

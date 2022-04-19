@@ -5,6 +5,9 @@ import com.github.filipmalczak.storyteller.api.stack.StackedExecutorFactory;
 import com.github.filipmalczak.storyteller.impl.stack.NitriteStackConfig;
 import com.github.filipmalczak.storyteller.impl.stack.NitriteStackedExecutorFactory;
 import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
+import com.github.filipmalczak.storyteller.impl.story.EpisodeType;
+import com.github.filipmalczak.storyteller.impl.story.SimpleDefinition;
+import com.github.filipmalczak.storyteller.impl.story.StackBasedStorytellerFactory;
 import com.github.filipmalczak.storyteller.impl.story.StandardIdGeneratorFactory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,7 +24,7 @@ import static org.apache.commons.io.FileUtils.deleteDirectory;
 public class TestStackFactory implements StackedExecutorFactory<String, String, TrivialTaskType, Nitrite, String> {
     String dirName;
     final static NitriteStackedExecutorFactory<String, String, TrivialTaskType> BASE_FACTORY = new NitriteStackedExecutorFactory<>();
-    final static StandardIdGeneratorFactory<TrivialTaskType> GENERATOR_FACTORY = new StandardIdGeneratorFactory<>();
+    final static SimpleIdGeneratorFactory<TrivialTaskType> GENERATOR_FACTORY = new SimpleIdGeneratorFactory<>();
 
     @SneakyThrows
     private NitriteStorageConfig<String> forTest(String name) {
@@ -37,6 +40,12 @@ public class TestStackFactory implements StackedExecutorFactory<String, String, 
 
     @Override
     public StackedExecutor<String, String, TrivialTaskType, Nitrite> create(String s) {
-        return BASE_FACTORY.create(NitriteStackConfig.of(forTest(s), GENERATOR_FACTORY));
+        return new NitriteStackedExecutorFactory<String, String, TrivialTaskType>()
+                .create(
+                    NitriteStackConfig.<String, String, TrivialTaskType>of(
+                        forTest(s),
+                        GENERATOR_FACTORY
+                    )
+                );
     }
 }

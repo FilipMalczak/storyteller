@@ -18,6 +18,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class ChoiceTests {
     private static final TestStackFactory FACTORY = new TestStackFactory("TaskSkippingTests");
 
+    //todo tests for non-leaf choice options
+
     @Test
     void simplestChoiceWithFiles(){
         var exec = FACTORY.create("runThreeTasks");

@@ -13,6 +13,7 @@ public class NitriteStackedExecutorFactory<Id extends Comparable<Id>, Definition
     implements StackedExecutorFactory<Id, Definition, Type, Nitrite, NitriteStackConfig<Id, Definition, Type>> {
     public StackedExecutor<Id, Definition, Type, Nitrite>
         create(NitriteStackConfig<Id, Definition, Type> config){
+        config.getStorageConfig().getDataStorage().toFile().mkdirs();
         var nitriteFile = config.getStorageConfig().getDataStorage().resolve("index.no2");
         var no2 = Nitrite.builder()
             .compressed()

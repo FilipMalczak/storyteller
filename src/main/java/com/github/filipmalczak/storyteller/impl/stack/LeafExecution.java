@@ -7,6 +7,8 @@ import com.google.common.flogger.FluentLogger;
 import lombok.extern.flogger.Flogger;
 import org.dizitart.no2.Nitrite;
 
+import static org.valid4j.Assertive.require;
+
 @Flogger
 class LeafExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>
     extends AbstractTaskExecution<Id, Definition, Type, LeafBody<Id, Definition, Type, Nitrite>> {
@@ -23,6 +25,7 @@ class LeafExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Typ
     @Override
     protected void validateContract() {
         validateSubtaskContract();
+        require(!type.isChoice(), "Choice tasks should be executed with chooseNextSteps(...) method");
     }
 
     @Override
