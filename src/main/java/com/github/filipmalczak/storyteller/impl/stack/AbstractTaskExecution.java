@@ -73,6 +73,7 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
         defined = false;
         if (!orderingStrategy.hasExpectations()) {
             id = idGenerator.generate();
+            //todo different log for root
             getLogger().atFine().log("Task wasn't defined yet; generated ID: %s", id);
             if (parent.isPresent() && isParentFinished()) {
                 getLogger().atFine().log("Parent was finished; extending parent");
