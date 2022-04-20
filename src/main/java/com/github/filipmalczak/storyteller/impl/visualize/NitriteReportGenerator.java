@@ -1,7 +1,9 @@
 package com.github.filipmalczak.storyteller.impl.visualize;
 
+import com.github.filipmalczak.storyteller.api.stack.Session;
 import com.github.filipmalczak.storyteller.api.stack.task.Task;
 import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
+import com.github.filipmalczak.storyteller.api.stack.task.journal.EntryType;
 import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.*;
 import com.github.filipmalczak.storyteller.api.visualize.HtmlReportGenerator;
 import com.github.filipmalczak.storyteller.api.visualize.ReportOptions;
@@ -22,6 +24,9 @@ import java.util.stream.Stream;
 
 import static com.github.filipmalczak.storyteller.api.visualize.html.Html.*;
 import static com.github.filipmalczak.storyteller.api.visualize.html.Icons.iconForTypeModifier;
+import static java.lang.System.identityHashCode;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.groupingBy;
 import static org.valid4j.Assertive.require;
 
 @AllArgsConstructor
@@ -247,7 +252,7 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
         Map<String, List<JournalEntry>> runsAndEnds = (Map<String, List<JournalEntry>>) task
             .getJournalEntries()
             .filter(e -> e instanceof InstructionsRan || e instanceof TaskEnded)
-            .collect(Collectors.groupingBy((JournalEntry e) -> e.getSession().getId()));
+            .collect(groupingBy((JournalEntry e) -> e.getSession().getId()));
         var results = new ArrayList<DurationAndSessionId>();
         for (var sessionId: runsAndEnds.keySet()) {
             var events = runsAndEnds.get(sessionId);
@@ -331,6 +336,20 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
     private Renderable journal(List<Task<Id, Definition, Type>> ancestors,
                                 Task<Id, Definition, Type> task,
                                 ReportOptions<Id, Definition, Type> options){
+        Map<Session, List<JournalEntry>> sessions = task.getJournalEntries().collect(groupingBy(JournalEntry::getSession));
+        List<Session> orderedSessions = sessions.keySet().stream().sorted(comparing(Session::getStartedAt)).toList();
+        List<List<Renderable>> rows = new ArrayList<>();
+        for (var entry: task.getJournal()){
+            int sessionIdx = orderedSessions.indexOf(entry.getSession());
+            List<Renderable> row = new ArrayList<>();
+            row.add(literal(entry.getHappenedAt().toString()));
+            for (int i=0; i<sessionIdx; ++i)
+                row.add(empty());
+            row.add(literal(EntryType.toType(entry).toString()));
+            for (int i=sessionIdx+1; i<orderedSessions.size(); ++i)
+                row.add(empty());
+            rows.add(row);
+        }
         return sequence(
             node("div", cssClass("row"),
                 node("div", cssClass("col"),
@@ -341,7 +360,27 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
             ),
             node("div", cssClass("row"),
                 node("div", cssClass("col"),
-                    literal("TODO")
+                    node("table",
+                        sequence(
+                            node("tr",
+                                sequence(
+                                    node("th", literal("@")),
+                                    sequence(
+                                        orderedSessions.stream().map(s ->
+                                            node("th", literal(s.toString()))
+                                        ).toList()
+                                    )
+                                )
+                            ),
+                            sequence(
+                                rows.stream().map(r ->
+                                    node("tr",
+                                        sequence(r.stream().map(cell -> node("td", cell)).toList())
+                                    )
+                                ).toList()
+                            )
+                        )
+                    )
                 )
             )
         );
