@@ -1,16 +1,23 @@
 package com.github.filipmalczak.storyteller.story.example1;
 
-import com.github.filipmalczak.storyteller.impl.story.NitriteBasedStorytellerFactory;
-import com.github.filipmalczak.storyteller.impl.story.StackBasedStorytellerFactory;
+import com.github.filipmalczak.storyteller.api.visualize.ReportOptions;
+import com.github.filipmalczak.storyteller.api.visualize.StartingPoint;
+import com.github.filipmalczak.storyteller.impl.story.*;
+import com.github.filipmalczak.storyteller.impl.visualize.NitriteReportGenerator;
+import com.github.filipmalczak.storyteller.impl.visualize.start.StartingPoints;
 import lombok.SneakyThrows;
 import lombok.extern.flogger.Flogger;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.stream.IntStream;
 
+import static com.github.filipmalczak.storyteller.api.visualize.html.Bootstrap.badge;
+import static com.github.filipmalczak.storyteller.api.visualize.html.Html.literal;
+import static com.github.filipmalczak.storyteller.api.visualize.html.Html.sequence;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static org.dizitart.no2.objects.filters.ObjectFilters.and;
@@ -93,6 +100,46 @@ public class ExampleExperiment {
             log.atInfo().log("%s^%s + %s^%s = %s", aVal, bVal, cVal, dVal, xVal);
             log.atInfo().log("Number of divisors: %s", no);
         });
+    }
+
+    @Test
+    void renderReport(){
+        var generator = new NitriteReportGenerator<String, SimpleDefinition, EpisodeType>(
+            new File("examples/example1/index.no2")
+        );
+        generator.generateReport(
+            new File("examples/example1/report"),
+            StartingPoints.of(
+                new StandardIdGeneratorFactory<>(),
+                new SimpleDefinition("Finding x"),
+                EpisodeType.STORY
+            ),
+            ReportOptions.<String, SimpleDefinition, EpisodeType>builder()
+                .definitionRenderer(d -> {
+                    if (d.getKey() == null)
+                        return d.getName();
+                    return sequence(
+                        literal(d.getName()),
+                        badge(d.getKey().toString(), false, "info")
+                    ).renderHtml();
+                })
+                .build()
+        );
+//        var no2 = Nitrite.builder().filePath().readOnly().openOrCreate();
+//        var renderer = new NitriteRenderer<>(new NitriteManagers<String, SimpleDefinition, EpisodeType>(no2));
+//        renderer.renderToHtmlFile(
+//            RenderDefinition.<String, SimpleDefinition, EpisodeType>builder()
+//                .startingPoint(
+//                    RenderDefinition.StartingPoint.of(
+//                        new StandardIdGeneratorFactory<>(),
+//                        new SimpleDefinition("Finding x"),
+//                        EpisodeType.STORY
+//                    )
+//                )
+//                .build()
+//            ,
+//            new File("examples/example1/report.html")
+//        );
     }
 
     @SneakyThrows

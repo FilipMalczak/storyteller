@@ -1,6 +1,8 @@
 package com.github.filipmalczak.storyteller.api.stack.task;
 
 import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.JournalEntry;
+import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.SubtaskDefined;
+import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.SubtaskDisowned;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -27,6 +29,12 @@ public class Task<Id, Definition, Type extends Enum<Type> & TaskType> {
 
     public Stream<JournalEntry> getJournalEntries() {
         return journal.stream();
+    }
+
+    public Stream<Task<Id, Definition, Type>> getDisownedSubtasks(){
+        return getJournalEntries()
+            .filter(e -> e instanceof SubtaskDisowned)
+            .map(e -> ((SubtaskDisowned) e).getDisownedSubtask());
     }
 
     @Override

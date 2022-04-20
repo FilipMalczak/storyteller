@@ -1,5 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.storage.config;
 
+import com.github.filipmalczak.storyteller.api.stack.task.id.IdSerializer;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
