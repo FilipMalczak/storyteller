@@ -35,7 +35,7 @@ public class ReportOptions<Id, Definition, Type extends TaskType> {
     @NonNull HtmlRenderer<Definition> definitionRenderer = HtmlRenderer.asString();
     @Builder.Default
     @NonNull HtmlRenderer<Type> typeRenderer = t -> badge(
-                iconForTypeModifier(t.getModifier()).renderHtml()+t.toString(),
+                t.toString(),
                 true,
                 "secondary"
             )

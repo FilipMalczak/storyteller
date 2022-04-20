@@ -2,7 +2,7 @@ package com.github.filipmalczak.storyteller.impl.visualize;
 
 import com.github.filipmalczak.storyteller.api.stack.task.Task;
 import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
-import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.SubtaskDefined;
+import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.*;
 import com.github.filipmalczak.storyteller.api.visualize.HtmlReportGenerator;
 import com.github.filipmalczak.storyteller.api.visualize.ReportOptions;
 import com.github.filipmalczak.storyteller.api.visualize.StartingPoint;
@@ -15,9 +15,9 @@ import lombok.experimental.FieldDefaults;
 import org.dizitart.no2.Nitrite;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.time.Duration;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.filipmalczak.storyteller.api.visualize.html.Html.*;
@@ -178,6 +178,7 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
                     node("h1",
                         sequence(
                             options.getTypeRenderer().renderable(task.getType()),
+                            iconForTypeModifier(task.getType().getModifier()),
                             options.getDefinitionRenderer().renderable(task.getDefinition())
                         )
                     )
@@ -194,7 +195,10 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
                 node("li", cssClass("breadcrumb-item"),
                     node("a",
                         attr("href", "./"+options.getIdIdSerializer().toString(ancestor.getId())+".html"),
-                        options.getDefinitionRenderer().renderable(ancestor.getDefinition())
+                        sequence(
+                            iconForTypeModifier(ancestor.getType().getModifier()),
+                            options.getDefinitionRenderer().renderable(ancestor.getDefinition())
+                        )
                     )
                 )
             );
@@ -213,16 +217,50 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
             node("div", cssClass("row"),
                 node("div", cssClass("col"),
                     node("h2",
-                        literal("Runs")
+                        literal("Leaf task details")
                     )
                 )
             ),
             node("div", cssClass("row"),
                 node("div", cssClass("col"),
-                    literal("TODO")
+                    node("ul", sequence(
+                        node("li", literal("Succeeded on run #"+numberOfRuns(task))),
+                        node("li", literal("Skipped "+numberOfSkips(task)+" times")),
+                        node("li", literal("Took "+duration(task))) //todo this doesnt make sense when read out loud
+                    ))
                 )
             )
         );
+    }
+
+    private static long numberOfRuns(Task task){
+        return task.getJournalEntries().filter(e -> e instanceof InstructionsRan).count();
+    }
+
+    private static long numberOfSkips(Task task){
+        return task.getJournalEntries().filter(e -> e instanceof InstructionsSkipped).count();
+    }
+
+    private static record DurationAndSessionId(String sessionId, Duration duration) {}
+
+    private static Optional<DurationAndSessionId> duration(Task task){
+        Map<String, List<JournalEntry>> runsAndEnds = (Map<String, List<JournalEntry>>) task
+            .getJournalEntries()
+            .filter(e -> e instanceof InstructionsRan || e instanceof TaskEnded)
+            .collect(Collectors.groupingBy((JournalEntry e) -> e.getSession().getId()));
+        var results = new ArrayList<DurationAndSessionId>();
+        for (var sessionId: runsAndEnds.keySet()) {
+            var events = runsAndEnds.get(sessionId);
+            if (events.size() >= 2) {
+                var last = events.get(events.size()-1);
+                var prev  = events.get(events.size()-2);
+                if (last instanceof TaskEnded && prev instanceof InstructionsRan) {
+                    results.add(new DurationAndSessionId(sessionId, Duration.between(prev.getHappenedAt(), last.getHappenedAt())));
+                }
+            }
+        }
+        require(results.size() < 2);
+        return results.stream().findFirst();
     }
 
     private Renderable subtasks(List<Task<Id, Definition, Type>> ancestors,
