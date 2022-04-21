@@ -1,32 +1,32 @@
 package com.github.filipmalczak.storyteller.story.example1;
 
 import com.github.filipmalczak.storyteller.api.visualize.ReportOptions;
-import com.github.filipmalczak.storyteller.api.visualize.StartingPoint;
 import com.github.filipmalczak.storyteller.impl.story.*;
 import com.github.filipmalczak.storyteller.impl.visualize.NitriteReportGenerator;
 import com.github.filipmalczak.storyteller.impl.visualize.start.StartingPoints;
 import lombok.SneakyThrows;
 import lombok.extern.flogger.Flogger;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.stream.IntStream;
 
-import static com.github.filipmalczak.storyteller.api.visualize.html.Bootstrap.badge;
-import static com.github.filipmalczak.storyteller.api.visualize.html.Html.literal;
-import static com.github.filipmalczak.storyteller.api.visualize.html.Html.sequence;
+import static com.github.filipmalczak.storyteller.impl.visualize.html.Bootstrap.badge;
+import static com.github.filipmalczak.storyteller.impl.visualize.html.Html.literal;
+import static com.github.filipmalczak.storyteller.impl.visualize.html.Html.sequence;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
-import static org.dizitart.no2.objects.filters.ObjectFilters.and;
 import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
 
 @Flogger
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ExampleExperiment {
     @Test
-//    @Disabled
+    @Order(1)
     void run(){
         var storyteller = new NitriteBasedStorytellerFactory().create(Path.of("examples/example1"));
         storyteller.tell("Finding x", (a, as) -> {
@@ -43,14 +43,19 @@ public class ExampleExperiment {
                     int cVal = Integer.parseInt(rw.files().readAll(Path.of("c")));
                     int dVal = Integer.parseInt(rw.files().readAll(Path.of("d")));
                     rw.files().writer(Path.of("x"), w -> w.println(calculate(aVal, bVal, cVal, dVal)));
+
+
                 });
                 t.scene("Calculate starting number of divisors", rw -> {
                     int xVal = Integer.parseInt(rw.files().readAll(Path.of("x")));
                     rw.documents()
                         .getRepository(Divisors.class)
                         .insert(new Divisors(xVal, numberOfDivisors(xVal)));
+
                 });
+
             });
+
             for (var variable: asList("a", "b", "c", "d")) {
                 a.<Integer, Divisors>decision("Find best "+variable, d ->
                     d
@@ -85,6 +90,10 @@ public class ExampleExperiment {
                         })
                         .scoreComparator(comparing(Divisors::getNoOfDivisors).reversed())
                 );
+
+
+//                if (variable.equals("c"))
+//                    throw new RuntimeException("last exception and well succeed in a moment");
             }
             int aVal = Integer.parseInt(as.files().readAll(Path.of("a")));
             int bVal = Integer.parseInt(as.files().readAll(Path.of("b")));
@@ -102,7 +111,9 @@ public class ExampleExperiment {
         });
     }
 
+    //fixme even if we do the ordering, it still fails when running all the tests with gradle, becsuse the db is already opened...
     @Test
+    @Order(2)
     void renderReport(){
         var generator = new NitriteReportGenerator<String, SimpleDefinition, EpisodeType>(
             new File("examples/example1/index.no2")

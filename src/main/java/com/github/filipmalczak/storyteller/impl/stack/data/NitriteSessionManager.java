@@ -5,8 +5,10 @@ import com.github.filipmalczak.storyteller.impl.stack.data.model.SessionData;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.dizitart.no2.objects.ObjectRepository;
 
+import java.net.InetAddress;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,11 +37,14 @@ public class NitriteSessionManager implements SessionManager {
         return current;
     }
 
+    @SneakyThrows
     private void start(){
+        // https://stackoverflow.com/questions/7348711/recommended-way-to-get-hostname-in-java
+        // this discusses why this isn't the most reliable way to obtain hostname; it should suffice for now
         Session newSession = new Session(
             UUID.randomUUID().toString(),
             ZonedDateTime.now(),
-            "hostname" //todo
+            InetAddress.getLocalHost().getHostName()
         );
         repository.insert(SessionData.fromSession(newSession));
         current = newSession;

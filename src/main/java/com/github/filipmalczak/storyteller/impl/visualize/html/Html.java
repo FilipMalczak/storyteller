@@ -1,5 +1,6 @@
-package com.github.filipmalczak.storyteller.api.visualize.html;
+package com.github.filipmalczak.storyteller.impl.visualize.html;
 
+import com.github.filipmalczak.storyteller.api.visualize.html.Renderable;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;

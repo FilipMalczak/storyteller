@@ -1,22 +1,16 @@
 package com.github.filipmalczak.storyteller.api.visualize;
 
-import com.fasterxml.jackson.databind.type.TypeModifier;
 import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import com.github.filipmalczak.storyteller.api.visualize.html.HtmlRenderer;
 import com.github.filipmalczak.storyteller.api.stack.task.id.IdSerializer;
-import com.github.filipmalczak.storyteller.api.visualize.html.Renderable;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Singular;
 import lombok.Value;
 
 import java.util.Map;
-import java.util.Optional;
 
-import static com.github.filipmalczak.storyteller.api.stack.task.TaskType.TaskTypeModifier.*;
-import static com.github.filipmalczak.storyteller.api.visualize.html.Bootstrap.badge;
-import static com.github.filipmalczak.storyteller.api.visualize.html.Html.*;
-import static com.github.filipmalczak.storyteller.api.visualize.html.Icons.iconForTypeModifier;
+import static com.github.filipmalczak.storyteller.impl.visualize.html.Bootstrap.badge;
 
 /**
  * Depths are interpreted as:
@@ -34,6 +28,7 @@ public class ReportOptions<Id, Definition, Type extends TaskType> {
     @Builder.Default
     @NonNull HtmlRenderer<Definition> definitionRenderer = HtmlRenderer.asString();
     @Builder.Default
+    //fixme default are using impl utility methods
     @NonNull HtmlRenderer<Type> typeRenderer = t -> badge(
                 t.toString(),
                 true,

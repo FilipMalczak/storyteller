@@ -1,10 +1,11 @@
-package com.github.filipmalczak.storyteller.api.visualize.html;
+package com.github.filipmalczak.storyteller.impl.visualize.html;
 
 import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
+import com.github.filipmalczak.storyteller.api.visualize.html.Renderable;
 
-import static com.github.filipmalczak.storyteller.api.visualize.html.Bootstrap.badge;
-import static com.github.filipmalczak.storyteller.api.visualize.html.Html.*;
-import static com.github.filipmalczak.storyteller.api.visualize.html.Html.empty;
+import static com.github.filipmalczak.storyteller.impl.visualize.html.Bootstrap.badge;
+import static com.github.filipmalczak.storyteller.impl.visualize.html.Html.*;
+import static com.github.filipmalczak.storyteller.impl.visualize.html.Html.empty;
 
 public class Icons {
     public static Renderable iconForTypeModifier(TaskType.TaskTypeModifier modifier){

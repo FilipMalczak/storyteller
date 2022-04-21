@@ -5,8 +5,11 @@ import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.*;
 import com.github.filipmalczak.storyteller.impl.stack.data.SessionManager;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.ZonedDateTime;
 
 @AllArgsConstructor
@@ -46,9 +49,21 @@ public class JournalEntryFactory {
         return new DisownedByParent(sessionManager.getCurrent(), ZonedDateTime.now());
     }
 
+    @SneakyThrows
     public ExceptionCaught exceptionCaught(Exception e){
+        String trace;
+        try (var sw = new StringWriter(); var writer = new PrintWriter(sw)) {
+            e.printStackTrace(writer);
+            trace = sw.toString();
+        }
+
         //todo extract stack trace to string
-        return new ExceptionCaught(sessionManager.getCurrent(), ZonedDateTime.now(), e.getMessage(), "");
+        return new ExceptionCaught(
+            sessionManager.getCurrent(), ZonedDateTime.now(),
+            e.getClass().getCanonicalName(),
+            e.getMessage(),
+            trace
+        );
     }
 
     public TaskEnded taskEnded(){

@@ -2,10 +2,7 @@ package com.github.filipmalczak.storyteller.api.stack.task.journal.entries;
 
 import com.github.filipmalczak.storyteller.api.stack.Session;
 import com.github.filipmalczak.storyteller.api.stack.task.Task;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.ZonedDateTime;
@@ -15,9 +12,9 @@ import java.time.ZonedDateTime;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public sealed class AbstractSubtaskJournalEntry extends AbstractJournalEntry implements ReferencesSubtask permits BodyChanged, SubtaskDefined, SubtaskDisowned {
-    Task referenced;
+    @NonNull Task referenced;
 
-    public AbstractSubtaskJournalEntry(Session session, ZonedDateTime happenedAt, Task referenced) {
+    public AbstractSubtaskJournalEntry(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull Task referenced) {
         super(session, happenedAt);
         this.referenced = referenced;
     }

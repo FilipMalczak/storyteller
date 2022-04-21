@@ -3,6 +3,7 @@ package com.github.filipmalczak.storyteller.api.stack.task.journal.entries;
 import com.github.filipmalczak.storyteller.api.stack.Session;
 import com.github.filipmalczak.storyteller.api.stack.task.Task;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 
 import java.time.ZonedDateTime;
@@ -14,7 +15,7 @@ public final class BodyChanged extends AbstractSubtaskJournalEntry {
         return getReferenced();
     }
 
-    public BodyChanged(Session session, ZonedDateTime happenedAt, Task referenced) {
+    public BodyChanged(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull Task referenced) {
         super(session, happenedAt, referenced);
     }
 }

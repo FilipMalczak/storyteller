@@ -128,7 +128,7 @@ public class StackBasedStoryteller<NoSql> implements Storyteller<NoSql> {
                 .domain.get()
                 .map(k -> {
                     var keyArc = exec.execute(
-                        new SimpleDefinition("domain", k),
+                        new SimpleDefinition("choice option", k),
                         EpisodeType.ARC,
                         (domainExec, domainStorage) -> closure.body.research(k, makeArcClosure(domainExec))
                     );

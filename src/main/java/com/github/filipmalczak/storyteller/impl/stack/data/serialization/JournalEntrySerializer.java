@@ -33,10 +33,11 @@ public class JournalEntrySerializer {
         Class<T> resultClass = (Class<T>) data.getType().getEntryClass();
         if (describesException(data.getType())){
             return (T) resultClass
-                .getConstructor(Session.class, ZonedDateTime.class, String.class, String.class)
+                .getConstructor(Session.class, ZonedDateTime.class, String.class, String.class, String.class)
                 .newInstance(
                     sessionManager.getById(data.getSessionId()),
                     data.getHappenedAt(),
+                    (String) data.getAdditionalFields().get("className"),
                     (String) data.getAdditionalFields().get("message"),
                     (String) data.getAdditionalFields().get("stackTrace")
                 );
@@ -66,6 +67,7 @@ public class JournalEntrySerializer {
         Map<String, Object> additional = new HashMap<>();
         var type = toType(entry);
         if (describesException(type)){
+            additional.put("className", ((ExceptionCaught) entry).getClassName());
             additional.put("message", ((ExceptionCaught) entry).getMessage());
             additional.put("stackTrace", ((ExceptionCaught) entry).getFullStackTrace());
         } else if (referencesSubtask(type)){

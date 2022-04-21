@@ -1,10 +1,7 @@
 package com.github.filipmalczak.storyteller.api.stack.task.journal.entries;
 
 import com.github.filipmalczak.storyteller.api.stack.Session;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.ZonedDateTime;
@@ -14,11 +11,13 @@ import java.time.ZonedDateTime;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public final class ExceptionCaught extends AbstractJournalEntry {
-    String message;
-    String fullStackTrace;
+    @NonNull String className;
+    String message; //nullable, as not every exception has a message
+    @NonNull String fullStackTrace;
 
-    public ExceptionCaught(Session session, ZonedDateTime happenedAt, String message, String fullStackTrace) {
+    public ExceptionCaught(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull String className, String message, @NonNull String fullStackTrace) {
         super(session, happenedAt);
+        this.className = className;
         this.message = message;
         this.fullStackTrace = fullStackTrace;
     }
