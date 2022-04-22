@@ -6,15 +6,16 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public sealed class AbstractSubtaskJournalEntry extends AbstractJournalEntry implements ReferencesSubtask permits BodyChanged, SubtaskDefined, SubtaskDisowned {
-    @NonNull Task referenced;
+public sealed class AbstractReferencesSubtasks extends AbstractJournalEntry implements ReferencesSubtask permits BodyChanged, BodyShrunk, ChoiceWasMade, SubtaskDefined, SubtaskDisowned, SubtaskIncorporated {
+    @NonNull List<Task> referenced;
 
-    public AbstractSubtaskJournalEntry(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull Task referenced) {
+    public AbstractReferencesSubtasks(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Task> referenced) {
         super(session, happenedAt);
         this.referenced = referenced;
     }

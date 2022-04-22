@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static com.github.filipmalczak.storyteller.impl.visualize.html.Html.*;
+import static com.github.filipmalczak.storyteller.impl.visualize.html.Icons.icon;
 import static com.github.filipmalczak.storyteller.impl.visualize.html.Icons.iconForTypeModifier;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
@@ -354,8 +355,7 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
                 attr("data-trigger", "focus"),
                 attr("data-placement", "top"),
                 attr("title", "Session #"+no),
-                //todo add ID?
-                attr("data-content", "Started at "+s.getStartedAt()+" on host "+s.getHostname())
+                attr("data-content", "Started at "+s.getStartedAt()+" on host "+s.getHostname()+" ; ID: "+s.getId())
             );
         }
 
@@ -372,7 +372,12 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
                 row.add(literal(entry.getHappenedAt().toString()));
                 for (int i = 0; i < sessionIdx; ++i)
                     row.add(empty());
-                row.add(literal(EntryType.toType(entry).toString()));
+                String entryTxt = EntryType.toType(entry).toString();
+                if (entry instanceof ReferencesSubtask) {
+                    entryTxt += " -> "+((ReferencesSubtask) entry).getReferenced().stream().map(Task::getDefinition).toList();
+                } else if (entry instanceof ExceptionCaught)
+                    entryTxt += " : "+((ExceptionCaught) entry).getClassName()+"("+((ExceptionCaught) entry).getMessage()+")";
+                row.add(literal(entryTxt));
                 for (int i = sessionIdx + 1; i < orderedSessions.size(); ++i)
                     row.add(empty());
                 rows.add(row);

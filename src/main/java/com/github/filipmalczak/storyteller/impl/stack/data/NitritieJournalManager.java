@@ -24,8 +24,14 @@ public class NitritieJournalManager<TaskId extends Comparable<TaskId>> implement
     @NonNull JournalEntrySerializer serializer;
 
     @Override
-    public void record(Task<TaskId, ?, ?> task, JournalEntry entry) {
-        repository.insert(serializer.fromEntry(task, entry));
+    public void record(TaskEntry<TaskId>... entries) {
+        JournalEntryData<TaskId>[] toInsert = new JournalEntryData[entries.length];
+        for (int i = 0; i< entries.length; ++i){
+            var e = entries[i];
+            e.task().record(e.entry());
+            toInsert[i] = serializer.fromEntry(e.task(), e.entry());
+        }
+        repository.insert(toInsert);
     }
 
     @Override

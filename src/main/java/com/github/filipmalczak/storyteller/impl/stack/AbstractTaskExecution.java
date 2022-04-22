@@ -4,7 +4,6 @@ import com.github.filipmalczak.storyteller.api.stack.task.Task;
 import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import com.github.filipmalczak.storyteller.api.stack.task.id.IdGenerator;
 import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.InstructionsSkipped;
-import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.JournalEntry;
 import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.TaskEnded;
 import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.TaskStarted;
 import com.google.common.flogger.FluentLogger;
@@ -13,7 +12,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
-import org.valid4j.Assertive;
 
 import java.util.*;
 
@@ -30,6 +28,7 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
     final Type type;
     final Body body;
     final SubtaskOrderingStrategy<Id> orderingStrategy;
+    final boolean recordIncorporateToParent;
 
 //    Expectations expectations;
     Optional<Task<Id, Definition, Type>> parent;
@@ -39,16 +38,11 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
     @Getter
     Task<Id, Definition, Type> thisTask;
 
+    boolean amended;
     boolean defined;
     boolean finished;
     
     protected abstract FluentLogger getLogger();
-
-//    protected abstract Expectations getExpected();
-
-//    private Optional<Deque<Id>> getExpected(){
-//        return internals.trace().stream().findFirst().map(TraceEntry::getExpectedSubtaskIds);
-//    }
 
     private Optional<Task<Id, Definition, Type>> getParent(){
         return internals.trace().stream().findFirst().map(TraceEntry::getExecutedTask);
@@ -56,9 +50,7 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
 
     private void init() {
         getLogger().atFine().log("Executing '%s' of type %s", definition, type);
-//        expectations = getExpected();
         parent = getParent();
-//        getLogger().atFine().log("Known subtasks of parent: %s", expectations); //todo
         idGenerator = internals.idGeneratorFactory().over(definition, type);
     }
 
@@ -71,13 +63,15 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
 
     private void build() {
         defined = false;
+        amended = false;
         if (!orderingStrategy.hasExpectations()) {
             id = idGenerator.generate();
             //todo different log for root
             getLogger().atFine().log("Task wasn't defined yet; generated ID: %s", id);
             if (parent.isPresent() && isParentFinished()) {
                 getLogger().atFine().log("Parent was finished; extending parent");
-                recordInParent(internals.journalEntryFactory().nodeExtended());
+                internals.events().bodyExtended(getParent().get());
+                amended = true;
                 disownExpectedUpTheTrace();
             }
         } else {
@@ -92,6 +86,7 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
                 getLogger().atFine().log("Reusing ID of already defined task: %s", id);
             } else {
                 orderingStrategy.onNoReusable(candidates);
+                amended = true;
             }
         }
         var found = internals.managers().getTaskManager().findById(id);
@@ -122,25 +117,66 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
                 getLogger().atFine().log("Subtask %s already defined", id);
             }
         finished = isFinished();
+        amended &= finished;
         if (!isStarted()) {
-            record(internals.journalEntryFactory().taskStarted());
-            getLogger().atFine().log("Recorded the start of task %s", id);
+            internals.events().taskStarted(thisTask);
+            getLogger().atFine().log("Started task %s", id);
         } else {
             getLogger().atFine().log("Task %s already started", id);
         }
+        if (amended) {
+            var conflicting = orderingStrategy.getConflicts();
+            if (conflicting != null) {
+                var conflicts = conflicting.stream()
+                    .map(
+                        internals
+                            .managers()
+                            .getTaskManager()::getById
+                    )
+                    .toList();
+                internals.events().bodyChanged(
+                    thisTask,
+                    conflicts
+                );
+                //todo this could be optimized
+                disownSubtasks(thisTask, conflicting);
+                disownExpectedUpTheTrace();
+            }
+            internals.events().taskAmended(thisTask);
+            getLogger().atFine().log("Amended task %s", id);
+        }
         internals.history().start(id, parent.map(Task::getId));
         handleBody();
+        //fixme this is not the place to notice shrinking
+//        if (orderingStrategy.hasExpectations()) {
+//            //todo this is pretty messy, make it nicer
+//            var leftovers = orderingStrategy.getCandidatesForReusing()
+//                .stream()
+//                .map(internals.managers().getTaskManager()::getById)
+//                .toList();
+//            internals.events().bodyShrunk(
+//                thisTask,
+//                leftovers.stream().map(t -> (Task) t).toList()
+//            );
+//            getLogger().atFine().log("Task %s has shrunk", id);
+//            disownSubtasks(thisTask, orderingStrategy.getCandidatesForReusing().stream().toList());
+//            disownExpectedUpTheTrace();
+//        }
         internals.history().add(id, id, type.isLeaf());
         for (var traceEntry : internals.trace()) {
             internals.history().add(traceEntry.getExecutedTask().getId(), id, type.isLeaf());
         }
         internals.trace().stream().findFirst().ifPresent(e -> e.getStorage().reload());
         if (!finished) {
-            record(internals.journalEntryFactory().taskEnded());
-            getLogger().atFine().log("Recorded the end of task %s", id);
+            internals.events().taskEnded(thisTask);
+            getLogger().atFine().log("Ended task %s", id);
         } else {
             getLogger().atFine().log("Task %s already finished", id);
         }
+        if (recordIncorporateToParent && parent.isPresent()) {
+            internals.events().subtaskIncorporated(parent.get(), thisTask);
+        }
+
     }
 
     @SneakyThrows
@@ -149,18 +185,19 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
             handleRunning();
         } catch (Exception e) {
             //todo test proper rethrowing of exceptions
-            if (e instanceof AlreadyRecordedException) {
+            if (e instanceof ThrowingAlreadyRecordedException) {
+                internals.events().taskInterrupted(thisTask);
                 if (type.isRoot()) {
-                    throw ((AlreadyRecordedException) e).getAlreadyRecorded();
+                    throw ((ThrowingAlreadyRecordedException) e).getAlreadyRecorded();
                 } else {
                     throw e;
                 }
             } else {
-                record(internals.journalEntryFactory().exceptionCaught(e));
+                internals.events().exeptionCaught(thisTask, e);
                 if (type.isRoot()) {
                     throw e;
                 } else {
-                    throw new AlreadyRecordedException(e);
+                    throw new ThrowingAlreadyRecordedException(e);
                 }
             }
         }
@@ -199,39 +236,17 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
         return firstNonSkip.get() instanceof TaskEnded;
     }
 
-    private void recordEntry(Task<Id, Definition, Type> task, JournalEntry entry){
-        getLogger().atFine().log("Recording for %s: %s", task.getId(), entry);
-        internals.managers()
-            .getJournalEntryManager()
-            .record(
-                task,
-                task.record(entry)
-            );
-    }
-
-    protected void record(JournalEntry entry) {
-        recordEntry(thisTask, entry);
-    }
-
-    protected void recordInParent(JournalEntry entry) {
-        recordEntry(parent.get(), entry);
-    }
-
     private void defineInParent() {
         var p = parent.get();
         getLogger().atFine().log("Defining subtask %s in parent %s", id, p.getId());
         p.getSubtasks().add(thisTask);
         internals.managers().getTaskManager().update(p);
-        recordInParent(internals.journalEntryFactory().subtaskDefined(thisTask));
+        internals.events().defineSubtask(p, thisTask);
     }
 
     protected void disownExpectedUpTheTrace() {
         for (var entry : internals.trace()) {
             disownExpectationsThatAreLeft(entry);
-            //sublist(1), because
-//            var toDisown = new LinkedList<>(entry.getExpectedSubtaskIds());
-////            toDisown.remove(0);
-//            disown(entry.getExecutedTask(), toDisown);
         }
     }
 
@@ -253,24 +268,15 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
                 "All the disowned tasks must be at the end of the subtask list of the parent"
             );
             getLogger().atFine().log("Disowning %s subtasks of task %s: %s", disownedSubtasks.size(), task.getId(), toDisown);
-            for (var disowned : disownedSubtasks) {
-                recordEntry(task, internals.journalEntryFactory().subtaskDisowned(disowned));
-                recordEntry(disowned, internals.journalEntryFactory().disownedByParent());
-            }
+            internals.events().subtasksDisowned(task, disownedSubtasks);
             disownedSubtasks.clear();
-            toDisown.clear();
-
-            //fioxme
+            toDisown.clear(); //this is passed by reference and actually points to the same list as the trace entry
             internals.managers().getTaskManager().update(task);
         }
     }
 
     public ExecutionFriend<Id, Definition, Type> getFriend(){
-        return new ExecutionFriend<Id, Definition, Type>() {
-            @Override
-            public void recordInParent(JournalEntry entry) {
-                AbstractTaskExecution.this.recordInParent(entry);
-            }
+        return new ExecutionFriend<>() {
 
             @Override
             public void disownExpectedUpTheTrace() {
@@ -280,11 +286,6 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
             @Override
             public void setId(Id id) {
                 AbstractTaskExecution.this.id = id;
-            }
-
-            @Override
-            public JournalEntryFactory journalEntryFactory() {
-                return AbstractTaskExecution.this.internals.journalEntryFactory();
             }
 
             @Override
@@ -298,8 +299,18 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
             }
 
             @Override
+            public Task<Id, Definition, Type> thisTask() {
+                return AbstractTaskExecution.this.thisTask;
+            }
+
+            @Override
             public Id parentId() {
                 return AbstractTaskExecution.this.parent.get().getId();
+            }
+
+            @Override
+            public Events<Id> events() {
+                return AbstractTaskExecution.this.internals.events();
             }
         };
     }

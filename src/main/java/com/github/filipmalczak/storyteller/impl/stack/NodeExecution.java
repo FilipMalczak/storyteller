@@ -15,8 +15,8 @@ import static org.valid4j.Assertive.require;
 class NodeExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>
     extends AbstractTaskExecution<Id, Definition, Type, NodeBody<Id, Definition, Type, Nitrite>> {
 
-    public NodeExecution(NitriteStackedExecutor.NitriteStackedExecutorInternals<Id, Definition, Type> internals, Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, SubtaskOrderingStrategy<Id> orderingStrategy) {
-        super(internals, definition, type, body, orderingStrategy);
+    public NodeExecution(NitriteStackedExecutor.NitriteStackedExecutorInternals<Id, Definition, Type> internals, Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, SubtaskOrderingStrategy<Id> orderingStrategy, boolean recordIncorporateToParent) {
+        super(internals, definition, type, body, orderingStrategy, recordIncorporateToParent);
     }
 
     @Override
@@ -49,7 +49,9 @@ class NodeExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Typ
                 internals.history(),
                 internals.storageConfig(),
                 internals.idGeneratorFactory(),
-                newTrace
+                newTrace,
+                internals.events(),
+                true
             ),
             storage
         );
@@ -57,6 +59,7 @@ class NodeExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Typ
 
     @Override
     protected void handleRunning() {
+        internals.events().taskPerformed(thisTask, false);
         getLogger().atFine().log("Running instructions of task %s (as always for nodes)", id);
         runInstructions();
     }

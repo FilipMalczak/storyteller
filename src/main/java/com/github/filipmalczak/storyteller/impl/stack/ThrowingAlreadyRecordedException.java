@@ -8,11 +8,11 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @ToString
-class AlreadyRecordedException extends RuntimeException {
+class ThrowingAlreadyRecordedException extends RuntimeException {
     @Getter
     @NonNull Exception alreadyRecorded;
 
-    public AlreadyRecordedException(@NonNull Exception alreadyRecorded) {
+    public ThrowingAlreadyRecordedException(@NonNull Exception alreadyRecorded) {
         super(alreadyRecorded);
         this.alreadyRecorded = alreadyRecorded;
     }

@@ -13,8 +13,8 @@ import static org.valid4j.Assertive.require;
 class LeafExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>
     extends AbstractTaskExecution<Id, Definition, Type, LeafBody<Id, Definition, Type, Nitrite>> {
 
-    public LeafExecution(NitriteStackedExecutor.NitriteStackedExecutorInternals<Id, Definition, Type> internals, Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> idDefinitionTypeNitriteLeafBody, SubtaskOrderingStrategy<Id> orderingStrategy) {
-        super(internals, definition, type, idDefinitionTypeNitriteLeafBody, orderingStrategy);
+    public LeafExecution(NitriteStackedExecutor.NitriteStackedExecutorInternals<Id, Definition, Type> internals, Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> idDefinitionTypeNitriteLeafBody, SubtaskOrderingStrategy<Id> orderingStrategy, boolean recordIncorporateToParent) {
+        super(internals, definition, type, idDefinitionTypeNitriteLeafBody, orderingStrategy, recordIncorporateToParent);
     }
 
     @Override
@@ -30,13 +30,12 @@ class LeafExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Typ
 
     @Override
     protected void handleRunning() {
+        internals.events().taskPerformed(thisTask, finished);
         if (!finished) {
             getLogger().atFine().log("Running instructions of unfinished leaf task %s", id);
-            record(internals.journalEntryFactory().instructionsRan());
             runInstructions();
         } else {
             getLogger().atFine().log("Skipping already finished subtask %s", id);
-            record(internals.journalEntryFactory().instructionsSkipped());
         }
     }
 

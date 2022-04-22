@@ -21,12 +21,14 @@ public class NitriteStackedExecutorFactory<Id extends Comparable<Id>, Definition
             .registerModule(new JavaTimeModule())
             .openOrCreate();
         var managers = new NitriteManagers<Id, Definition, Type>(no2);
-        return new NitriteStackedExecutor<Id, Definition, Type>(
+        return new NitriteStackedExecutor<>(
             managers,
             new HistoryTracker<>(managers.getHistoryManager()),
             config.getStorageConfig(),
             config.getGeneratorFactory(),
-            new LinkedList<>()
+            new LinkedList<>(),
+            new Events<>(managers.getJournalEntryManager(), new JournalEntryFactory(managers.getSessionManager())),
+            true
         );
     }
 }

@@ -29,6 +29,7 @@ public class ChoiceExecutor<Id extends Comparable<Id>, Definition, Type extends 
     @NonNull HistoryTracker<Id> history;
     @NonNull NitriteStorageConfig<Id> storageConfig;
     @NonNull IdGeneratorFactory<Id, Definition, Type> idGeneratorFactory;
+    @NonNull Events<Id> events;
     @NonNull List<TraceEntry<Id, Definition, Type>> trace;
 
     @NonNull Map<Id, HistoryTracker<Id>> histories = new HashMap<>();
@@ -36,7 +37,15 @@ public class ChoiceExecutor<Id extends Comparable<Id>, Definition, Type extends 
     @Override
     public Task<Id, Definition, Type> execute(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body) {
         var subtaskHistory = history.copy();
-        var subtask = new NitriteStackedExecutor<>(managers, subtaskHistory, storageConfig, idGeneratorFactory, new ArrayList<>(trace)).execute(definition, type, body);
+        var subtask = new NitriteStackedExecutor<>(
+            managers,
+            subtaskHistory,
+            storageConfig,
+            idGeneratorFactory,
+            new ArrayList<>(trace),
+            events,
+            false
+        ).execute(definition, type, body);
         histories.put(subtask.getId(), subtaskHistory);
         return subtask;
     }
@@ -44,7 +53,15 @@ public class ChoiceExecutor<Id extends Comparable<Id>, Definition, Type extends 
     @Override
     public Task<Id, Definition, Type> execute(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
         var subtaskHistory = history.copy();
-        var subtask = new NitriteStackedExecutor<>(managers, subtaskHistory, storageConfig, idGeneratorFactory, new ArrayList<>(trace)).execute(definition, type, body);
+        var subtask = new NitriteStackedExecutor<>(
+            managers,
+            subtaskHistory,
+            storageConfig,
+            idGeneratorFactory,
+            new ArrayList<>(trace),
+            events,
+            false
+        ).execute(definition, type, body);
         histories.put(subtask.getId(), subtaskHistory);
         return subtask;
     }
@@ -52,7 +69,15 @@ public class ChoiceExecutor<Id extends Comparable<Id>, Definition, Type extends 
     @Override
     public Task<Id, Definition, Type> chooseNextSteps(Definition definition, Type type, ChoiceBody<Id, Definition, Type, Nitrite> body) {
         var subtaskHistory = history.copy();
-        var subtask = new NitriteStackedExecutor<>(managers, subtaskHistory, storageConfig, idGeneratorFactory, new ArrayList<>(trace)).chooseNextSteps(definition, type, body);
+        var subtask = new NitriteStackedExecutor<>(
+            managers,
+            subtaskHistory,
+            storageConfig,
+            idGeneratorFactory,
+            new ArrayList<>(trace),
+            events,
+            false
+        ).chooseNextSteps(definition, type, body);
         histories.put(subtask.getId(), subtaskHistory);
         return subtask;
     }

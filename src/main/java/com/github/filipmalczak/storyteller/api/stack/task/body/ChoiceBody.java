@@ -7,6 +7,7 @@ import com.github.filipmalczak.storyteller.api.storage.ReadStorage;
 
 import java.util.function.Function;
 
+//todo once we rename to ...tree, this should become ParallelNodeBody (once it has integrate param too)
 public interface ChoiceBody<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> {
     interface Insight<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> {
         ReadStorage<NoSql> into(Id id);
@@ -16,6 +17,7 @@ public interface ChoiceBody<Id extends Comparable<Id>, Definition, Type extends 
         }
     }
 
+    //todo rethink these; once you do, ass toBeContinued feature too<
     class SubtaskNotFoundException extends RuntimeException {
         //todo
     }

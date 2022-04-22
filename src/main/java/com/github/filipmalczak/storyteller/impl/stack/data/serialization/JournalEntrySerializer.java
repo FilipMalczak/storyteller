@@ -16,6 +16,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -42,13 +43,13 @@ public class JournalEntrySerializer {
                     (String) data.getAdditionalFields().get("stackTrace")
                 );
         }
-        if (referencesSubtask(data.getType())) {
+        if (referencesSubtasks(data.getType())) {
             return (T) resultClass
-                .getConstructor(Session.class, ZonedDateTime.class, Task.class)
+                .getConstructor(Session.class, ZonedDateTime.class, List.class)
                 .newInstance(
                     sessionManager.getById(data.getSessionId()),
                     data.getHappenedAt(),
-                    (Task) taskManager.getById(data.getAdditionalFields().get("referenced"))
+                    ((List) data.getAdditionalFields().get("referenced")).stream().map(taskManager::getById).toList()
                 );
         }
         return (T) resultClass
@@ -70,8 +71,8 @@ public class JournalEntrySerializer {
             additional.put("className", ((ExceptionCaught) entry).getClassName());
             additional.put("message", ((ExceptionCaught) entry).getMessage());
             additional.put("stackTrace", ((ExceptionCaught) entry).getFullStackTrace());
-        } else if (referencesSubtask(type)){
-            additional.put("referenced", ((ReferencesSubtask) entry).getReferenced().getId());
+        } else if (referencesSubtasks(type)){
+            additional.put("referenced", ((ReferencesSubtask) entry).getReferenced().stream().map(Task::getId).toList());
         }
         String id = taskId.toString()+"::"+toTimestamp(entry.getHappenedAt());
         return new JournalEntryData<>(

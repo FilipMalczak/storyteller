@@ -20,8 +20,8 @@ class ChoiceExecution<Id extends Comparable<Id>, Definition, Type extends Enum<T
     extends AbstractTaskExecution<Id, Definition, Type, ChoiceBody<Id, Definition, Type, Nitrite>> {
 
 
-    public ChoiceExecution(NitriteStackedExecutor.NitriteStackedExecutorInternals<Id, Definition, Type> internals, Definition definition, Type type, ChoiceBody<Id, Definition, Type, Nitrite> idDefinitionTypeNitriteChoiceBody, SubtaskOrderingStrategy<Id> orderingStrategy) {
-        super(internals, definition, type, idDefinitionTypeNitriteChoiceBody, orderingStrategy);
+    public ChoiceExecution(NitriteStackedExecutor.NitriteStackedExecutorInternals<Id, Definition, Type> internals, Definition definition, Type type, ChoiceBody<Id, Definition, Type, Nitrite> idDefinitionTypeNitriteChoiceBody, SubtaskOrderingStrategy<Id> orderingStrategy, boolean recordIncorporateToParent) {
+        super(internals, definition, type, idDefinitionTypeNitriteChoiceBody, orderingStrategy, recordIncorporateToParent);
     }
 
     @Override
@@ -47,8 +47,16 @@ class ChoiceExecution<Id extends Comparable<Id>, Definition, Type extends Enum<T
         var newEntry = new TraceEntry<>(thisTask, new LinkedList<>(thisTask.getSubtasks().stream().map(Task::getId).toList()), storage);
         getLogger().atFine().log("Pushing new trace entry: %s", newEntry);
         newTrace.addFirst(newEntry);
-        var choiceExecutor = new ChoiceExecutor<>(internals.managers(), internals.history(), internals.storageConfig(), internals.idGeneratorFactory(), newTrace);
+        var choiceExecutor = new ChoiceExecutor<>(
+            internals.managers(),
+            internals.history(),
+            internals.storageConfig(),
+            internals.idGeneratorFactory(),
+            internals.events(),
+            newTrace
+        );
         var chosen = body.makeChoice(choiceExecutor, storage, choiceExecutor.getInsights());
+        internals.events().decided(thisTask, chosen);
         acceptHistory(choiceExecutor.getHistory(chosen));
     }
 

@@ -35,4 +35,9 @@ public class AnyOrderStrategy<Id extends Comparable<Id>, Definition, Type extend
     public void onNoReusable(Collection<Id> candidates) {
 
     }
+
+    @Override
+    public List<Id> getConflicts() {
+        return null;
+    }
 }

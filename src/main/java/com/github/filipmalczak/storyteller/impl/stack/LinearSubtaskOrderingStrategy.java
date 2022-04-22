@@ -4,6 +4,7 @@ import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
 import com.github.filipmalczak.storyteller.impl.stack.ExecutionFriend;
 import com.github.filipmalczak.storyteller.impl.stack.SubtaskOrderingStrategy;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
@@ -23,6 +24,7 @@ import static org.valid4j.Assertive.require;
 public class LinearSubtaskOrderingStrategy<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements SubtaskOrderingStrategy<Id> {
     final List<Id> expectations;
     @Setter ExecutionFriend<Id, Definition, Type> friend;
+    @Getter List<Id> conflicts = null;
 
     @Override
     public boolean hasExpectations() {
@@ -51,7 +53,15 @@ public class LinearSubtaskOrderingStrategy<Id extends Comparable<Id>, Definition
         var def = friend.idGenerator().definition();
         log.atFine().log("Conflicting subtask of task %s: definition was %s, but is now %s", friend.parentId(), conflictingTask.getDefinition(), def);
         require(conflictingTask.getDefinition(), not(equalTo(def)));
-        friend.recordInParent(friend.journalEntryFactory().bodyChanged(conflictingTask));
+//        friend.events().bodyChanged(
+//            friend.thisTask(),
+//            candidates
+//                .stream()
+//                .map(friend::findTask)
+//                .map(Optional::get)
+//                .toList()
+//        ); //todo cleanup
+        conflicts = candidates.stream().toList();
         friend.disownExpectedUpTheTrace();
         friend.setId(friend.idGenerator().generate());
         log.atFine().log("Recovered from conflict; generated new ID: %s", expected);

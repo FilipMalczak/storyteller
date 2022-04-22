@@ -6,10 +6,7 @@ import com.github.filipmalczak.storyteller.impl.visualize.NitriteReportGenerator
 import com.github.filipmalczak.storyteller.impl.visualize.start.StartingPoints;
 import lombok.SneakyThrows;
 import lombok.extern.flogger.Flogger;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -36,6 +33,7 @@ public class ExampleExperiment {
                     rw.files().writer(Path.of("b"), w -> w.println(5));
                     rw.files().writer(Path.of("c"), w -> w.println(5));
                     rw.files().writer(Path.of("d"), w -> w.println(5));
+
                 });
                 t.scene("Calculate starting x", rw -> {
                     int aVal = Integer.parseInt(rw.files().readAll(Path.of("a")));
@@ -53,9 +51,7 @@ public class ExampleExperiment {
                         .insert(new Divisors(xVal, numberOfDivisors(xVal)));
 
                 });
-
             });
-
             for (var variable: asList("a", "b", "c", "d")) {
                 a.<Integer, Divisors>decision("Find best "+variable, d ->
                     d
@@ -91,7 +87,8 @@ public class ExampleExperiment {
                         .scoreComparator(comparing(Divisors::getNoOfDivisors).reversed())
                 );
 
-
+//                if (true)
+//                    throw new RuntimeException();
 //                if (variable.equals("c"))
 //                    throw new RuntimeException("last exception and well succeed in a moment");
             }
@@ -114,6 +111,7 @@ public class ExampleExperiment {
     //fixme even if we do the ordering, it still fails when running all the tests with gradle, becsuse the db is already opened...
     @Test
     @Order(2)
+//    @Disabled
     void renderReport(){
         var generator = new NitriteReportGenerator<String, SimpleDefinition, EpisodeType>(
             new File("examples/example1/index.no2")

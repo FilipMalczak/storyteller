@@ -11,13 +11,12 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public final class BodyChanged extends AbstractReferencesSubtasks {
-    public BodyChanged(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Task> referenced) {
+public final class BodyShrunk extends AbstractReferencesSubtasks {
+    public BodyShrunk(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Task> referenced) {
         super(session, happenedAt, referenced);
     }
 
-    public List<Task> getConflictingSubtasks(){
+    public List<Task> getDisappeared(){
         return getReferenced();
     }
-
 }

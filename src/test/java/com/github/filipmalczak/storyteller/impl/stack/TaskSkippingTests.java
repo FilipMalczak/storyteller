@@ -431,6 +431,7 @@ class TaskSkippingTests {
     }
 
     /*
+    FIXME critical: shrinking body! totally untested
      * Missing cases:
      * r(n(l1, l2)) -> r(nNew(l1, l2))
      * r(n(l1, l2)) -> r(nNew(l3, l4))

@@ -7,15 +7,16 @@ import lombok.NonNull;
 import lombok.ToString;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public final class SubtaskDisowned extends AbstractSubtaskJournalEntry {
-    public SubtaskDisowned(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull Task referred) {
-        super(session, happenedAt, referred);
+public final class SubtaskDisowned extends AbstractReferencesSubtasks {
+    public SubtaskDisowned(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Task> referenced) {
+        super(session, happenedAt, referenced);
     }
 
     public Task getDisownedSubtask(){
-        return getReferenced();
+        return getReferenced().get(0);
     }
 }

@@ -5,8 +5,8 @@ import lombok.NonNull;
 
 import java.time.ZonedDateTime;
 
-public final class NodeExtended extends AbstractJournalEntry {
-    public NodeExtended(@NonNull Session session, @NonNull ZonedDateTime happenedAt) {
+public final class BodyExtended extends AbstractJournalEntry {
+    public BodyExtended(@NonNull Session session, @NonNull ZonedDateTime happenedAt) {
         super(session, happenedAt);
     }
 }

@@ -41,16 +41,13 @@ public class NitriteTaskManager<Id extends Comparable<Id>, Definition, Type exte
         repository.insert(serializer.fromTask(task));
     }
 
+    /**
+     * Does not persist recorded journal entries. OTOH, journal entry manager adds (in-memory) recorded entries to
+     * the task and persists them in a way that will be reflected in future runtimes.
+     */
     @Override
     public void update(Task<Id, Definition, Type> task) {
         log.atFine().log("Updating task %s", task);
-        //todo wrap in a transaction
         repository.update(serializer.fromTask(task));
-        var existingEntries = journalEntryManager.findByTask(task).toList();
-        //todo I forgot that task manager persists journal entries too; they get persisted by executions too
-        task
-            .getJournalEntries()
-            .filter(not(existingEntries::contains))
-            .forEach(e -> journalEntryManager.record(task, e));
     }
 }

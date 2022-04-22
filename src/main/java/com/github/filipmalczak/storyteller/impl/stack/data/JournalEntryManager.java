@@ -6,7 +6,17 @@ import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.Journa
 import java.util.stream.Stream;
 
 public interface JournalEntryManager<TaskId> {
-    void record(Task<TaskId, ?, ?> task, JournalEntry entry);
+    record TaskEntry<TaskId> (Task<TaskId, ?, ?> task, JournalEntry entry) {}
+
+    static <TaskId> TaskEntry<TaskId> taskEntry(Task<TaskId, ?, ?> task, JournalEntry entry){
+        return new TaskEntry<>(task, entry);
+    }
+
+    void record(TaskEntry<TaskId>... entries);
+
+    default void record(Task<TaskId, ?, ?> task, JournalEntry entry){
+        record(taskEntry(task, entry));
+    }
 
     Stream<JournalEntry> findByTaskId(TaskId taskId);
 

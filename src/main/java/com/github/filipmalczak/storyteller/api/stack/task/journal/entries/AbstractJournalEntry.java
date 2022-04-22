@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 @Getter
 @EqualsAndHashCode
 @ToString
-public sealed abstract class AbstractJournalEntry implements JournalEntry permits AbstractSubtaskJournalEntry, DisownedByParent, ExceptionCaught, NodeExtended, TaskEnded, TaskPerformed, TaskStarted {
+public sealed abstract class AbstractJournalEntry implements JournalEntry permits AbstractReferencesSubtasks, BodyExtended, TaskOrphaned, ExceptionCaught, TaskAmended, TaskEnded, TaskInterrupted, TaskPerformed, TaskStarted {
     @NonNull Session session;
     @NonNull ZonedDateTime happenedAt;
 }
