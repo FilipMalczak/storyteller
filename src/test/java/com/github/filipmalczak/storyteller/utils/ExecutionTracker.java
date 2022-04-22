@@ -1,8 +1,14 @@
 package com.github.filipmalczak.storyteller.utils;
 
+import com.github.filipmalczak.storyteller.api.tree.Sessions;
+import com.github.filipmalczak.storyteller.api.tree.TaskTree;
+import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.flogger.Flogger;
 
 import java.util.ArrayList;
@@ -17,6 +23,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @Flogger
 public class ExecutionTracker<T> {
     List<T> data = new ArrayList<>();
+    @Getter @Setter
+    @NonFinal Sessions sessions;
 
     public void mark(T event){
         log.atInfo().log("tracker.mark(%s)", event);
@@ -26,6 +34,8 @@ public class ExecutionTracker<T> {
     public void clear(){
         log.atInfo().log("tracker.clear()");
         data.clear();
+        if (sessions != null)
+            sessions.end();
     }
 
     public void expect(T... events){

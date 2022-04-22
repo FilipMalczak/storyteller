@@ -22,6 +22,7 @@ class TaskSkippingTests {
     @DisplayName("r(n(l))")
     void runThreeTasks(){
         var exec = FACTORY.create("runThreeTasks");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.executeOrdered("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -35,6 +36,7 @@ class TaskSkippingTests {
     @DisplayName("r(n(l)) -> r(n(l))")
     void runThreeTasksTwice(){
         var exec = FACTORY.create("runThreeTasksTwice");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -66,6 +68,7 @@ class TaskSkippingTests {
     @DisplayName("r(n(l)) -> r(n(l, lNew))")
     void runThreeThenFourTasks(){
         var exec = FACTORY.create("runThreeThenFourTasks");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -102,6 +105,7 @@ class TaskSkippingTests {
     @DisplayName("r(n(l)) -> r(n(l, lNew)) -> r(n(l, lNew))")
     void runThreeTasksOnceThenFourTasksTwice(){
         var exec = FACTORY.create("runThreeTasksOnceThenFourTasksTwice");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -154,7 +158,7 @@ class TaskSkippingTests {
     @DisplayName("r(n(l1, l2)) -> r(n(l1, lNew, l2))")
     void runTwoLeafsThenInsertOneInBetween(){
         var exec = FACTORY.create("runTwoLeafsThenInsertOneInBetween");
-        var gathered = new ArrayList<Integer>();
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -198,6 +202,7 @@ class TaskSkippingTests {
     @DisplayName("r(n(l1, l2, l3)) -> r(n(l1, l2, lNew, l3))")
     void runThreeLeafsThenInsertOneBeforeThird(){
         var exec = FACTORY.create("runThreeLeafsThenInsertOneBeforeThird");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -249,6 +254,7 @@ class TaskSkippingTests {
     @DisplayName("r(n(l1, l2, l3)) -> r(n(l1, lNew, l2, l3))")
     void runThreeLeafsThenInsertOneAfterFirst(){
         var exec = FACTORY.create("runThreeLeafsThenInsertOneAfterFirst");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -300,6 +306,7 @@ class TaskSkippingTests {
     @DisplayName("r(n1(l1, l2), n2(l3, l4)) -> r(n1(l1, lNew, l2), n2(l3, l4))")
     void runTwoNodesOfTwoLeavesThenInsertAfterFirstLeaf(){
         var exec = FACTORY.create("runTwoNodesOfTwoLeavesThenInsertAfterFirstLeaf");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.executeOrdered("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -367,6 +374,7 @@ class TaskSkippingTests {
     @DisplayName("r(n1(l1, l2), n2(l3, l4)) -> r(n1(l1, l2), n2(l3, lNew, l4))")
     void runTwoNodesOfTwoLeavesThenInsertAfterThirdLeaf(){
         var exec = FACTORY.create("runTwoNodesOfTwoLeavesThenInsertAfterThirdLeaf");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
             rootExec.executeOrdered("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {

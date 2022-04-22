@@ -23,6 +23,7 @@ public class NoSqlTests {
     @DisplayName("r(n(l(w:foo->a)))")
     void oneLeafSingleRun(){
         var exec = FACTORY.create("oneLeafSingleRun");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(getOr(rootStorage, "foo", "-")+1);
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -56,6 +57,7 @@ public class NoSqlTests {
     @DisplayName("r(n(l(w:foo->a))) x2")
     void oneLeafTwoRuns(){
         var exec = FACTORY.create("oneLeafTwoRuns");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(getOr(rootStorage, "foo", "-")+1);
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -115,6 +117,7 @@ public class NoSqlTests {
     @DisplayName("r(n(l1(w:foo->a), l2(w:foo->b))")
     void twoLeavesSingleRun(){
         var exec = FACTORY.create("twoLeavesSingleRun");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(getOr(rootStorage, "foo", "-")+1);
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
@@ -162,6 +165,7 @@ public class NoSqlTests {
     @DisplayName("r(n1(l1(w:foo->a)), n2(l2(w:foo->b)))")
     void twoNodesSingleRun(){
         var exec = FACTORY.create("twoNodesSingleRun");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(getOr(rootStorage, "foo", "-")+1);
             rootExec.executeOrdered("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {

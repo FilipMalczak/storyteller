@@ -25,6 +25,7 @@ public class FilesTests {
     @DisplayName("r(n(l(w:foo->a)))")
     void oneLeafNoDirectoriesSingleRun(){
         var exec = FACTORY.create("oneLeafNoDirectoriesSingleRun");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.executeOrdered("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -42,6 +43,7 @@ public class FilesTests {
     @DisplayName("r(n(l(w:foo->a))) x2")
     void oneLeafNoDirectoriesTwoRuns(){
         var exec = FACTORY.create("oneLeafNoDirectoriesTwoRuns");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.executeOrdered("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -71,6 +73,7 @@ public class FilesTests {
     @DisplayName("r(n(l1(w:foo->a), l2(w:foo->b))")
     void twoLeavesNoDirectoriesSingleRun(){
         var exec = FACTORY.create("twoLeavesNoDirectoriesSingleRun");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.executeOrdered("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -94,6 +97,7 @@ public class FilesTests {
     @DisplayName("r(n(l1(w:foo->a), l2(w:foo->b)) x2")
     void twoLeavesNoDirectoriesTwoRuns(){
         var exec = FACTORY.create("twoLeavesNoDirectoriesSingleRun");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.executeOrdered("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.executeOrdered("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -135,6 +139,7 @@ public class FilesTests {
     @DisplayName("r(n1(l1(w:foo->a, bar->x), l2(w:foo->b), n2(l3(w:foo->c)))")
     void twoLeavesThenOneLeafNoDirectoriesSingleRun(){
         var exec = FACTORY.create("twoLeavesThenOneLeafNoDirectoriesSingleRun");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.executeOrdered("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.executeOrdered("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -192,6 +197,7 @@ public class FilesTests {
     @DisplayName("r(n1(l1(w:foo->a, bar->x), l2(w:foo->b), n2(l3(w:foo->c)))")
     void twoLeavesThenOneLeafNoDirectoriesTwoRuns(){
         var exec = FACTORY.create("twoLeavesThenOneLeafNoDirectoriesTwoRuns");
+        tracker.setSessions(exec.getSessions());
         exec.executeOrdered("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.executeOrdered("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.executeOrdered("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
