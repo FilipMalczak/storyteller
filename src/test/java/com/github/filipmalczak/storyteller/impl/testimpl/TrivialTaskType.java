@@ -1,6 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.testimpl;
 
-import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
+import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

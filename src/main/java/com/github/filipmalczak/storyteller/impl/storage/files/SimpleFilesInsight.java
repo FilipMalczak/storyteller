@@ -1,7 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.storage.files;
 
-import com.github.filipmalczak.storyteller.impl.stack.HistoryTracker;
-import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
+import com.github.filipmalczak.storyteller.impl.tree.internal.HistoryTracker;
+import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import lombok.NonNull;
 
 import java.util.stream.Stream;

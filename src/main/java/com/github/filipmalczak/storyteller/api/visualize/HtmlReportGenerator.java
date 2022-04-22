@@ -1,6 +1,6 @@
 package com.github.filipmalczak.storyteller.api.visualize;
 
-import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
+import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 
 import java.io.File;
 

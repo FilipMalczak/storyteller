@@ -2,8 +2,7 @@ package com.github.filipmalczak.storyteller.impl.storage;
 
 import com.github.filipmalczak.storyteller.api.storage.ReadWriteStorage;
 import com.github.filipmalczak.storyteller.api.storage.files.ReadWriteFilesApi;
-import com.github.filipmalczak.storyteller.impl.stack.HistoryTracker;
-import com.github.filipmalczak.storyteller.impl.storage.config.NitriteStorageConfig;
+import com.github.filipmalczak.storyteller.impl.tree.internal.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.storage.files.SimpleReadWriteFiles;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -12,7 +11,7 @@ import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.tool.Exporter;
 import org.jetbrains.annotations.NotNull;
 
-import static com.github.filipmalczak.storyteller.impl.storage.NitriteFsUtils.getNitriteFile;
+import static com.github.filipmalczak.storyteller.impl.storage.utils.NitriteFsUtils.getNitriteFile;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class NitriteReadWriteStorage<Id extends Comparable<Id>> extends NitriteReadStorage<Id> implements ReadWriteStorage<Nitrite> {

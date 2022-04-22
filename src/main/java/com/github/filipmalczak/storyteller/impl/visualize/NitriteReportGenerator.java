@@ -1,15 +1,15 @@
 package com.github.filipmalczak.storyteller.impl.visualize;
 
-import com.github.filipmalczak.storyteller.api.stack.Session;
-import com.github.filipmalczak.storyteller.api.stack.task.Task;
-import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
-import com.github.filipmalczak.storyteller.api.stack.task.journal.EntryType;
-import com.github.filipmalczak.storyteller.api.stack.task.journal.entries.*;
+import com.github.filipmalczak.storyteller.api.tree.Session;
+import com.github.filipmalczak.storyteller.api.tree.task.Task;
+import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.EntryType;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.*;
 import com.github.filipmalczak.storyteller.api.visualize.HtmlReportGenerator;
 import com.github.filipmalczak.storyteller.api.visualize.ReportOptions;
 import com.github.filipmalczak.storyteller.api.visualize.StartingPoint;
 import com.github.filipmalczak.storyteller.api.visualize.html.Renderable;
-import com.github.filipmalczak.storyteller.impl.stack.data.NitriteManagers;
+import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -23,7 +23,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static com.github.filipmalczak.storyteller.impl.visualize.html.Html.*;
-import static com.github.filipmalczak.storyteller.impl.visualize.html.Icons.icon;
 import static com.github.filipmalczak.storyteller.impl.visualize.html.Icons.iconForTypeModifier;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;

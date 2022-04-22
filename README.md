@@ -7,9 +7,9 @@ Research scenarios given some love. Persist the progress of your story and don't
  - [ ] add license **needed for release v0.0.1**
  - [ ] add some meaningful readme and make it public (long way until there) **needed for release v0.0.1**
  - [ ] add some initial docs
- - [ ] rename StackedExecutor to PersistentTaskTree **needed for release v0.0.1**
- - [ ] add better session management (extract PersistentRoot with start/end session; requires renaming to tree) **needed for release v0.0.1** 
-   - remember to update tests to use it 
+ - [x] rename StackedExecutor to PersistentTaskTree **needed for release v0.0.1**
+ - [x] add better session management (extract PersistentRoot with start/end session; requires renaming to tree) **needed for release v0.0.1** 
+   - [ ] update tests to use it 
  - [ ] add journal listener (may be easier if sessions are well handled already)
    - [ ] listener itself **needed for release v0.0.1**
    - [ ] VCS integration (commit and push to GIT per entry? do we flush on journal event, or do we give some control over flushing?)

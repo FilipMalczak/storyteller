@@ -1,6 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.visualize.html;
 
-import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
+import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.visualize.html.Renderable;
 
 import static com.github.filipmalczak.storyteller.impl.visualize.html.Bootstrap.badge;

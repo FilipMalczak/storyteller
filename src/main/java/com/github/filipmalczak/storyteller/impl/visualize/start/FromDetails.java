@@ -1,7 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.visualize.start;
 
-import com.github.filipmalczak.storyteller.api.stack.task.TaskType;
-import com.github.filipmalczak.storyteller.api.stack.task.id.IdGeneratorFactory;
+import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
+import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
 import com.github.filipmalczak.storyteller.api.visualize.StartingPoint;
 import lombok.Value;
 
