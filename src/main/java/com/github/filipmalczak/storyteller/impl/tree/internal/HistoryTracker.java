@@ -1,6 +1,5 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal;
 
-import com.github.filipmalczak.storyteller.impl.tree.internal.data.HistoryManager;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
@@ -12,19 +11,21 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 public class HistoryTracker<Id> {
     @NonNull final Map<Id, TaskHistory<Id>> backend;
-    @NonNull final HistoryManager<Id> manager;
 
-    public HistoryTracker(@NonNull HistoryManager<Id> manager) {
-        this(new HashMap<>(), manager);
+    public HistoryTracker() {
+        this(new HashMap<>());
     }
 
-    /**
-     * Assumes the same order of history as in get()
-     */
-//    public void put(Id taskId, TaskHistory<Id> history){
-//        backend.put(taskId, history.copy());
-//        persist(taskId);
-//    }
+    public HistoryTracker(HistoryTracker<Id> other) {
+        this(copy(other.backend));
+    }
+
+    private static <Id> Map<Id, TaskHistory<Id>> copy(Map<Id, TaskHistory<Id>> map){
+        var out = new HashMap<Id, TaskHistory<Id>>();
+        for (var k: map.keySet())
+            out.put(k, map.get(k).copy());
+        return out;
+    }
 
     public void startFrom(Id taskId, Id startPoint){
         backend.put(taskId, backend.getOrDefault(startPoint, new TaskHistory<>()).copy());
@@ -48,11 +49,6 @@ public class HistoryTracker<Id> {
         if (!backend.containsKey(taskId))
             backend.put(taskId, new TaskHistory<>());
         backend.get(taskId).add(toAdd, isLeaf);
-        persist(taskId);
-    }
-
-    private void persist(Id taskId){
-        manager.persist(taskId, backend.get(taskId));
     }
 
     /**
@@ -74,10 +70,7 @@ public class HistoryTracker<Id> {
     }
 
     public HistoryTracker<Id> copy(){
-        var map = new HashMap<Id, TaskHistory<Id>>();
-        for (var k: backend.keySet())
-            map.put(k, backend.get(k).copy());
-        return new HistoryTracker<>(map, manager);
+        return new HistoryTracker<>(this);
     }
 
     public void mirror(HistoryTracker<Id> another){

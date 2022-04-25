@@ -27,7 +27,7 @@ public class NitriteTaskTreeFactory<Id extends Comparable<Id>, Definition, Type 
         var managers = new NitriteManagers<Id, Definition, Type>(no2);
         return new NitriteTaskTree<>(
             managers,
-            new HistoryTracker<>(managers.getHistoryManager()),
+            new HistoryTracker<>(),
             config.getStorageConfig(),
             config.getGeneratorFactory(),
             new LinkedList<>(),

@@ -19,7 +19,6 @@ public class NitriteManagers<Id extends Comparable<Id>, Definition, Type extends
     @NonNull TaskManager<Id, Definition, Type> taskManager;
     @NonNull SessionManager sessionManager;
     @NonNull JournalEntryManager<Id> journalEntryManager;
-    @NonNull HistoryManager<Id> historyManager;
 
     public NitriteManagers(Nitrite nitrite) {
         JournalEntrySerializer journalEntrySerializer = new JournalEntrySerializer();
@@ -44,13 +43,8 @@ public class NitriteManagers<Id extends Comparable<Id>, Definition, Type extends
         journalEntrySerializer.setTaskManager(task);
         journalEntrySerializer.setSessionManager(session);
 
-        NitriteHistoryManager<Id> history = new NitriteHistoryManager<>();
-        history.setRepository(nitrite.getRepository(TaskHistoryData.class));
-        history.setSessionManager(session);
-
         this.taskManager = task;
         this.sessionManager = session;
         this.journalEntryManager = journal;
-        this.historyManager = history;
     }
 }
