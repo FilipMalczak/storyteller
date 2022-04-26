@@ -14,7 +14,8 @@ import java.io.StringWriter;
 import java.util.function.Consumer;
 
 import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NitriteMergerTest {
     Nitrite target;

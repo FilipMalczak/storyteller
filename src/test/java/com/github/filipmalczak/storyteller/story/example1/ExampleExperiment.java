@@ -1,7 +1,10 @@
 package com.github.filipmalczak.storyteller.story.example1;
 
 import com.github.filipmalczak.storyteller.api.visualize.ReportOptions;
-import com.github.filipmalczak.storyteller.impl.story.*;
+import com.github.filipmalczak.storyteller.impl.story.EpisodeType;
+import com.github.filipmalczak.storyteller.impl.story.NitriteStorytellerFactory;
+import com.github.filipmalczak.storyteller.impl.story.StorytellerDefinition;
+import com.github.filipmalczak.storyteller.impl.story.StorytellerIdGeneratorFactory;
 import com.github.filipmalczak.storyteller.impl.visualize.NitriteReportGenerator;
 import com.github.filipmalczak.storyteller.impl.visualize.start.StartingPoints;
 import lombok.SneakyThrows;

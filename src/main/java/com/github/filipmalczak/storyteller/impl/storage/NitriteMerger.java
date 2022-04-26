@@ -4,7 +4,6 @@ package com.github.filipmalczak.storyteller.impl.storage;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
 import org.dizitart.no2.Nitrite;
@@ -14,7 +13,6 @@ import java.util.HashSet;
 
 import static org.dizitart.no2.Constants.DOC_MODIFIED;
 import static org.dizitart.no2.filters.Filters.gt;
-import static org.hamcrest.CoreMatchers.equalTo;
 
 @Flogger
 @FieldDefaults(level = AccessLevel.PRIVATE)

@@ -1,11 +1,10 @@
 package com.github.filipmalczak.storyteller.impl.testimpl;
 
-import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeFactory;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
-import com.github.filipmalczak.storyteller.impl.tree.NitriteTreeConfig;
-import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTreeFactory;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
+import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTreeFactory;
+import com.github.filipmalczak.storyteller.impl.tree.NitriteTreeConfig;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
