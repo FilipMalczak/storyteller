@@ -25,9 +25,11 @@ import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
 @Flogger
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ExampleExperiment {
+    static final boolean SLOW = true;
+
     @Test
     @Order(1)
-    @Disabled
+//    @Disabled
     void run(){
         var storyteller = new NitriteStorytellerFactory().create(Path.of("examples/example1"));
         storyteller.tell("Finding x", (a, as) -> {
@@ -143,14 +145,16 @@ public class ExampleExperiment {
     @SneakyThrows
     static int calculate(int a, int b, int c, int d){
         //to simulate longer computations
-        Thread.sleep((long) (Math.random()*5000));
+        if (SLOW)
+            Thread.sleep((long) (Math.random()*5000));
         return (int) Math.pow(a, b) + (int) Math.pow(c, d);
     }
 
     @SneakyThrows
     static int numberOfDivisors(int x){
         //to simulate longer computations
-        Thread.sleep((long) (Math.random()*5000));
+        if (SLOW)
+            Thread.sleep((long) (Math.random()*5000));
         int out = 1;
         int limit = (int) Math.sqrt(x);
         for (int i=2; i<limit; ++i)

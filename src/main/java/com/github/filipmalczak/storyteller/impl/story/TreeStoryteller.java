@@ -12,7 +12,7 @@ import com.github.filipmalczak.storyteller.api.story.closure.ThreadClosure;
 import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.task.body.ChoiceBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
-import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
+import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -61,14 +61,14 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
         };
     }
 
-    private NodeBody<String, StorytellerDefinition, EpisodeType, NoSql> arcToNodeBody(StructureBody<ArcClosure<NoSql>, ReadStorage<NoSql>> body){
+    private SequentialNodeBody<String, StorytellerDefinition, EpisodeType, NoSql> arcToNodeBody(StructureBody<ArcClosure<NoSql>, ReadStorage<NoSql>> body){
         return (exec, storage) -> body.action(
             makeArcClosure(exec),
             storage
         );
     }
 
-    private NodeBody<String, StorytellerDefinition, EpisodeType, NoSql> threadToNodeBody(StructureBody<ThreadClosure<NoSql>, ReadStorage<NoSql>> body){
+    private SequentialNodeBody<String, StorytellerDefinition, EpisodeType, NoSql> threadToNodeBody(StructureBody<ThreadClosure<NoSql>, ReadStorage<NoSql>> body){
         return (exec, storage) -> body.action(
             makeThreadClosure(exec),
             storage

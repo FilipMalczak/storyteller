@@ -6,15 +6,16 @@ import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.ChoiceBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
-import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
+import com.github.filipmalczak.storyteller.api.tree.task.body.ParallelNodeBody;
+import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.tree.internal.NitriteTreeInternals;
 import com.github.filipmalczak.storyteller.impl.tree.internal.TraceEntry;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
-import com.github.filipmalczak.storyteller.impl.tree.internal.execution.ChoiceExecution;
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.LeafExecution;
-import com.github.filipmalczak.storyteller.impl.tree.internal.execution.NodeExecution;
+import com.github.filipmalczak.storyteller.impl.tree.internal.execution.ParallelNodeExecution;
+import com.github.filipmalczak.storyteller.impl.tree.internal.execution.SequentialNodeExecution;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.journal.Events;
 import com.github.filipmalczak.storyteller.impl.tree.internal.order.AnyOrderStrategy;
@@ -54,12 +55,22 @@ public class NitriteTaskTree<Id extends Comparable<Id>, Definition, Type extends
     }
 
     @Override
-    public Task<Id, Definition, Type> executeSequential(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body) {
+    public Task<Id, Definition, Type> executeSequential(Definition definition, Type type, SequentialNodeBody<Id, Definition, Type, Nitrite> body) {
         var strategy = new LinearSubtaskOrderingStrategy<Id, Definition, Type>(
             trace.stream().findFirst().map(TraceEntry::getExpectedSubtaskIds).orElseGet(LinkedList::new)
         );
-        var execution = new NodeExecution(getInternals(), definition, type, body, strategy, recordIncorporateToParent);
+        var execution = new SequentialNodeExecution(getInternals(), definition, type, body, strategy, recordIncorporateToParent);
         strategy.setFriend(execution.getFriend());
+        execution.run();
+        return execution.getThisTask();
+    }
+
+    @Override
+    public Task<Id, Definition, Type> executeParallel(Definition definition, Type type, ParallelNodeBody<Id, Definition, Type, Nitrite> body) {
+        var strategy = new AnyOrderStrategy<Id, Definition, Type>(
+            trace.stream().findFirst().map(TraceEntry::getExpectedSubtaskIds).orElseGet(LinkedList::new)
+        );
+        var execution = new ParallelNodeExecution<>(getInternals(), definition, type, body, strategy, recordIncorporateToParent);
         execution.run();
         return execution.getThisTask();
     }
@@ -70,17 +81,6 @@ public class NitriteTaskTree<Id extends Comparable<Id>, Definition, Type extends
             trace.stream().findFirst().map(TraceEntry::getExpectedSubtaskIds).orElseGet(LinkedList::new)
         );
         var execution = new LeafExecution(getInternals(), definition, type, body, strategy, recordIncorporateToParent);
-        strategy.setFriend(execution.getFriend());
-        execution.run();
-        return execution.getThisTask();
-    }
-
-    @Override
-    public Task<Id, Definition, Type> chooseBranch(Definition definition, Type type, ChoiceBody<Id, Definition, Type, Nitrite> body) {
-        var strategy = new AnyOrderStrategy<Id, Definition, Type>(
-            trace.stream().findFirst().map(TraceEntry::getExpectedSubtaskIds).orElseGet(LinkedList::new)
-        );
-        var execution = new ChoiceExecution<>(getInternals(), definition, type, body, strategy, recordIncorporateToParent);
         strategy.setFriend(execution.getFriend());
         execution.run();
         return execution.getThisTask();

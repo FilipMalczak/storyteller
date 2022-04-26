@@ -27,7 +27,7 @@ public class LeafExecution<Id extends Comparable<Id>, Definition, Type extends E
     @Override
     protected void validateContract() {
         validateSubtaskContract();
-        require(!type.isChoice(), "Choice tasks should be executed with chooseNextSteps(...) method");
+        require(!type.isParallel(), "Choice tasks should be executed with chooseNextSteps(...) method");
     }
 
     @Override

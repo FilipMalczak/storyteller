@@ -2,7 +2,7 @@ package com.github.filipmalczak.storyteller.impl.tree.internal.execution;
 
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
-import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
+import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteReadStorage;
 import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTree;
 import com.github.filipmalczak.storyteller.impl.tree.internal.NitriteTreeInternals;
@@ -16,10 +16,10 @@ import java.util.LinkedList;
 
 import static org.valid4j.Assertive.require;
 @Flogger
-public class NodeExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>
-    extends AbstractTaskExecution<Id, Definition, Type, NodeBody<Id, Definition, Type, Nitrite>> {
+public class SequentialNodeExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>
+    extends AbstractTaskExecution<Id, Definition, Type, SequentialNodeBody<Id, Definition, Type, Nitrite>> {
 
-    public NodeExecution(NitriteTreeInternals<Id, Definition, Type> internals, Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, SubtaskOrderingStrategy<Id> orderingStrategy, boolean recordIncorporateToParent) {
+    public SequentialNodeExecution(NitriteTreeInternals<Id, Definition, Type> internals, Definition definition, Type type, SequentialNodeBody<Id, Definition, Type, Nitrite> body, SubtaskOrderingStrategy<Id> orderingStrategy, boolean recordIncorporateToParent) {
         super(internals, definition, type, body, orderingStrategy, recordIncorporateToParent);
     }
 
@@ -34,10 +34,10 @@ public class NodeExecution<Id extends Comparable<Id>, Definition, Type extends E
             require(internals.trace().isEmpty(), "Root task needs to be executed without any tasks at the stack");
             require(parent.isEmpty(), "Root task cannot have a parent");
             require(!orderingStrategy.hasExpectations(), "Root task cannot have expected ID");
-            require(body instanceof NodeBody, "Root task body must be implemented as %1", NodeBody.class.getCanonicalName());
+            require(body instanceof SequentialNodeBody, "Root task body must be implemented as %1", SequentialNodeBody.class.getCanonicalName());
         } else {
             validateSubtaskContract();
-            require(!type.isChoice(), "Choice tasks should be executed with chooseNextSteps(...) method");
+            require(!type.isParallel(), "Choice tasks should be executed with chooseNextSteps(...) method");
         }
     }
 

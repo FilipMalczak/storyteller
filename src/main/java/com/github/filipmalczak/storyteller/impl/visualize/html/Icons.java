@@ -22,7 +22,7 @@ public class Icons {
             (switch (modifier) {
                 case ROOT -> icon("play-circle");
                 case NONE -> icon("layers");
-                case CHOICE -> icon("git-branch");
+                case PARALLEL -> icon("git-branch");
                 case LEAF -> icon("leaf");
             }).renderHtml(),
             true,

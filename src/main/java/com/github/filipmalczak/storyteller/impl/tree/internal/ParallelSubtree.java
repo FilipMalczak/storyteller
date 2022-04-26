@@ -5,7 +5,9 @@ import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.ChoiceBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
-import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
+import com.github.filipmalczak.storyteller.api.tree.task.body.ParallelNodeBody;
+import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
+import com.github.filipmalczak.storyteller.api.tree.task.body.handles.Insight;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
 import com.github.filipmalczak.storyteller.impl.storage.InsightIntoNitriteStorage;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
@@ -25,26 +27,27 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static org.valid4j.Assertive.require;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Flogger
-public class BranchingPoint<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements TaskTree<Id, Definition, Type, Nitrite> {
+public class ParallelSubtree<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements TaskTree<Id, Definition, Type, Nitrite> {
     @NonNull NitriteManagers<Id, Definition, Type> managers;
     @NonNull HistoryTracker<Id> history;
     @NonNull NitriteStorageConfig<Id> storageConfig;
     @NonNull IdGeneratorFactory<Id, Definition, Type> idGeneratorFactory;
     @NonNull Events<Id> events;
     @NonNull List<TraceEntry<Id, Definition, Type>> trace;
-
+    @NonNull Map<Id, Long> startingTimestamps = new HashMap<>();
     @NonNull Map<Id, IncrementalHistoryTracker<Id>> histories = new HashMap<>();
 
-    @Override
-    public Task<Id, Definition, Type> executeSequential(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body) {
+    private Task<Id, Definition, Type> branchOff(Function<TaskTree<Id, Definition, Type, Nitrite>, Task<Id, Definition, Type>> specification){
+        var timestamp = System.currentTimeMillis();
         var subtaskHistory = history.snapshot();
-        var subtask = new NitriteTaskTree<>(
+        var delegateTree = new NitriteTaskTree<>(
             managers,
             subtaskHistory,
             storageConfig,
@@ -52,41 +55,26 @@ public class BranchingPoint<Id extends Comparable<Id>, Definition, Type extends 
             new ArrayList<>(trace),
             events,
             false
-        ).executeSequential(definition, type, body);
+        );
+        var subtask = specification.apply(delegateTree);
         histories.put(subtask.getId(), subtaskHistory);
+        startingTimestamps.put(subtask.getId(), timestamp);
         return subtask;
+    }
+
+    @Override
+    public Task<Id, Definition, Type> executeSequential(Definition definition, Type type, SequentialNodeBody<Id, Definition, Type, Nitrite> body) {
+        return branchOff(tree -> tree.executeSequential(definition, type, body));
+    }
+
+    @Override
+    public Task<Id, Definition, Type> executeParallel(Definition definition, Type type, ParallelNodeBody<Id, Definition, Type, Nitrite> body) {
+        return branchOff(tree -> tree.executeParallel(definition, type, body));
     }
 
     @Override
     public Task<Id, Definition, Type> executeSequential(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
-        var subtaskHistory = history.snapshot();
-        var subtask = new NitriteTaskTree<>(
-            managers,
-            subtaskHistory,
-            storageConfig,
-            idGeneratorFactory,
-            new ArrayList<>(trace),
-            events,
-            false
-        ).executeSequential(definition, type, body);
-        histories.put(subtask.getId(), subtaskHistory);
-        return subtask;
-    }
-
-    @Override
-    public Task<Id, Definition, Type> chooseBranch(Definition definition, Type type, ChoiceBody<Id, Definition, Type, Nitrite> body) {
-        var subtaskHistory = history.snapshot();
-        var subtask = new NitriteTaskTree<>(
-            managers,
-            subtaskHistory,
-            storageConfig,
-            idGeneratorFactory,
-            new ArrayList<>(trace),
-            events,
-            false
-        ).chooseBranch(definition, type, body);
-        histories.put(subtask.getId(), subtaskHistory);
-        return subtask;
+        return branchOff(tree -> tree.executeSequential(definition, type, body));
     }
 
     public IncrementalHistoryTracker<Id> getHistory(Task<Id, Definition, Type> task){
@@ -97,7 +85,16 @@ public class BranchingPoint<Id extends Comparable<Id>, Definition, Type extends 
         return histories.get(id);
     }
 
-    public ChoiceBody.Insight<Id, Definition, Type, Nitrite> getInsights() {
+    public long getStartTimestamp(Task<Id, Definition, Type> task){
+        return getStartTimestamp(task.getId());
+    }
+
+    public long getStartTimestamp(Id id){
+        return startingTimestamps.get(id);
+    }
+
+
+    public Insight<Id, Definition, Type, Nitrite> getInsights() {
         return id -> {
             log.atFine().log("Insight into %s", id);
             require(histories.containsKey(id));

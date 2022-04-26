@@ -4,16 +4,10 @@ import com.github.filipmalczak.storyteller.api.storage.ReadStorage;
 import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
+import com.github.filipmalczak.storyteller.api.tree.task.body.handles.Insight;
 
 //todo once we rename to ...tree, this should become ParallelNodeBody (once it has integrate param too)
 public interface ChoiceBody<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> {
-    interface Insight<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> {
-        ReadStorage<NoSql> into(Id id);
-
-        default ReadStorage<NoSql> into(Task<Id, Definition, Type> subtask){
-            return into(subtask.getId());
-        }
-    }
 
     //todo rethink these; once you do, ass toBeContinued feature too<
     class SubtaskNotFoundException extends RuntimeException {

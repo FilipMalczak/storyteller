@@ -16,7 +16,8 @@ Research scenarios given some love. Persist the progress of your story and don't
    - [ ] dynamic reporting
      - REST+websocket API to expose task summaries as JSONs and push events, JS-friendly page that renders them 
  - [ ] change choice to parallel task (will be way easier after renaming to tree, because methods will be easier to name) **needed for release v0.0.1**
-   - keep choice as a utility method?
+   - [x] keep choice as a utility method?
+   - [ ] THIS REQUIRES MUCH MORE TESTING
  - [ ] test journaling (will be easier once session management is done, as we won't have to spin up subprocess just to do amendments, etc) **most probably needed for release v0.0.1**
  - [ ] more extensive testing (see comments in existing tests) **needed for release v0.0.1**
  - [ ] give some love to storyteller (as points above mainly focus on task tree)
@@ -24,7 +25,13 @@ Research scenarios given some love. Persist the progress of your story and don't
    - try to minimize number of dependencies; in perfect scenario, default impl uses just Nitrite and nothing else 
    - [ ] KV store? doable with NoSQL collection
    - [ ] SQL? 
-   - [ ] file deletion! **needed for release v0.0.1**
+   - [ ] deletion! **needed for release v0.0.1**
+     - [ ] deleting files
+     - [ ] when merging DBs (in parallel nodes) - deleting documents/objects 
    - [ ] use case: something (experiment written in C/C++/D2) handles file on its own and we want to inject them into storage
      - maybe some symlink magic?
- 
+ - [ ] fluent storyteller
+   - it should track node/leaf parameters and expose them with static methods
+   - bodies should be parameterless, users should be able to avoid so many lambda params in favour of these static methods
+   - [ ] first, thread-unsafe implementation
+   - [ ] then, thread-safa one (ThreadLocal to the rescue!)

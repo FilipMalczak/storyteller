@@ -169,11 +169,13 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
 //            disownSubtasks(thisTask, orderingStrategy.getCandidatesForReusing().stream().toList());
 //            disownExpectedUpTheTrace();
 //        }
-        internals.history().add(id, id, type.isLeaf());
+        internals.history().add(id, id, type.isWriting());
         for (var traceEntry : internals.trace()) {
-            internals.history().add(traceEntry.getExecutedTask().getId(), id, type.isLeaf());
+            internals.history().add(traceEntry.getExecutedTask().getId(), id, type.isWriting());
         }
-        internals.trace().stream().findFirst().ifPresent(e -> e.getStorage().reload());
+//        if (!type.isParallel()) {
+            internals.trace().stream().findFirst().ifPresent(e -> e.getStorage().reload());
+//        }
         if (!finished) {
             internals.events().taskEnded(thisTask);
             getLogger().atFine().log("Ended task %s", id);

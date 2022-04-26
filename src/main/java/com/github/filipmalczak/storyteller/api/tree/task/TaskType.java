@@ -2,7 +2,7 @@ package com.github.filipmalczak.storyteller.api.tree.task;
 
 public interface TaskType {
     enum TaskTypeModifier { //fixme awful name
-        NONE, ROOT, CHOICE, LEAF;
+        NONE, ROOT, PARALLEL, LEAF;
 
     }
 
@@ -16,11 +16,11 @@ public interface TaskType {
         return getModifier() == TaskTypeModifier.LEAF;
     }
 
-    default boolean isChoice(){
-        return getModifier() == TaskTypeModifier.CHOICE;
+    default boolean isParallel(){
+        return getModifier() == TaskTypeModifier.PARALLEL;
     }
 
-    default boolean isStructuralTask(){
-        return getModifier() == TaskTypeModifier.NONE;
+    default boolean isWriting(){
+        return isParallel() || isLeaf();
     }
 }
