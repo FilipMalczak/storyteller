@@ -2,9 +2,10 @@ package com.github.filipmalczak.storyteller.impl.tree.internal;
 
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
-import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
-import com.github.filipmalczak.storyteller.impl.tree.internal.journal.Events;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
+import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
+import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
+import com.github.filipmalczak.storyteller.impl.tree.internal.journal.Events;
 
 import java.util.List;
 

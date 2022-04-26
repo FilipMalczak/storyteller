@@ -19,10 +19,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.reverse;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.valid4j.Assertive.require;
 
@@ -191,6 +192,7 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
             handleRunning();
         } catch (Exception e) {
             //todo test proper rethrowing of exceptions
+            //todo log it nicely; flogger has withCause() method
             if (e instanceof ThrowingAlreadyRecordedException) {
                 internals.events().taskInterrupted(thisTask);
                 if (type.isRoot()) {

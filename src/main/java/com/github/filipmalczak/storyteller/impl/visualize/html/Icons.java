@@ -5,7 +5,6 @@ import com.github.filipmalczak.storyteller.api.visualize.html.Renderable;
 
 import static com.github.filipmalczak.storyteller.impl.visualize.html.Bootstrap.badge;
 import static com.github.filipmalczak.storyteller.impl.visualize.html.Html.*;
-import static com.github.filipmalczak.storyteller.impl.visualize.html.Html.empty;
 import static java.lang.System.arraycopy;
 
 public class Icons {

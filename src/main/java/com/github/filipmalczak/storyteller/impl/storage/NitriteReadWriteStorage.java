@@ -2,8 +2,8 @@ package com.github.filipmalczak.storyteller.impl.storage;
 
 import com.github.filipmalczak.storyteller.api.storage.ReadWriteStorage;
 import com.github.filipmalczak.storyteller.api.storage.files.ReadWriteFilesApi;
-import com.github.filipmalczak.storyteller.impl.tree.internal.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.storage.files.SimpleReadWriteFiles;
+import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;

@@ -3,12 +3,11 @@ package com.github.filipmalczak.storyteller.impl.tree.internal.execution;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.ChoiceBody;
+import com.github.filipmalczak.storyteller.impl.storage.NitriteReadStorage;
 import com.github.filipmalczak.storyteller.impl.tree.internal.BranchingPoint;
-import com.github.filipmalczak.storyteller.impl.tree.internal.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.NitriteTreeInternals;
 import com.github.filipmalczak.storyteller.impl.tree.internal.TraceEntry;
 import com.github.filipmalczak.storyteller.impl.tree.internal.order.SubtaskOrderingStrategy;
-import com.github.filipmalczak.storyteller.impl.storage.NitriteReadStorage;
 import com.google.common.flogger.FluentLogger;
 import lombok.extern.flogger.Flogger;
 import org.dizitart.no2.Nitrite;
@@ -47,6 +46,7 @@ public class ChoiceExecution<Id extends Comparable<Id>, Definition, Type extends
         var newEntry = new TraceEntry<>(thisTask, new LinkedList<>(thisTask.getSubtasks().stream().map(Task::getId).toList()), storage);
         getLogger().atFine().log("Pushing new trace entry: %s", newEntry);
         newTrace.addFirst(newEntry);
+
         var choiceExecutor = new BranchingPoint<>(
             internals.managers(),
             internals.history(),
@@ -57,10 +57,7 @@ public class ChoiceExecution<Id extends Comparable<Id>, Definition, Type extends
         );
         var chosen = body.makeChoice(choiceExecutor, storage, choiceExecutor.getInsights());
         internals.events().decided(thisTask, chosen);
-        acceptHistory(choiceExecutor.getHistory(chosen));
+        internals.history().apply(choiceExecutor.getHistory(chosen).getIncrement());
     }
 
-    private void acceptHistory(HistoryTracker<Id> toAccept){
-        internals.history().mirror(toAccept);
-    }
 }

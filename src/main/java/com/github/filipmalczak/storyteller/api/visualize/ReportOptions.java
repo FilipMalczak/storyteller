@@ -1,8 +1,8 @@
 package com.github.filipmalczak.storyteller.api.visualize;
 
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
-import com.github.filipmalczak.storyteller.api.visualize.html.HtmlRenderer;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdSerializer;
+import com.github.filipmalczak.storyteller.api.visualize.html.HtmlRenderer;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Singular;

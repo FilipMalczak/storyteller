@@ -1,12 +1,11 @@
 package com.github.filipmalczak.storyteller.impl.tree;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeFactory;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
-import com.github.filipmalczak.storyteller.impl.tree.internal.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
+import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.journal.Events;
 import com.github.filipmalczak.storyteller.impl.tree.internal.journal.JournalEntryFactory;
 import org.dizitart.no2.Nitrite;
@@ -27,7 +26,7 @@ public class NitriteTaskTreeFactory<Id extends Comparable<Id>, Definition, Type 
         var managers = new NitriteManagers<Id, Definition, Type>(no2);
         return new NitriteTaskTree<>(
             managers,
-            new HistoryTracker<>(),
+            HistoryTracker.get(),
             config.getStorageConfig(),
             config.getGeneratorFactory(),
             new LinkedList<>(),

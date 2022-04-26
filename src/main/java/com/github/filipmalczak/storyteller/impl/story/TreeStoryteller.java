@@ -1,9 +1,5 @@
 package com.github.filipmalczak.storyteller.impl.story;
 
-import com.github.filipmalczak.storyteller.api.tree.TaskTree;
-import com.github.filipmalczak.storyteller.api.tree.task.body.ChoiceBody;
-import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
-import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
 import com.github.filipmalczak.storyteller.api.storage.ReadStorage;
 import com.github.filipmalczak.storyteller.api.storage.ReadWriteStorage;
 import com.github.filipmalczak.storyteller.api.story.Storyteller;
@@ -13,6 +9,10 @@ import com.github.filipmalczak.storyteller.api.story.body.StructureBody;
 import com.github.filipmalczak.storyteller.api.story.closure.ArcClosure;
 import com.github.filipmalczak.storyteller.api.story.closure.DecisionClosure;
 import com.github.filipmalczak.storyteller.api.story.closure.ThreadClosure;
+import com.github.filipmalczak.storyteller.api.tree.TaskTree;
+import com.github.filipmalczak.storyteller.api.tree.task.body.ChoiceBody;
+import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
+import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -35,12 +35,12 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
         return new ArcClosure<>() {
             @Override
             public void thread(String threadName, StructureBody<ThreadClosure<NoSql>, ReadStorage<NoSql>> body) {
-                exec.executeOrdered(new StorytellerDefinition(threadName), EpisodeType.THREAD, threadToNodeBody(body));
+                exec.executeSequential(new StorytellerDefinition(threadName), EpisodeType.THREAD, threadToNodeBody(body));
             }
 
             @Override
             public void arc(String arcName, StructureBody<ArcClosure<NoSql>, ReadStorage<NoSql>> body) {
-                exec.executeOrdered(new StorytellerDefinition(arcName), EpisodeType.ARC, arcToNodeBody(body));
+                exec.executeSequential(new StorytellerDefinition(arcName), EpisodeType.ARC, arcToNodeBody(body));
             }
 
             @Override
@@ -56,7 +56,7 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
         return new ThreadClosure<>() {
             @Override
             public void scene(String name, ActionBody<ReadWriteStorage<NoSql>> body) {
-                exec.executeOrdered(new StorytellerDefinition(name), EpisodeType.SCENE, sceneToLeafBody(body));
+                exec.executeSequential(new StorytellerDefinition(name), EpisodeType.SCENE, sceneToLeafBody(body));
             }
         };
     }
@@ -126,7 +126,7 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
             return closure
                 .domain.get()
                 .map(k -> {
-                    var keyArc = exec.executeOrdered(
+                    var keyArc = exec.executeSequential(
                         new StorytellerDefinition("choice option", k),
                         EpisodeType.ARC,
                         (domainExec, domainStorage) -> closure.body.research(k, makeArcClosure(domainExec))
@@ -151,6 +151,6 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
 
     @Override
     public void tell(String storyName, StructureBody<ArcClosure<NoSql>, ReadStorage<NoSql>> arcClosure) {
-        executor.executeOrdered(new StorytellerDefinition(storyName), EpisodeType.STORY, arcToNodeBody(arcClosure));
+        executor.executeSequential(new StorytellerDefinition(storyName), EpisodeType.STORY, arcToNodeBody(arcClosure));
     }
 }

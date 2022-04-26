@@ -4,7 +4,6 @@ import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.model.JournalEntryData;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.model.SessionData;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.model.TaskData;
-import com.github.filipmalczak.storyteller.impl.tree.internal.data.model.TaskHistoryData;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.serialization.JournalEntrySerializer;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.serialization.TaskSerializer;
 import lombok.AccessLevel;

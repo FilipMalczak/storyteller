@@ -1,7 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.storage.files;
 
-import com.github.filipmalczak.storyteller.impl.tree.internal.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
+import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import lombok.NonNull;
 
 import java.util.stream.Stream;
@@ -12,6 +12,6 @@ public class SimpleFilesInsight<Id extends Comparable<Id>> extends SimpleReadFil
     }
 
     protected Stream<Id> getLeavesHistory(){
-        return Stream.concat(Stream.of(current), tracker.getLeaves(current));
+        return Stream.concat(Stream.of(current), tracker.getLeafAncestors(current));
     }
 }

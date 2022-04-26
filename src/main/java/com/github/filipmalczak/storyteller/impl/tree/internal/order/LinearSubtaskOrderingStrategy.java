@@ -9,7 +9,8 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.not;

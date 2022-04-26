@@ -8,26 +8,24 @@ import com.github.filipmalczak.storyteller.api.tree.task.body.ChoiceBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
-import com.github.filipmalczak.storyteller.impl.tree.internal.HistoryTracker;
+import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.tree.internal.NitriteTreeInternals;
 import com.github.filipmalczak.storyteller.impl.tree.internal.TraceEntry;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.ChoiceExecution;
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.LeafExecution;
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.NodeExecution;
+import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.journal.Events;
 import com.github.filipmalczak.storyteller.impl.tree.internal.order.AnyOrderStrategy;
 import com.github.filipmalczak.storyteller.impl.tree.internal.order.LinearSubtaskOrderingStrategy;
-import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
 import org.dizitart.no2.Nitrite;
 
-import java.util.*;
-
-import static org.hamcrest.CoreMatchers.not;
-import static org.valid4j.Assertive.require;
+import java.util.LinkedList;
+import java.util.List;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @ToString
@@ -56,7 +54,7 @@ public class NitriteTaskTree<Id extends Comparable<Id>, Definition, Type extends
     }
 
     @Override
-    public Task<Id, Definition, Type> executeOrdered(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body) {
+    public Task<Id, Definition, Type> executeSequential(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body) {
         var strategy = new LinearSubtaskOrderingStrategy<Id, Definition, Type>(
             trace.stream().findFirst().map(TraceEntry::getExpectedSubtaskIds).orElseGet(LinkedList::new)
         );
@@ -67,7 +65,7 @@ public class NitriteTaskTree<Id extends Comparable<Id>, Definition, Type extends
     }
 
     @Override
-    public Task<Id, Definition, Type> executeOrdered(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
+    public Task<Id, Definition, Type> executeSequential(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
         var strategy = new LinearSubtaskOrderingStrategy<Id, Definition, Type>(
             trace.stream().findFirst().map(TraceEntry::getExpectedSubtaskIds).orElseGet(LinkedList::new)
         );

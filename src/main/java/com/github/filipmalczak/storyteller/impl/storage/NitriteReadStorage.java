@@ -2,15 +2,15 @@ package com.github.filipmalczak.storyteller.impl.storage;
 
 import com.github.filipmalczak.storyteller.api.storage.ReadStorage;
 import com.github.filipmalczak.storyteller.api.storage.files.ReadFilesApi;
-import com.github.filipmalczak.storyteller.impl.tree.internal.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.storage.files.SimpleReadFiles;
+import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.dizitart.no2.Nitrite;
 
-import static com.github.filipmalczak.storyteller.impl.storage.utils.NitriteFsUtils.*;
+import static com.github.filipmalczak.storyteller.impl.storage.utils.NitriteFsUtils.load;
 
 @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
 public class NitriteReadStorage<Id extends Comparable<Id>> implements ReadStorage<Nitrite> {
@@ -31,7 +31,7 @@ public class NitriteReadStorage<Id extends Comparable<Id>> implements ReadStorag
     }
 
     protected void loadNitrite(){
-        var latestLeaf = tracker.getLeaves(current).findFirst();
+        var latestLeaf = tracker.getLeafAncestors(current).findFirst();
         nitrite = load(config, latestLeaf);
     }
     @Override

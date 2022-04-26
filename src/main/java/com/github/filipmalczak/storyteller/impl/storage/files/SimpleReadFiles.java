@@ -1,8 +1,8 @@
 package com.github.filipmalczak.storyteller.impl.storage.files;
 
 import com.github.filipmalczak.storyteller.api.storage.files.ReadFilesApi;
-import com.github.filipmalczak.storyteller.impl.tree.internal.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
+import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
@@ -25,7 +25,7 @@ public class SimpleReadFiles<Id extends Comparable<Id>> implements ReadFilesApi 
     @Getter(lazy = true, value = AccessLevel.PROTECTED) private final Path filesPath = config.getDataStorage().resolve("files");
 
     protected Stream<Id> getLeavesHistory(){
-        return tracker.getLeaves(current);
+        return tracker.getLeafAncestors(current);
     }
 
     //todo if I start tracking both the whole history as well as leaf history, I can browse leadfs only
@@ -49,7 +49,7 @@ public class SimpleReadFiles<Id extends Comparable<Id>> implements ReadFilesApi 
     @SneakyThrows
     public <T> T read(Path path, Function<InputStream, T> reader) {
         try (var stream = readCandidates(path)
-            .peek(p -> log.atFinest().log("Candidate for reading %s: %s", path, p))
+            .peek(p -> log.atFiner().log("Candidate for reading %s: %s", path, p))
             .map(Path::toFile)
             .filter(File::exists)
             .map(SimpleReadFiles::newFileInputStream)

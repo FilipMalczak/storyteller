@@ -4,7 +4,8 @@ import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.impl.tree.internal.ExecutionFriend;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 
 public class AnyOrderStrategy<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements SubtaskOrderingStrategy<Id>{
     final List<Id> expectations;
