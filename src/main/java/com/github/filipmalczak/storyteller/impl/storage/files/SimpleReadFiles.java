@@ -49,7 +49,7 @@ public class SimpleReadFiles<Id extends Comparable<Id>> implements ReadFilesApi 
     @SneakyThrows
     public <T> T read(Path path, Function<InputStream, T> reader) {
         try (var stream = readCandidates(path)
-            .peek(p -> log.atFiner().log("Candidate for reading %s: %s", path, p))
+            .peek(p -> log.atFinest().log("Candidate for reading %s: %s", path, p))
             .map(Path::toFile)
             .filter(File::exists)
             .map(SimpleReadFiles::newFileInputStream)
