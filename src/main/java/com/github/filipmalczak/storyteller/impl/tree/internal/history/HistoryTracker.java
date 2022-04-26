@@ -20,7 +20,7 @@ public sealed interface HistoryTracker<Id> permits IncrementalHistoryTracker, Hi
     /**
      * Adds as the last
      */
-    void add(Id taskId, Id toAdd, boolean isLeaf);
+    void add(Id taskId, Id toAdd, boolean isWriting);
 
     /**
      * First element is the previous task id; last element is the root task id.
@@ -30,7 +30,7 @@ public sealed interface HistoryTracker<Id> permits IncrementalHistoryTracker, Hi
     /**
      * First element is the last leaf id; last element is the first leaf id.
      */
-    Stream<Id> getLeafAncestors(Id taskId);
+    Stream<Id> getWritingAncestors(Id taskId);
 
     void apply(Id subject, HistoryDiff<Id> diff);
 

@@ -101,7 +101,7 @@ public class BranchingPoint<Id extends Comparable<Id>, Definition, Type extends 
         return id -> {
             log.atFine().log("Insight into %s", id);
             require(histories.containsKey(id));
-            return new InsightIntoNitriteStorage<>(storageConfig, histories.get(id), histories.get(id).getLeafAncestors(id).findFirst().get());
+            return new InsightIntoNitriteStorage<>(storageConfig, histories.get(id), histories.get(id).getWritingAncestors(id).findFirst().get());
         };
     }
 }

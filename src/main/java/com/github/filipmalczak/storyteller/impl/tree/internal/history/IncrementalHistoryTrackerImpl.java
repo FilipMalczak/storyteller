@@ -18,7 +18,7 @@ final class IncrementalHistoryTrackerImpl<Id> implements IncrementalHistoryTrack
     @Override
     public void startFrom(Id taskId, Id startPoint) {
         var all = getAllAncestors(startPoint).toList();
-        var leaves = getLeafAncestors(startPoint).toList();
+        var leaves = getWritingAncestors(startPoint).toList();
         increments.put(taskId, new HistoryDiff<>(all, leaves));
     }
 
@@ -28,23 +28,23 @@ final class IncrementalHistoryTrackerImpl<Id> implements IncrementalHistoryTrack
     }
 
     @Override
-    public void add(Id taskId, Id toAdd, boolean isLeaf) {
-        increments.put(taskId, getIncrement(taskId).and(toAdd, isLeaf));
+    public void add(Id taskId, Id toAdd, boolean isWriting) {
+        increments.put(taskId, getIncrement(taskId).and(toAdd, isWriting));
     }
 
     @Override
     public Stream<Id> getAllAncestors(Id taskId) {
         return Stream.concat(
-            getIncrement(taskId).getAllAddedAncestors().stream(),
+            getIncrement(taskId).getAddedAncestors().stream(),
             past.getAllAncestors(taskId)
         );
     }
 
     @Override
-    public Stream<Id> getLeafAncestors(Id taskId) {
+    public Stream<Id> getWritingAncestors(Id taskId) {
         return Stream.concat(
-            getIncrement(taskId).getAddedLeafAncestors().stream(),
-            past.getLeafAncestors(taskId)
+            getIncrement(taskId).getAddedWritingAncestors().stream(),
+            past.getWritingAncestors(taskId)
         );
     }
 

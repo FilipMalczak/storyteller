@@ -27,10 +27,10 @@ final class HistoryTrackerImpl<Id> implements HistoryTracker<Id> {
      * Adds as the last
      */
     @Override
-    public void add(Id taskId, Id toAdd, boolean isLeaf){
+    public void add(Id taskId, Id toAdd, boolean isWriting){
         if (!backend.containsKey(taskId))
             backend.put(taskId, TaskHistory.empty());
-        backend.get(taskId).add(toAdd, isLeaf);
+        backend.get(taskId).add(toAdd, isWriting);
     }
 
     /**
@@ -47,9 +47,9 @@ final class HistoryTrackerImpl<Id> implements HistoryTracker<Id> {
      * First element is the last leaf id; last element is the first leaf id.
      */
     @Override
-    public Stream<Id> getLeafAncestors(Id taskId){
+    public Stream<Id> getWritingAncestors(Id taskId){
         if (backend.containsKey(taskId))
-            return backend.get(taskId).getLeaves().stream();
+            return backend.get(taskId).getWriters().stream();
         return Stream.empty();
     }
 
@@ -59,14 +59,14 @@ final class HistoryTrackerImpl<Id> implements HistoryTracker<Id> {
         var updatedHistory = new TaskHistory<>(
             new LinkedList<>(
                 Stream.concat(
-                    diff.getAllAddedAncestors().stream(),
+                    diff.getAddedAncestors().stream(),
                     currentHistory.getFull().stream()
                 ).toList()
             ),
             new LinkedList<>(
                 Stream.concat(
-                    diff.getAddedLeafAncestors().stream(),
-                    currentHistory.getLeaves().stream()
+                    diff.getAddedWritingAncestors().stream(),
+                    currentHistory.getWriters().stream()
                 ).toList()
             )
         );

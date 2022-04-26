@@ -31,7 +31,7 @@ public class NitriteReadStorage<Id extends Comparable<Id>> implements ReadStorag
     }
 
     protected void loadNitrite(){
-        var latestLeaf = tracker.getLeafAncestors(current).findFirst();
+        var latestLeaf = tracker.getWritingAncestors(current).findFirst();
         nitrite = load(config, latestLeaf);
     }
     @Override

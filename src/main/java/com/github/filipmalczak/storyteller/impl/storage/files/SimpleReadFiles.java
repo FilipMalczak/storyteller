@@ -25,7 +25,7 @@ public class SimpleReadFiles<Id extends Comparable<Id>> implements ReadFilesApi 
     @Getter(lazy = true, value = AccessLevel.PROTECTED) private final Path filesPath = config.getDataStorage().resolve("files");
 
     protected Stream<Id> getLeavesHistory(){
-        return tracker.getLeafAncestors(current);
+        return tracker.getWritingAncestors(current);
     }
 
     //todo if I start tracking both the whole history as well as leaf history, I can browse leadfs only

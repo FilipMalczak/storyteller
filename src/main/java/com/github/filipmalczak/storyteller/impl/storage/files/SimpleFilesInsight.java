@@ -12,6 +12,6 @@ public class SimpleFilesInsight<Id extends Comparable<Id>> extends SimpleReadFil
     }
 
     protected Stream<Id> getLeavesHistory(){
-        return Stream.concat(Stream.of(current), tracker.getLeafAncestors(current));
+        return Stream.concat(Stream.of(current), tracker.getWritingAncestors(current));
     }
 }
