@@ -24,7 +24,7 @@ import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
 public class ExampleExperiment {
     @Test
     @Order(1)
-//    @Disabled
+    @Disabled
     void run(){
         var storyteller = new NitriteStorytellerFactory().create(Path.of("examples/example1"));
         storyteller.tell("Finding x", (a, as) -> {
