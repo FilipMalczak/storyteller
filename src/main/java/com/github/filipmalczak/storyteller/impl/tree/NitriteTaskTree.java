@@ -66,7 +66,7 @@ public class NitriteTaskTree<Id extends Comparable<Id>, Definition, Type extends
     }
 
     @Override
-    public Task<Id, Definition, Type> executeSequential(Definition definition, Type type, SequentialNodeBody<Id, Definition, Type, Nitrite> body) {
+    public Task<Id, Definition, Type> execute(Definition definition, Type type, SequentialNodeBody<Id, Definition, Type, Nitrite> body) {
         var strategy = new LinearSubtaskOrderingStrategy<Id, Definition, Type>(
             trace.stream().findFirst().map(TraceEntry::getExpectedSubtaskIds).orElseGet(LinkedList::new)
         );
@@ -77,7 +77,7 @@ public class NitriteTaskTree<Id extends Comparable<Id>, Definition, Type extends
     }
 
     @Override
-    public Task<Id, Definition, Type> executeParallel(Definition definition, Type type, ParallelNodeBody<Id, Definition, Type, Nitrite> body) {
+    public Task<Id, Definition, Type> execute(Definition definition, Type type, ParallelNodeBody<Id, Definition, Type, Nitrite> body) {
         var strategy = new AnyOrderStrategy<Id, Definition, Type>(
             trace.stream().findFirst().map(TraceEntry::getExpectedSubtaskIds).orElseGet(LinkedList::new)
         );
@@ -87,7 +87,7 @@ public class NitriteTaskTree<Id extends Comparable<Id>, Definition, Type extends
     }
 
     @Override
-    public Task<Id, Definition, Type> executeSequential(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
+    public Task<Id, Definition, Type> execute(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
         var strategy = new LinearSubtaskOrderingStrategy<Id, Definition, Type>(
             trace.stream().findFirst().map(TraceEntry::getExpectedSubtaskIds).orElseGet(LinkedList::new)
         );

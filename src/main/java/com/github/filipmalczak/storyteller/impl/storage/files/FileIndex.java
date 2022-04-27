@@ -69,6 +69,7 @@ class FileIndex<Id extends Comparable<Id>> {
         }
 
         public <T> T forReading(Path path, Function<File, T> body, Supplier<T> onMissing){
+            //todo replace with dedicated exception
             require(!path.isAbsolute(), "Absolute paths cannot be resolved by file storage");
             return modificationScope
                 .lastModificationOf(path)

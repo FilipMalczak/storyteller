@@ -21,9 +21,9 @@ class TaskSkippingTests {
     void runThreeTasks(){
         var exec = FACTORY.create("runThreeTasks");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
-                nodeExec.executeSequential("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+                nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
 
                 });
             });
@@ -35,11 +35,11 @@ class TaskSkippingTests {
     void runThreeTasksTwice(){
         var exec = FACTORY.create("runThreeTasksTwice");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
@@ -48,11 +48,11 @@ class TaskSkippingTests {
         });
         tracker.expect(1, 2, 3, 4, 5);
         tracker.clear();
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
@@ -67,11 +67,11 @@ class TaskSkippingTests {
     void runThreeThenFourTasks(){
         var exec = FACTORY.create("runThreeThenFourTasks");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
@@ -80,15 +80,15 @@ class TaskSkippingTests {
         });
         tracker.expect(1, 2, 3, 4, 5);
         tracker.clear();
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(5);
                 });
                 tracker.mark(6);
@@ -104,11 +104,11 @@ class TaskSkippingTests {
     void runThreeTasksOnceThenFourTasksTwice(){
         var exec = FACTORY.create("runThreeTasksOnceThenFourTasksTwice");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
@@ -117,15 +117,15 @@ class TaskSkippingTests {
         });
         tracker.expect(1, 2, 3, 4, 5);
         tracker.clear();
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(5);
                 });
                 tracker.mark(6);
@@ -134,15 +134,15 @@ class TaskSkippingTests {
         });
         tracker.expect(1, 2, 4, 5, 6, 7);
         tracker.clear();
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(5);
                 });
                 tracker.mark(6);
@@ -157,15 +157,15 @@ class TaskSkippingTests {
     void runTwoLeafsThenInsertOneInBetween(){
         var exec = FACTORY.create("runTwoLeafsThenInsertOneInBetween");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(5);
                 });
                 tracker.mark(6);
@@ -174,19 +174,19 @@ class TaskSkippingTests {
         });
         tracker.expect(1, 2, 3, 4, 5, 6, 7);
         tracker.clear();;
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
-                nodeExec.executeSequential("leaf task in between", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("leaf task in between", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(5);
                 });
                 tracker.mark(6);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(7);
                 });
                 tracker.mark(8);
@@ -201,19 +201,19 @@ class TaskSkippingTests {
     void runThreeLeafsThenInsertOneBeforeThird(){
         var exec = FACTORY.create("runThreeLeafsThenInsertOneBeforeThird");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(5);
                 });
                 tracker.mark(6);
-                nodeExec.executeSequential("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(7);
                 });
                 tracker.mark(8);
@@ -222,23 +222,23 @@ class TaskSkippingTests {
         });
         tracker.expect(1, 2, 3, 4, 5, 6, 7, 8, 9);
         tracker.clear();;
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(5);
                 });
                 tracker.mark(6);
-                nodeExec.executeSequential("leaf task in between", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("leaf task in between", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(7);
                 });
                 tracker.mark(8);
-                nodeExec.executeSequential("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(9);
                 });
                 tracker.mark(10);
@@ -253,19 +253,19 @@ class TaskSkippingTests {
     void runThreeLeafsThenInsertOneAfterFirst(){
         var exec = FACTORY.create("runThreeLeafsThenInsertOneAfterFirst");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(5);
                 });
                 tracker.mark(6);
-                nodeExec.executeSequential("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(7);
                 });
                 tracker.mark(8);
@@ -274,23 +274,23 @@ class TaskSkippingTests {
         });
         tracker.expect(1, 2, 3, 4, 5, 6, 7, 8, 9);
         tracker.clear();;
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
-                nodeExec.executeSequential("leaf task in between", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("leaf task in between", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(5);
                 });
                 tracker.mark(6);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(7);
                 });
                 tracker.mark(8);
-                nodeExec.executeSequential("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(9);
                 });
                 tracker.mark(10);
@@ -305,27 +305,27 @@ class TaskSkippingTests {
     void runTwoNodesOfTwoLeavesThenInsertAfterFirstLeaf(){
         var exec = FACTORY.create("runTwoNodesOfTwoLeavesThenInsertAfterFirstLeaf");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(5);
                 });
                 tracker.mark(6);
             });
             tracker.mark(7);
-            rootExec.executeSequential("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(8);
-                nodeExec.executeSequential("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(9);
                 });
                 tracker.mark(10);
-                nodeExec.executeSequential("fourth leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("fourth leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(11);
                 });
                 tracker.mark(12);
@@ -334,31 +334,31 @@ class TaskSkippingTests {
         });
         tracker.expect(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
         tracker.clear();
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
-                nodeExec.executeSequential("leaf task in between", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("leaf task in between", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(5);
                 });
                 tracker.mark(6);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(7);
                 });
                 tracker.mark(8);
             });
             tracker.mark(9);
-            rootExec.executeSequential("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(10);
-                nodeExec.executeSequential("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(11);
                 });
                 tracker.mark(12);
-                nodeExec.executeSequential("fourth leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("fourth leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(13);
                 });
                 tracker.mark(14);
@@ -373,27 +373,27 @@ class TaskSkippingTests {
     void runTwoNodesOfTwoLeavesThenInsertAfterThirdLeaf(){
         var exec = FACTORY.create("runTwoNodesOfTwoLeavesThenInsertAfterThirdLeaf");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(5);
                 });
                 tracker.mark(6);
             });
             tracker.mark(7);
-            rootExec.executeSequential("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(8);
-                nodeExec.executeSequential("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(9);
                 });
                 tracker.mark(10);
-                nodeExec.executeSequential("fourth leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("fourth leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(11);
                 });
                 tracker.mark(12);
@@ -402,31 +402,31 @@ class TaskSkippingTests {
         });
         tracker.expect(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
         tracker.clear();
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.executeSequential("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
                 });
                 tracker.mark(4);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(5);
                 });
                 tracker.mark(6);
             });
             tracker.mark(7);
-            rootExec.executeSequential("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(8);
-                nodeExec.executeSequential("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(9);
                 });
                 tracker.mark(10);
-                nodeExec.executeSequential("leaf task in between", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("leaf task in between", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(11);
                 });
                 tracker.mark(12);
-                nodeExec.executeSequential("fourth leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("fourth leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(13);
                 });
                 tracker.mark(14);

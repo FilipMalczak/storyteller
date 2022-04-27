@@ -35,17 +35,17 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
         return new ArcClosure<>() {
             @Override
             public void thread(String threadName, StructureBody<ThreadClosure<NoSql>, ReadStorage<NoSql>> body) {
-                exec.executeSequential(new StorytellerDefinition(threadName), EpisodeType.THREAD, threadToNodeBody(body));
+                exec.execute(new StorytellerDefinition(threadName), EpisodeType.THREAD, threadToNodeBody(body));
             }
 
             @Override
             public void arc(String arcName, StructureBody<ArcClosure<NoSql>, ReadStorage<NoSql>> body) {
-                exec.executeSequential(new StorytellerDefinition(arcName), EpisodeType.ARC, arcToNodeBody(body));
+                exec.execute(new StorytellerDefinition(arcName), EpisodeType.ARC, arcToNodeBody(body));
             }
 
             @Override
             public <Key, Score> void decision(String decision, ActionBody<DecisionClosure<Key, Score, NoSql>> body) {
-                exec.chooseBranch(new StorytellerDefinition(decision), EpisodeType.DECISION, decisionToChoiceBody(body));
+                exec.chooseBranchToProceed(new StorytellerDefinition(decision), EpisodeType.DECISION, decisionToChoiceBody(body));
             }
         };
     }
@@ -56,7 +56,7 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
         return new ThreadClosure<>() {
             @Override
             public void scene(String name, ActionBody<ReadWriteStorage<NoSql>> body) {
-                exec.executeSequential(new StorytellerDefinition(name), EpisodeType.SCENE, sceneToLeafBody(body));
+                exec.execute(new StorytellerDefinition(name), EpisodeType.SCENE, sceneToLeafBody(body));
             }
         };
     }
@@ -126,7 +126,7 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
             return closure
                 .domain.get()
                 .map(k -> {
-                    var keyArc = exec.executeSequential(
+                    var keyArc = exec.execute(
                         new StorytellerDefinition("choice option", k),
                         EpisodeType.ARC,
                         (domainExec, domainStorage) -> closure.body.research(k, makeArcClosure(domainExec))
@@ -151,6 +151,6 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
 
     @Override
     public void tell(String storyName, StructureBody<ArcClosure<NoSql>, ReadStorage<NoSql>> arcClosure) {
-        executor.executeSequential(new StorytellerDefinition(storyName), EpisodeType.STORY, arcToNodeBody(arcClosure));
+        executor.execute(new StorytellerDefinition(storyName), EpisodeType.STORY, arcToNodeBody(arcClosure));
     }
 }

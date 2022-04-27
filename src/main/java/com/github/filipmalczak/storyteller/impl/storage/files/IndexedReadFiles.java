@@ -1,6 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.storage.files;
 
 import com.github.filipmalczak.storyteller.api.storage.files.ReadFilesApi;
+import com.github.filipmalczak.storyteller.api.storage.files.exceptions.UnresolvablePathException;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
@@ -35,8 +36,8 @@ public class IndexedReadFiles<Id extends Comparable<Id>> implements ReadFilesApi
             path,
             f -> withInputStream(f, closure),
             () -> {
-                throw new RuntimeException();
-            } //todo
+                throw new UnresolvablePathException(path);
+            }
         );
     }
 }

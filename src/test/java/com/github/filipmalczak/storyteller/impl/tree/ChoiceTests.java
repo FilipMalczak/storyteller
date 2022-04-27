@@ -22,12 +22,12 @@ public class ChoiceTests {
     @Test
     void simplestChoiceWithFiles(){
         var exec = FACTORY.create("runThreeTasks");
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
-            rootExec.chooseBranch("choice task", TrivialTaskType.NODE, (nodeExec, nodeStorage, insight) -> {
-                var t1 = nodeExec.executeSequential("a", TrivialTaskType.LEAF, (leafStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.chooseBranchToProceed("choice task", TrivialTaskType.NODE, (nodeExec, nodeStorage, insight) -> {
+                var t1 = nodeExec.execute("a", TrivialTaskType.LEAF, (leafStorage) -> {
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("a"));
                 });
-                var t2 = nodeExec.executeSequential("aa", TrivialTaskType.LEAF, (leafStorage) -> {
+                var t2 = nodeExec.execute("aa", TrivialTaskType.LEAF, (leafStorage) -> {
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("aa"));
                 });
                 return Stream.of(t1, t2).sorted(Comparator.comparing((Task t) -> insight.into(t).files().readAll(Path.of("foo.txt")).length()).reversed()).findFirst().get();
@@ -44,13 +44,13 @@ public class ChoiceTests {
         // by that account the "aa" will be chosen, while we intentionally put longer value for "a"
         var longer = "a______";
         var shorter = "aa__";
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
-            rootExec.chooseBranch("choice task", TrivialTaskType.NODE, (nodeExec, nodeStorage, insight) -> {
-                var t1 = nodeExec.executeSequential("a", TrivialTaskType.LEAF, (leafStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.chooseBranchToProceed("choice task", TrivialTaskType.NODE, (nodeExec, nodeStorage, insight) -> {
+                var t1 = nodeExec.execute("a", TrivialTaskType.LEAF, (leafStorage) -> {
                     //
                     put(leafStorage, "foo", longer);
                 });
-                var t2 = nodeExec.executeSequential("aa", TrivialTaskType.LEAF, (leafStorage) -> {
+                var t2 = nodeExec.execute("aa", TrivialTaskType.LEAF, (leafStorage) -> {
                     put(leafStorage, "foo", shorter);
                 });
                 return Stream.of(t1, t2)

@@ -8,14 +8,12 @@ import com.github.filipmalczak.storyteller.api.tree.task.body.ParallelNodeBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.handles.Insight;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
-import com.github.filipmalczak.storyteller.impl.storage.NitriteInsight;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageFactory;
 import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTree;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.IncrementalHistoryTracker;
-import com.github.filipmalczak.storyteller.impl.tree.internal.journal.Events;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -61,18 +59,18 @@ public class ParallelSubtree<Id extends Comparable<Id>, Definition, Type extends
     }
 
     @Override
-    public Task<Id, Definition, Type> executeSequential(Definition definition, Type type, SequentialNodeBody<Id, Definition, Type, Nitrite> body) {
-        return branchOff(tree -> tree.executeSequential(definition, type, body));
+    public Task<Id, Definition, Type> execute(Definition definition, Type type, SequentialNodeBody<Id, Definition, Type, Nitrite> body) {
+        return branchOff(tree -> tree.execute(definition, type, body));
     }
 
     @Override
-    public Task<Id, Definition, Type> executeParallel(Definition definition, Type type, ParallelNodeBody<Id, Definition, Type, Nitrite> body) {
-        return branchOff(tree -> tree.executeParallel(definition, type, body));
+    public Task<Id, Definition, Type> execute(Definition definition, Type type, ParallelNodeBody<Id, Definition, Type, Nitrite> body) {
+        return branchOff(tree -> tree.execute(definition, type, body));
     }
 
     @Override
-    public Task<Id, Definition, Type> executeSequential(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
-        return branchOff(tree -> tree.executeSequential(definition, type, body));
+    public Task<Id, Definition, Type> execute(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
+        return branchOff(tree -> tree.execute(definition, type, body));
     }
 
     public IncrementalHistoryTracker<Id> getHistory(Task<Id, Definition, Type> task){

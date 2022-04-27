@@ -28,13 +28,13 @@ Research scenarios given some love. Persist the progress of your story and don't
    - [ ] deletion! **needed for release v0.0.1**
      - [ ] deleting files
        - [x] implementation
-       - [ ] testing
+       - [x] testing
      - [ ] when merging DBs (in parallel nodes) - deleting documents/objects
         - [ ] implementation
         - [ ] testing 
    - [ ] use case: something (experiment written in C/C++/D2) handles file on its own and we want to inject them into storage
      - maybe some symlink magic?
-- [ ] enhance storyteller API; add overloads with single XContext param (x=SequentialNode/ParalleNode/Leaf) that group all the parameters of bodies
+ - [ ] enhance storyteller API; add overloads with single XContext param (x=SequentialNode/ParalleNode/Leaf) that group all the parameters of bodies
  - [ ] fluent storyteller
    - it should track node/leaf parameters and expose them with static methods
    - bodies should be parameterless, users should be able to avoid so many lambda params in favour of these static methods

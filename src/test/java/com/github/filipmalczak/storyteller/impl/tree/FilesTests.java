@@ -1,5 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.tree;
 
+import com.github.filipmalczak.storyteller.api.storage.files.exceptions.UnresolvablePathException;
 import com.github.filipmalczak.storyteller.impl.testimpl.TestTreeFactory;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
 import com.github.filipmalczak.storyteller.utils.ExecutionTracker;
@@ -8,6 +9,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FilesTests {
     //todo extract abstract test
@@ -26,9 +29,9 @@ public class FilesTests {
     void oneLeafNoDirectoriesSingleRun(){
         var exec = FACTORY.create("oneLeafNoDirectoriesSingleRun");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
-                nodeExec.executeSequential("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+                nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("a"));
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+1);
                 });
@@ -44,9 +47,9 @@ public class FilesTests {
     void oneLeafNoDirectoriesTwoRuns(){
         var exec = FACTORY.create("oneLeafNoDirectoriesTwoRuns");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
-                nodeExec.executeSequential("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+                nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("a"));
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+1);
                 });
@@ -56,9 +59,9 @@ public class FilesTests {
         });
         tracker.expect("a1", "a2", "a3");
         tracker.clear();
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
-                nodeExec.executeSequential("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+                nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("a"));
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+1);
                 });
@@ -74,14 +77,14 @@ public class FilesTests {
     void twoLeavesNoDirectoriesSingleRun(){
         var exec = FACTORY.create("twoLeavesNoDirectoriesSingleRun");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("a"));
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+1);
                 });
                 tracker.mark(nodeStorage.files().readAll(Path.of("foo.txt"))+2);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+3);
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("b"));
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+4);
@@ -98,14 +101,14 @@ public class FilesTests {
     void twoLeavesNoDirectoriesTwoRuns(){
         var exec = FACTORY.create("twoLeavesNoDirectoriesSingleRun");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("a"));
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+1);
                 });
                 tracker.mark(nodeStorage.files().readAll(Path.of("foo.txt"))+2);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+3);
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("b"));
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+4);
@@ -116,14 +119,14 @@ public class FilesTests {
         });
         tracker.expect("a1", "a2", "a3", "b4", "b5", "b6");
         tracker.clear();
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
-            rootExec.executeSequential("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("a"));
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+1);
                 });
                 tracker.mark(nodeStorage.files().readAll(Path.of("foo.txt"))+2);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+3);
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("b"));
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+4);
@@ -140,9 +143,9 @@ public class FilesTests {
     void twoLeavesThenOneLeafNoDirectoriesSingleRun(){
         var exec = FACTORY.create("twoLeavesThenOneLeafNoDirectoriesSingleRun");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
-            rootExec.executeSequential("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("a"));
                     leafStorage.files().writer(Path.of("bar.txt"), w -> w.println("x"));
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+1);
@@ -150,7 +153,7 @@ public class FilesTests {
                 });
                 tracker.mark(nodeStorage.files().readAll(Path.of("foo.txt"))+2);
                 tracker.mark(nodeStorage.files().readAll(Path.of("bar.txt"))+2);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+3);
                     tracker.mark(leafStorage.files().readAll(Path.of("bar.txt"))+3);
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("b"));
@@ -162,10 +165,10 @@ public class FilesTests {
             });
             tracker.mark(rootStorage.files().readAll(Path.of("foo.txt"))+6);
             tracker.mark(rootStorage.files().readAll(Path.of("bar.txt"))+6);
-            rootExec.executeSequential("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(nodeStorage.files().readAll(Path.of("foo.txt"))+7);
                 tracker.mark(nodeStorage.files().readAll(Path.of("bar.txt"))+7);
-                nodeExec.executeSequential("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+8);
                     tracker.mark(leafStorage.files().readAll(Path.of("bar.txt"))+8);
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("c"));
@@ -198,9 +201,9 @@ public class FilesTests {
     void twoLeavesThenOneLeafNoDirectoriesTwoRuns(){
         var exec = FACTORY.create("twoLeavesThenOneLeafNoDirectoriesTwoRuns");
         tracker.setSessions(exec.getSessions());
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
-            rootExec.executeSequential("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("a"));
                     leafStorage.files().writer(Path.of("bar.txt"), w -> w.println("x"));
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+1);
@@ -208,7 +211,7 @@ public class FilesTests {
                 });
                 tracker.mark(nodeStorage.files().readAll(Path.of("foo.txt"))+2);
                 tracker.mark(nodeStorage.files().readAll(Path.of("bar.txt"))+2);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+3);
                     tracker.mark(leafStorage.files().readAll(Path.of("bar.txt"))+3);
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("b"));
@@ -220,10 +223,10 @@ public class FilesTests {
             });
             tracker.mark(rootStorage.files().readAll(Path.of("foo.txt"))+6);
             tracker.mark(rootStorage.files().readAll(Path.of("bar.txt"))+6);
-            rootExec.executeSequential("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(nodeStorage.files().readAll(Path.of("foo.txt"))+7);
                 tracker.mark(nodeStorage.files().readAll(Path.of("bar.txt"))+7);
-                nodeExec.executeSequential("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+8);
                     tracker.mark(leafStorage.files().readAll(Path.of("bar.txt"))+8);
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("c"));
@@ -250,9 +253,9 @@ public class FilesTests {
             "c11", "x11"
         );
         tracker.clear();
-        exec.executeSequential("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
-            rootExec.executeSequential("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
-                nodeExec.executeSequential("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+                nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("a"));
                     leafStorage.files().writer(Path.of("bar.txt"), w -> w.println("x"));
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+1);
@@ -260,7 +263,7 @@ public class FilesTests {
                 });
                 tracker.mark(nodeStorage.files().readAll(Path.of("foo.txt"))+2);
                 tracker.mark(nodeStorage.files().readAll(Path.of("bar.txt"))+2);
-                nodeExec.executeSequential("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+3);
                     tracker.mark(leafStorage.files().readAll(Path.of("bar.txt"))+3);
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("b"));
@@ -272,10 +275,10 @@ public class FilesTests {
             });
             tracker.mark(rootStorage.files().readAll(Path.of("foo.txt"))+6);
             tracker.mark(rootStorage.files().readAll(Path.of("bar.txt"))+6);
-            rootExec.executeSequential("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(nodeStorage.files().readAll(Path.of("foo.txt"))+7);
                 tracker.mark(nodeStorage.files().readAll(Path.of("bar.txt"))+7);
-                nodeExec.executeSequential("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+                nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(leafStorage.files().readAll(Path.of("foo.txt"))+8);
                     tracker.mark(leafStorage.files().readAll(Path.of("bar.txt"))+8);
                     leafStorage.files().writer(Path.of("foo.txt"), w -> w.println("c"));
@@ -297,4 +300,128 @@ public class FilesTests {
             "c11", "x11"
         );
     }
+
+    @Test
+    @DisplayName("r(read)")
+    void testNotCreated(){
+        var exec = FACTORY.create("testNotCreated");
+        tracker.setSessions(exec.getSessions());
+        exec.execute("ROOT", TrivialTaskType.ROOT, (t, s) -> {
+            tracker.mark("root");
+            assertFalse(s.files().exists(Path.of("nonexistent.txt")));
+            assertFalse(s.files().exists(Path.of("dir/nonexistent.txt")));
+            assertThrows(
+                UnresolvablePathException.class,
+                () -> s.files().read(Path.of("nonexistent.txt"), is -> {}),
+                "Path 'nonexistent.txt' cannot be resolved! Referenced file has either been deleted or never existed!"
+            );
+            assertThrows(
+                UnresolvablePathException.class,
+                () -> s.files().read(Path.of("dir/nonexistent.txt"), is -> {}),
+                "Path 'dir/nonexistent.txt' cannot be resolved! Referenced file has either been deleted or never existed!"
+            );
+        });
+        //keep this just to make sure that we're not actually omitting asserts
+        tracker.expect("root");
+    }
+
+    @Test
+    @DisplayName("r(n1(write), n2(delete))")
+    void testWriteAndDeleteInDifferentLeaves(){
+        var exec = FACTORY.create("testWriteAndDeleteInDifferentLeaves");
+        tracker.setSessions(exec.getSessions());
+        exec.execute("ROOT", TrivialTaskType.ROOT, (t, s) -> {
+            tracker.mark("root");
+            assertFalse(s.files().exists(Path.of("nonexistent.txt")));
+            assertFalse(s.files().exists(Path.of("dir/nonexistent.txt")));
+            t.execute("leaf1", TrivialTaskType.LEAF, rw -> {
+                tracker.mark("leaf1");
+                assertFalse(rw.files().exists(Path.of("nonexistent.txt")));
+                assertFalse(rw.files().exists(Path.of("dir/nonexistent.txt")));
+                rw.files().writer(Path.of("nonexistent.txt"), w -> w.println("x"));
+                rw.files().writer(Path.of("dir/nonexistent.txt"), w -> w.println("y"));
+                assertTrue(rw.files().exists(Path.of("nonexistent.txt")));
+                assertTrue(rw.files().exists(Path.of("dir/nonexistent.txt")));
+            });
+            assertEquals("x", s.files().readAll(Path.of("nonexistent.txt")));
+            assertEquals("y", s.files().readAll(Path.of("dir/nonexistent.txt")));
+            t.execute("leaf2", TrivialTaskType.LEAF, rw -> {
+                tracker.mark("leaf2");
+                assertTrue(rw.files().exists(Path.of("nonexistent.txt")));
+                assertTrue(rw.files().exists(Path.of("dir/nonexistent.txt")));
+                rw.files().delete(Path.of("nonexistent.txt"));
+                rw.files().delete(Path.of("dir/nonexistent.txt"));
+                assertFalse(rw.files().exists(Path.of("nonexistent.txt")));
+                assertFalse(rw.files().exists(Path.of("dir/nonexistent.txt")));
+                assertTrue(s.files().exists(Path.of("nonexistent.txt")));
+                assertTrue(s.files().exists(Path.of("dir/nonexistent.txt")));
+                assertThrows(
+                    UnresolvablePathException.class,
+                    () -> rw.files().read(Path.of("nonexistent.txt"), is -> {}),
+                    "Path 'nonexistent.txt' cannot be resolved! Referenced file has either been deleted or never existed!"
+                );
+                assertThrows(
+                    UnresolvablePathException.class,
+                    () -> rw.files().read(Path.of("dir/nonexistent.txt"), is -> {}),
+                    "Path 'dir/nonexistent.txt' cannot be resolved! Referenced file has either been deleted or never existed!"
+                );
+            });
+            assertFalse(s.files().exists(Path.of("nonexistent.txt")));
+            assertFalse(s.files().exists(Path.of("dir/nonexistent.txt")));
+            assertThrows(
+                UnresolvablePathException.class,
+                () -> s.files().read(Path.of("nonexistent.txt"), is -> {}),
+                "Path 'nonexistent.txt' cannot be resolved! Referenced file has either been deleted or never existed!"
+            );
+            assertThrows(
+                UnresolvablePathException.class,
+                () -> s.files().read(Path.of("dir/nonexistent.txt"), is -> {}),
+                "Path 'dir/nonexistent.txt' cannot be resolved! Referenced file has either been deleted or never existed!"
+            );
+        });
+        //keep this just to make sure that we're not actually omitting asserts
+        tracker.expect("root", "leaf1", "leaf2");
+    }
+
+    //todo r(n(write, delete))
+
+    @Test
+    @DisplayName("r(n(write, delete, write))")
+    void testWriteDeleteAndWriteAgainInSingleLeaf(){
+        var exec = FACTORY.create("testWriteAndDeleteInDifferentLeaves");
+        tracker.setSessions(exec.getSessions());
+        exec.execute("ROOT", TrivialTaskType.ROOT, (t, s) -> {
+            tracker.mark("root");
+            assertFalse(s.files().exists(Path.of("nonexistent.txt")));
+            assertFalse(s.files().exists(Path.of("dir/nonexistent.txt")));
+            t.execute("leaf", TrivialTaskType.LEAF, rw -> {
+                tracker.mark("leaf");
+                assertFalse(rw.files().exists(Path.of("nonexistent.txt")));
+                assertFalse(rw.files().exists(Path.of("dir/nonexistent.txt")));
+                rw.files().writer(Path.of("nonexistent.txt"), w -> w.println("x"));
+                rw.files().writer(Path.of("dir/nonexistent.txt"), w -> w.println("y"));
+                assertTrue(rw.files().exists(Path.of("nonexistent.txt")));
+                assertTrue(rw.files().exists(Path.of("dir/nonexistent.txt")));
+                rw.files().delete(Path.of("nonexistent.txt"));
+                rw.files().delete(Path.of("dir/nonexistent.txt"));
+                assertFalse(rw.files().exists(Path.of("nonexistent.txt")));
+                assertFalse(rw.files().exists(Path.of("dir/nonexistent.txt")));
+                rw.files().writer(Path.of("nonexistent.txt"), w -> w.println("a"));
+                rw.files().writer(Path.of("dir/nonexistent.txt"), w -> w.println("b"));
+                assertTrue(rw.files().exists(Path.of("nonexistent.txt")));
+                assertTrue(rw.files().exists(Path.of("dir/nonexistent.txt")));
+                assertEquals("a", rw.files().readAll(Path.of("nonexistent.txt")));
+                assertEquals("b", rw.files().readAll(Path.of("dir/nonexistent.txt")));
+            });
+            assertTrue(s.files().exists(Path.of("nonexistent.txt")));
+            assertTrue(s.files().exists(Path.of("dir/nonexistent.txt")));
+            assertEquals("a", s.files().readAll(Path.of("nonexistent.txt")));
+            assertEquals("b", s.files().readAll(Path.of("dir/nonexistent.txt")));
+        });
+    }
+
+    //todo r(n1(write, delete), n2(write))
+    //todo r(n1(write), n2(delete, write))
+    //todo r(n1(write), n2(delete), n3(write))
+    //todo r(n1(write), n2(delete), n3(write), n4(delete))
 }

@@ -13,4 +13,6 @@ public interface ReadWriteFilesApi extends ReadFilesApi {
     default void writer(Path path, Consumer<PrintWriter> closure){
         write(path, withWriter(closure));
     }
+
+    void delete(Path path);
 }

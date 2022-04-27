@@ -1,6 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.storage.files;
 
 import com.github.filipmalczak.storyteller.api.storage.files.ReadWriteFilesApi;
+import com.github.filipmalczak.storyteller.api.storage.files.exceptions.UnresolvablePathException;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.flogger.Flogger;
@@ -27,6 +28,11 @@ public class IndexedReadWriteFiles<Id extends Comparable<Id>> extends IndexedRea
     @Override
     public void write(Path path, Consumer<OutputStream> closure) {
         fileScope.forWriting(path, f -> withOutputStream(f, closure));
+    }
+
+    @Override
+    public void delete(Path path) {
+        fileScope.delete(path, () -> { throw new UnresolvablePathException(path); });
     }
 
     public void purge(){
