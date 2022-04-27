@@ -42,7 +42,6 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
     }
 
     private void runInstructions() {
-        //todo new kind of storage -> gradually incorporating storage; it should expose incorporate method that will be wrapped as Incorporate param
         var storage = internals.storageFactory().parallelRead(id);
         var newTrace = new LinkedList<>(internals.trace());
         var newEntry = new TraceEntry<>(thisTask, new LinkedList<>(thisTask.getSubtasks().stream().map(Task::getId).toList()), storage);

@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FilesTests {
-    //todo extract abstract test
     private ExecutionTracker<String> tracker;
     private static final TestTreeFactory FACTORY = new TestTreeFactory("DataConsistencyTests");
 
@@ -21,8 +20,6 @@ public class FilesTests {
     private void setup(){
         tracker = new ExecutionTracker<>();
     }
-
-    //todo missing cases for missing files
 
     @Test
     @DisplayName("r(n(l(w:foo->a)))")

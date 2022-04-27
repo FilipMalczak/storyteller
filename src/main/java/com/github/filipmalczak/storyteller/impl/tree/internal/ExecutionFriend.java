@@ -15,7 +15,6 @@ public interface ExecutionFriend<Id extends Comparable<Id>, Definition, Type ext
     void setId(Id id);
     IdGenerator<Id, Definition, Type> idGenerator();
     Optional<Task<Id, Definition, Type>> findTask(Id id);
-//    Task<Id, Definition, Type> thisTask(); //todo cleanup
     Id parentId();
     Events<Id> events();
 

@@ -51,3 +51,6 @@ Research scenarios given some love. Persist the progress of your story and don't
    - but that would require forcing users to use slf4j or flogger or (...)
    - this would be alright for user-generated logs, but what about external libs, e.g. deeplearning4j or even subprocesses?
    - alternatively, we could capture stdout, stderr and log entries
+ - [ ] alterative DB merger that exploits Nitrite listener to gather the changed IDs
+   - a song of the future, need some bigger projects using storyteller first, to perform some valid benchmarking
+ - [ ] fix the slf4j/flogger mess

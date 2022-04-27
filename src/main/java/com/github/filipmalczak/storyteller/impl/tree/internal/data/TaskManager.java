@@ -16,7 +16,7 @@ public interface TaskManager<Id, Definition, Type extends Enum<Type> & TaskType>
 
     void update(Task<Id, Definition, Type> task);
 
-    //todo findOrphans and findOrphansOf; will need to introduce "disown" and "ancestor diwoned" journal entries
+    //todo findOrphans and findOrphansOf (tbd; seem valid, but there is no use for them at this point)
 
 
 }

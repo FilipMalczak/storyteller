@@ -36,7 +36,7 @@ public enum EntryType {
      * Tasks body have been executed.
      * Owner: performed task (non-leaf)
      */
-    EXECUTED(BodyExecuted.class), //todo
+    EXECUTED(BodyExecuted.class),
     /**
      * An exception was thrown when executing a task
      * Owner: task that has directly thrown the exception (any)
@@ -46,7 +46,7 @@ public enum EntryType {
      * An exception has been thrown when executing a descendant task.
      * Owner: task that is an ancestor of the one that has thrown the exception.
      */
-    INTERRUPTED(TaskInterrupted.class), //todo
+    INTERRUPTED(TaskInterrupted.class),
     /**
      * Another subtask was expected to happen, which indicates that task body has been redefined.
      * Owner: the task that changed (non-leaf)
@@ -62,12 +62,12 @@ public enum EntryType {
      * removed from the body.
      * Owner: the task that has been trimmed (non-leaf)
      */
-    SHRUNK(BodyShrunk.class), //todo
+    SHRUNK(BodyShrunk.class),
     /**
      * Task body has already been finished, but it requires some more work. Is recorded after CHANGED or EXTENDED.
      * Owner: the task that has been started again (non-leaf)
      */
-    AMENDED(TaskAmended.class), //todo
+    AMENDED(TaskAmended.class),
     /**
      * A subtask is not part of the task anymore (the task has been changed or shrunk). Is recorded after CHANGED
      * or SHRUNK.
@@ -83,14 +83,14 @@ public enum EntryType {
      * All subtask of choice has finished, insights were analysed and decision on how to proceed has been made.
      * Owner: performed task (choice)
      */
-    DECIDED(ChoiceWasMade.class), //todo
+    DECIDED(ChoiceWasMade.class),
     /**
      * Storage state has been fast-forwarded to state after subtask has finished. In other words, subtask has finished
      * performing (executing, running or has been skipped) and further reads from parent task will reflect changes
      * that happened in it (in the subtask). In case of choice tasks is recorded after DECIDED.
      * Owner: parent task (non-leaf)
      */
-    INCORPORATED(SubtaskIncorporated.class), //todo
+    INCORPORATED(SubtaskIncorporated.class),
     /**
      * All the necessary computations of a task were finished. Once this is recorded leaf tasks will be skipped. Between
      * this and AMENDED there can only be SKIPPED, EXECUTED, CHANGED or EXTENDED.

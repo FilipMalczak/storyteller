@@ -6,7 +6,7 @@ import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.handles.Insight;
 
-//todo once we rename to ...tree, this should become ParallelNodeBody (once it has integrate param too)
+@FunctionalInterface
 public interface ChoiceBody<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> {
 
     //todo rethink these; once you do, ass toBeContinued feature too<

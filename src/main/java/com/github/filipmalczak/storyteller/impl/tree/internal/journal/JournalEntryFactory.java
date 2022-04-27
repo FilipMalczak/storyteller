@@ -62,7 +62,6 @@ public class JournalEntryFactory {
             trace = sw.toString();
         }
 
-        //todo extract stack trace to string
         return new ExceptionCaught(
             sessionManager.getCurrent(), ZonedDateTime.now(),
             e.getClass().getCanonicalName(),

@@ -52,14 +52,7 @@ public class LinearSubtaskOrderingStrategy<Id extends Comparable<Id>, Definition
         var def = friend.idGenerator().definition();
         log.atFine().log("Conflicting subtask of task %s: definition was %s, but is now %s", friend.parentId(), conflictingTask.getDefinition(), def);
         require(conflictingTask.getDefinition(), not(equalTo(def)));
-//        friend.events().bodyChanged(
-//            friend.thisTask(),
-//            candidates
-//                .stream()
-//                .map(friend::findTask)
-//                .map(Optional::get)
-//                .toList()
-//        ); //todo cleanup
+        //todo confirm that bodyChanged is emitted in correct place
         conflicts = candidates.stream().toList();
         friend.disownExpectedUpTheTrace();
         friend.setId(friend.idGenerator().generate());

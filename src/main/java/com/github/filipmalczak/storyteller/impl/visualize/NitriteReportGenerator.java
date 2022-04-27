@@ -41,8 +41,7 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
         this(Nitrite.builder().filePath(index).readOnly().openOrCreate());
     }
 
-    //todo nonnull stuff
-    public void generateReport(File resultDirectory, StartingPoint<Id> startingPoint, ReportOptions<Id, Definition, Type> options) {
+    public void generateReport(@NonNull File resultDirectory, @NonNull StartingPoint<Id> startingPoint, @NonNull ReportOptions<Id, Definition, Type> options) {
         new Generation(resultDirectory, options).generateReport(startingPoint);
     }
 
@@ -54,7 +53,7 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
 
         SortedSet<Session> sessions = new TreeSet<>(comparing(Session::getStartedAt));
 
-        public void generateReport(StartingPoint<Id> startingPoint) {
+        public void generateReport(@NonNull StartingPoint<Id> startingPoint) {
             handleResultDir();
             var startId = startingPoint.get();
             var root = managers.getTaskManager().getById(startId);
@@ -337,7 +336,6 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
             );
         }
 
-        //fixme this doesnt work that well
         private int sessionNo(Session session){
             return sessions.headSet(session).size();
         }

@@ -68,10 +68,6 @@ public class ModificationIndex<Id extends Comparable<Id>> {
         public void purge(){
             repository.remove(eq("scope", id));
         }
-
-        public void flush(){
-            //todo ??
-        }
     }
 
     public Scope scopeFor(Id scope, boolean isWritingScope){

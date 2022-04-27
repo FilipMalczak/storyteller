@@ -8,8 +8,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-
-//todo
 public interface DecisionClosure<Key, Score, NoSql> {
     DecisionClosure<Key, Score, NoSql> domain(Supplier<Stream<Key>> domain);
     DecisionClosure<Key, Score, NoSql> research(ResearchBody<Key, ArcClosure<NoSql>> closure);

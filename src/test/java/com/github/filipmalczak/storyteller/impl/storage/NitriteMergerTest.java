@@ -89,9 +89,6 @@ class NitriteMergerTest {
         merger.applyChanges(changeset.timestamp, changeset.db);
     }
 
-    //todo merger doesnt support deletion just yet;
-    // if after upserting sizes of collections differ, we need to browse non-upserted target documents and see which are missing from source
-
     @Test
     void testMergingUpdatesAndInserts(){
         apply(getModified("a", "4"));

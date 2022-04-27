@@ -25,7 +25,6 @@ dependencyManagement {
 
         dependency 'org.dizitart:nitrite:3.4.4'
 
-        // https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
         dependency 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
 
 
@@ -33,13 +32,8 @@ dependencyManagement {
         dependency 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.1'
         dependency 'org.apache.logging.log4j:log4j-api:2.14.1'
 
-        //todo I hate bringing it in just for a single method (delete dir)
-        // https://mvnrepository.com/artifact/commons-io/commons-io
         dependency 'commons-io:commons-io:2.11.0'
 
-
-        dependency 'com.google.code.gson:gson:2.8.9'
-        dependency 'io.github.glytching:junit-extensions:2.5.0'
 
         dependency 'com.google.flogger:flogger-slf4j-backend:0.7.2'
         dependency 'com.google.flogger:flogger:0.7.2'
@@ -51,34 +45,27 @@ dependencyManagement {
 }
 
 dependencies {
-    implementation 'com.google.code.gson:gson'
-
+    //impl
     implementation 'org.dizitart:nitrite'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'org.valid4j:valid4j'
 
+    //testing
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'commons-io:commons-io'
 
+    //logging
+    implementation 'com.google.flogger:flogger'
+    //fixme this is an implementation dependency, so that consumers only have to work against SLF4J config, but OTOH, it requires a system property...
+    implementation 'com.google.flogger:flogger-slf4j-backend'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl'
+
+    //lombok
     compileOnly 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
-
-    implementation 'com.google.flogger:flogger'
-    //todo migrate to flogger
-    implementation group: 'org.slf4j', name: 'slf4j-api'
-
-    //todo these should be optional? or maybe its enough to move this to testImpl?
-    implementation 'com.google.flogger:flogger-slf4j-backend'
-    testImplementation 'org.apache.logging.log4j:log4j-api'
-
-    implementation 'commons-io:commons-io'
-
-    implementation 'org.valid4j:valid4j'
-
-    runtimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl'
-    testRuntimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl'
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 
 }
 

@@ -73,8 +73,11 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
         amended = false;
         if (!orderingStrategy.hasExpectations()) {
             id = idGenerator.generate();
-            //todo different log for root
-            getLogger().atFine().log("Task wasn't defined yet; generated ID: %s", id);
+            if (type.isRoot()) {
+                getLogger().atFine().log("Generated reusable ID for a root node: %s", id);
+            } else {
+                getLogger().atFine().log("Task wasn't defined yet; generated ID: %s", id);
+            }
             if (parent.isPresent() && isParentFinished()) {
                 getLogger().atFine().log("Parent was finished; extending parent");
                 internals.events().bodyExtended(getParent().get());
@@ -193,7 +196,6 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
         try {
             handleRunning();
         } catch (Exception e) {
-            //todo test proper rethrowing of exceptions
             //todo log it nicely; flogger has withCause() method
             if (e instanceof ThrowingAlreadyRecordedException) {
                 internals.events().taskInterrupted(thisTask);
