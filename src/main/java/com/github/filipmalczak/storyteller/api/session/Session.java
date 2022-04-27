@@ -1,4 +1,4 @@
-package com.github.filipmalczak.storyteller.api.tree;
+package com.github.filipmalczak.storyteller.api.session;
 
 import lombok.Value;
 

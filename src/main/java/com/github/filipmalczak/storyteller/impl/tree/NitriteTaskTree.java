@@ -1,10 +1,9 @@
 package com.github.filipmalczak.storyteller.impl.tree;
 
-import com.github.filipmalczak.storyteller.api.tree.Sessions;
+import com.github.filipmalczak.storyteller.api.session.Sessions;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
-import com.github.filipmalczak.storyteller.api.tree.task.body.ChoiceBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.ParallelNodeBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
@@ -49,7 +48,10 @@ public class NitriteTaskTree<Id extends Comparable<Id>, Definition, Type extends
         this.history = history;
         this.idGeneratorFactory = idGeneratorFactory;
         this.trace = trace;
-        this.events = new Events<>(managers.getJournalEntryManager(), new JournalEntryFactory(managers.getSessionManager()));
+        this.events = new Events<>(
+            managers.getJournalEntryManager(),
+            new JournalEntryFactory(managers.getSessionManager())
+        );
         this.recordIncorporateToParent = recordIncorporateToParent;
         this.storageFactory = new NitriteStorageFactory<>(managers.getNitrite(), storageConfig, history);
     }

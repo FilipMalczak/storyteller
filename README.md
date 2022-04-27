@@ -10,8 +10,9 @@ Research scenarios given some love. Persist the progress of your story and don't
  - [x] rename StackedExecutor to PersistentTaskTree **needed for release v0.0.1**
  - [x] add better session management (extract PersistentRoot with start/end session; requires renaming to tree) **needed for release v0.0.1** 
    - [x] update tests to use it 
- - [ ] add journal listener (may be easier if sessions are well handled already)
-   - [ ] listener itself **needed for release v0.0.1**
+ - [x] add journal listener (may be easier if sessions are well handled already) **needed for release v0.0.1**
+ - [ ] more work on listeners
+   - [ ] do some testing (not that important, since the impl is trivial and manual tests confirm it works)
    - [ ] VCS integration (commit and push to GIT per entry? do we flush on journal event, or do we give some control over flushing?)
    - [ ] dynamic reporting
      - REST+websocket API to expose task summaries as JSONs and push events, JS-friendly page that renders them 
@@ -26,10 +27,11 @@ Research scenarios given some love. Persist the progress of your story and don't
    - try to minimize number of dependencies; in perfect scenario, default impl uses just Nitrite and nothing else 
    - [ ] KV store? doable with NoSQL collection
    - [ ] SQL? 
-   - [x] deletion! **needed for release v0.0.1**
+   - [ ] deletion! **needed for release v0.0.1**
      - [x] deleting files
        - [x] implementation
        - [x] testing
+       - [ ] add file modification summary to the report 
      - [x] when merging DBs (in parallel nodes) - deleting documents/objects
         - [x] implementation
         - [x] testing 

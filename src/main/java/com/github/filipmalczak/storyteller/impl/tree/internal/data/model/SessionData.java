@@ -1,6 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.data.model;
 
-import com.github.filipmalczak.storyteller.api.tree.Session;
+import com.github.filipmalczak.storyteller.api.session.Session;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

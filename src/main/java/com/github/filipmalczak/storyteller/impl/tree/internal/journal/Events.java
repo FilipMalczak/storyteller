@@ -2,7 +2,9 @@ package com.github.filipmalczak.storyteller.impl.tree.internal.journal;
 
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.JournalEntryManager;
+import com.github.filipmalczak.storyteller.impl.tree.internal.data.SessionManager;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

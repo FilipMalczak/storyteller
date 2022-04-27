@@ -1,5 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.story;
 
+import com.github.filipmalczak.storyteller.api.session.Sessions;
 import com.github.filipmalczak.storyteller.api.storage.ReadStorage;
 import com.github.filipmalczak.storyteller.api.storage.ReadWriteStorage;
 import com.github.filipmalczak.storyteller.api.story.Storyteller;
@@ -10,6 +11,7 @@ import com.github.filipmalczak.storyteller.api.story.closure.ArcClosure;
 import com.github.filipmalczak.storyteller.api.story.closure.DecisionClosure;
 import com.github.filipmalczak.storyteller.api.story.closure.ThreadClosure;
 import com.github.filipmalczak.storyteller.api.tree.TaskTree;
+import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
 import com.github.filipmalczak.storyteller.api.tree.task.body.ChoiceBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
@@ -29,7 +31,7 @@ import static org.valid4j.Assertive.require;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
 public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
-    TaskTree<String, StorytellerDefinition, EpisodeType, NoSql> executor;
+    TaskTreeRoot<String, StorytellerDefinition, EpisodeType, NoSql> executor;
 
     private ArcClosure<NoSql> makeArcClosure(TaskTree<String, StorytellerDefinition, EpisodeType, NoSql> exec){
         return new ArcClosure<>() {
@@ -152,5 +154,10 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
     @Override
     public void tell(String storyName, StructureBody<ArcClosure<NoSql>, ReadStorage<NoSql>> arcClosure) {
         executor.execute(new StorytellerDefinition(storyName), EpisodeType.STORY, arcToNodeBody(arcClosure));
+    }
+
+    @Override
+    public Sessions sessions() {
+        return executor.getSessions();
     }
 }

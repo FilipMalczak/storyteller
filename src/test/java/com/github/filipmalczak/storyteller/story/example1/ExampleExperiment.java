@@ -25,15 +25,15 @@ import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
 @Flogger
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ExampleExperiment {
-    static final boolean SLOW = false;
-
-
+    static final boolean SLOW = true;
 
     @Test
     @Order(1)
 //    @Disabled
     void run(){
         var storyteller = new NitriteStorytellerFactory().create(Path.of("examples/example1"));
+        storyteller.sessions().addListener(e -> log.atInfo().log("%s", e));
+        storyteller.sessions().addListener((t, e) -> log.atInfo().log("task: %s/%s%s", t.getId(), t.getDefinition(), e));
         storyteller.tell("Finding x", (a, as) -> {
             a.thread("Initialize best", (t, ts) -> {
                 t.scene("Save starting point", rw ->{
@@ -119,7 +119,7 @@ public class ExampleExperiment {
     //fixme even if we do the ordering, it still fails when running all the tests with gradle, becsuse the db is already opened...
     @Test
     @Order(2)
-    @Disabled
+//    @Disabled
     void renderReport(){
         var generator = new NitriteReportGenerator<String, StorytellerDefinition, EpisodeType>(
             new File("examples/example1/index.no2")

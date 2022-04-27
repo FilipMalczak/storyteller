@@ -16,12 +16,14 @@ import java.util.stream.Stream;
 import static com.github.filipmalczak.storyteller.impl.IterationUtils.toStream;
 import static java.util.Comparator.comparing;
 import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
+import static org.dizitart.no2.objects.filters.ObjectFilters.in;
 
 @Setter(AccessLevel.PACKAGE)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NitritieJournalManager<TaskId extends Comparable<TaskId>> implements JournalEntryManager<TaskId> {
     @NonNull ObjectRepository<JournalEntryData> repository;
     @NonNull JournalEntrySerializer serializer;
+    @NonNull SessionManager sessionManager;
 
     @Override
     public void record(TaskEntry<TaskId>... entries) {
@@ -32,6 +34,9 @@ public class NitritieJournalManager<TaskId extends Comparable<TaskId>> implement
             toInsert[i] = serializer.fromEntry(e.task(), e.entry());
         }
         repository.insert(toInsert);
+        for (var e: entries) {
+            sessionManager.emit(e.task(), e.entry());
+        }
     }
 
     @Override

@@ -45,6 +45,8 @@ public class NitriteManagers<Id extends Comparable<Id>, Definition, Type extends
         journalEntrySerializer.setTaskManager(task);
         journalEntrySerializer.setSessionManager(session);
 
+        journal.setSessionManager(session);
+
         this.taskManager = task;
         this.sessionManager = session;
         this.journalEntryManager = journal;
