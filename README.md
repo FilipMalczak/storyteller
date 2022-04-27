@@ -19,19 +19,20 @@ Research scenarios given some love. Persist the progress of your story and don't
    - [x] keep choice as a utility method?
    - [ ] THIS REQUIRES MUCH MORE TESTING
  - [ ] test journaling (will be easier once session management is done, as we won't have to spin up subprocess just to do amendments, etc) **most probably needed for release v0.0.1**
+   - [ ] actually implement SHRUNK entry
  - [ ] more extensive testing (see comments in existing tests) **needed for release v0.0.1**
- - [ ] give some love to storyteller (as points above mainly focus on task tree)
+ - [ ] give some love to storyteller (as points above mainly focus on task tree) (overlaps with some ideas below)
  - [ ] enhance storage
    - try to minimize number of dependencies; in perfect scenario, default impl uses just Nitrite and nothing else 
    - [ ] KV store? doable with NoSQL collection
    - [ ] SQL? 
-   - [ ] deletion! **needed for release v0.0.1**
-     - [ ] deleting files
+   - [x] deletion! **needed for release v0.0.1**
+     - [x] deleting files
        - [x] implementation
        - [x] testing
-     - [ ] when merging DBs (in parallel nodes) - deleting documents/objects
-        - [ ] implementation
-        - [ ] testing 
+     - [x] when merging DBs (in parallel nodes) - deleting documents/objects
+        - [x] implementation
+        - [x] testing 
    - [ ] use case: something (experiment written in C/C++/D2) handles file on its own and we want to inject them into storage
      - maybe some symlink magic?
  - [ ] enhance storyteller API; add overloads with single XContext param (x=SequentialNode/ParalleNode/Leaf) that group all the parameters of bodies
@@ -45,3 +46,8 @@ Research scenarios given some love. Persist the progress of your story and don't
    if power went down during task execution, then we need to start cleaning up on task start
    - [ ] clean up data on task start
    - [ ] flush at appropriate moment, so we are sure that data isnt lost
+ - [ ] TBD: log capturing? 
+   - it would be nice to store logs of leaf execution for later analysis
+   - but that would require forcing users to use slf4j or flogger or (...)
+   - this would be alright for user-generated logs, but what about external libs, e.g. deeplearning4j or even subprocesses?
+   - alternatively, we could capture stdout, stderr and log entries

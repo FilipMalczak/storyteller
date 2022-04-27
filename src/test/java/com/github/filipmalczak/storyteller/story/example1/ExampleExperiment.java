@@ -25,7 +25,7 @@ import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
 @Flogger
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ExampleExperiment {
-    static final boolean SLOW = true;
+    static final boolean SLOW = false;
 
 
 
@@ -119,7 +119,7 @@ public class ExampleExperiment {
     //fixme even if we do the ordering, it still fails when running all the tests with gradle, becsuse the db is already opened...
     @Test
     @Order(2)
-//    @Disabled
+    @Disabled
     void renderReport(){
         var generator = new NitriteReportGenerator<String, StorytellerDefinition, EpisodeType>(
             new File("examples/example1/index.no2")

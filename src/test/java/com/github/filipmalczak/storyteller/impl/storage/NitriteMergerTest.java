@@ -68,6 +68,17 @@ class NitriteMergerTest {
         return getModified(r -> r.insert(new StringStringDoc(id, val)));
     }
 
+    Changeset getDeleted(String id) {
+        return getModified(r -> r.remove(eq("id", id)));
+    }
+
+    Changeset getReplaced(String idToRemove, String idToAdd, String addedValue){
+        return getModified(r -> {
+            r.remove(eq("id", idToRemove));
+            r.insert(new StringStringDoc(idToAdd, addedValue));
+        });
+    }
+
     String get(String id){
         var found = target.getRepository(StringStringDoc.class).find(eq("id", id)).toList();
         assertTrue(found.size() < 2);
@@ -82,7 +93,7 @@ class NitriteMergerTest {
     // if after upserting sizes of collections differ, we need to browse non-upserted target documents and see which are missing from source
 
     @Test
-    void testScenario(){
+    void testMergingUpdatesAndInserts(){
         apply(getModified("a", "4"));
 
         assertEquals("4", get("a"));
@@ -105,4 +116,21 @@ class NitriteMergerTest {
         assertEquals("6", get("x"));
     }
 
+    @Test
+    void testMergingJustDeletion(){
+        apply(getDeleted("a"));
+        assertEquals(null, get("a"));
+        assertEquals("2", get("b"));
+        assertEquals("3", get("c"));
+        assertEquals(null, get("x"));
+    }
+
+    @Test
+    void testMergingDeletionAndAddition(){
+        apply(getReplaced("a", "x", "4"));
+        assertEquals(null, get("a"));
+        assertEquals("2", get("b"));
+        assertEquals("3", get("c"));
+        assertEquals("4", get("x"));
+    }
 }
