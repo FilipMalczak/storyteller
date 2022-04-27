@@ -10,6 +10,7 @@ import com.github.filipmalczak.storyteller.api.tree.task.body.ParallelNodeBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
+import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageFactory;
 import com.github.filipmalczak.storyteller.impl.tree.internal.NitriteTreeInternals;
 import com.github.filipmalczak.storyteller.impl.tree.internal.TraceEntry;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
@@ -18,6 +19,7 @@ import com.github.filipmalczak.storyteller.impl.tree.internal.execution.Parallel
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.SequentialNodeExecution;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.journal.Events;
+import com.github.filipmalczak.storyteller.impl.tree.internal.journal.JournalEntryFactory;
 import com.github.filipmalczak.storyteller.impl.tree.internal.order.AnyOrderStrategy;
 import com.github.filipmalczak.storyteller.impl.tree.internal.order.LinearSubtaskOrderingStrategy;
 import lombok.*;
@@ -32,22 +34,31 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 @Flogger
-@AllArgsConstructor
 public class NitriteTaskTree<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>
     implements TaskTreeRoot<Id, Definition, Type, Nitrite> {
     @NonNull NitriteManagers<Id, Definition, Type> managers;
+    @NonNull NitriteStorageFactory<Id> storageFactory;
     @NonNull HistoryTracker<Id> history;
-    @NonNull NitriteStorageConfig<Id> storageConfig;
     @NonNull IdGeneratorFactory<Id, Definition, Type> idGeneratorFactory;
     @NonNull List<TraceEntry<Id, Definition, Type>> trace; // trace[0] - parent; trace[-1] - root; empty for root
     @NonNull Events<Id> events;
     boolean recordIncorporateToParent;
 
+    public NitriteTaskTree(@NonNull NitriteManagers<Id, Definition, Type> managers, @NonNull HistoryTracker<Id> history, @NonNull NitriteStorageConfig<Id> storageConfig, @NonNull IdGeneratorFactory<Id, Definition, Type> idGeneratorFactory, @NonNull List<TraceEntry<Id, Definition, Type>> trace, boolean recordIncorporateToParent) {
+        this.managers = managers;
+        this.history = history;
+        this.idGeneratorFactory = idGeneratorFactory;
+        this.trace = trace;
+        this.events = new Events<>(managers.getJournalEntryManager(), new JournalEntryFactory(managers.getSessionManager()));
+        this.recordIncorporateToParent = recordIncorporateToParent;
+        this.storageFactory = new NitriteStorageFactory<>(managers.getNitrite(), storageConfig, history);
+    }
+
     private NitriteTreeInternals<Id, Definition, Type> getInternals(){
-        return new NitriteTreeInternals<Id, Definition, Type>(
+        return new NitriteTreeInternals<>(
             managers,
+            storageFactory,
             history,
-            storageConfig,
             idGeneratorFactory,
             trace,
             events

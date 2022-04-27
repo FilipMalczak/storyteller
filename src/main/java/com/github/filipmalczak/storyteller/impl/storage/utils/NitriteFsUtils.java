@@ -29,7 +29,7 @@ public class NitriteFsUtils {
     public static <Id extends Comparable<Id>> void populate(Nitrite nitrite, NitriteStorageConfig<Id> config, Id id){
         var importer = Importer.of(nitrite);
         var dump = getNitriteFile(config, id);
-        log.atFine().log("Loading data from %s", dump);
+        log.atFiner().log("Loading data from %s", dump);
         importer.importFrom(dump);
     }
 

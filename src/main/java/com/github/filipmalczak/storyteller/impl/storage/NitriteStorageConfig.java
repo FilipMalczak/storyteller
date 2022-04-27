@@ -8,11 +8,16 @@ import lombok.Value;
 import java.nio.file.Path;
 
 @Value
-@AllArgsConstructor
 public class NitriteStorageConfig<Id extends Comparable<Id>> {
     @NonNull Path dataStorage;
     @NonNull IdSerializer<Id> serializer;
     boolean enableNo2OffHeapStorage;
+
+    public NitriteStorageConfig(@NonNull Path dataStorage, @NonNull IdSerializer<Id> serializer, boolean enableNo2OffHeapStorage) {
+        this.dataStorage = dataStorage.toAbsolutePath();
+        this.serializer = serializer;
+        this.enableNo2OffHeapStorage = enableNo2OffHeapStorage;
+    }
 
     public NitriteStorageConfig(@NonNull Path dataStorage, @NonNull IdSerializer<Id> serializer) {
         this(dataStorage, serializer, false);

@@ -2,7 +2,7 @@ package com.github.filipmalczak.storyteller.impl.storage;
 
 import com.github.filipmalczak.storyteller.api.storage.ReadWriteStorage;
 import com.github.filipmalczak.storyteller.api.storage.files.ReadWriteFilesApi;
-import com.github.filipmalczak.storyteller.impl.storage.files.SimpleReadWriteFiles;
+import com.github.filipmalczak.storyteller.impl.storage.files.IndexedReadWriteFiles;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -14,12 +14,12 @@ import org.jetbrains.annotations.NotNull;
 import static com.github.filipmalczak.storyteller.impl.storage.utils.NitriteFsUtils.getNitriteFile;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class NitriteReadWriteStorage<Id extends Comparable<Id>> extends NitriteReadStorage<Id> implements ReadWriteStorage<Nitrite> {
-    SimpleReadWriteFiles filesApi;
+public class NitriteReadWriteStorage<Id extends Comparable<Id>> extends AbstractNitriteStorage<Id> implements ReadWriteStorage<Nitrite> {
+    @NonNull IndexedReadWriteFiles filesApi;
 
-    public NitriteReadWriteStorage(@NonNull NitriteStorageConfig<Id> config, @NonNull HistoryTracker<Id> tracker, @NotNull Id current) {
+    NitriteReadWriteStorage(@NonNull NitriteStorageConfig<Id> config, @NonNull HistoryTracker<Id> tracker, @NonNull Id current, @NonNull IndexedReadWriteFiles filesApi) {
         super(config, tracker, current);
-        this.filesApi = new SimpleReadWriteFiles<Id>(config, tracker, current);
+        this.filesApi = filesApi;
     }
 
     @Override

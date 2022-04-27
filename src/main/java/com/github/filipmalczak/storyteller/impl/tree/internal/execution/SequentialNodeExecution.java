@@ -42,7 +42,7 @@ public class SequentialNodeExecution<Id extends Comparable<Id>, Definition, Type
     }
 
     private void runInstructions() {
-        var storage = new NitriteReadStorage(internals.storageConfig(), internals.history(), id);
+        var storage = internals.storageFactory().read(id);
         var newTrace = new LinkedList<>(internals.trace());
         var newEntry = new TraceEntry<>(thisTask, new LinkedList<>(thisTask.getSubtasks().stream().map(Task::getId).toList()), storage);
         getLogger().atFine().log("Pushing new trace entry: %s", newEntry);
@@ -51,10 +51,9 @@ public class SequentialNodeExecution<Id extends Comparable<Id>, Definition, Type
             new NitriteTaskTree<>(
                 internals.managers(),
                 internals.history(),
-                internals.storageConfig(),
+                internals.storageFactory().getConfig(),
                 internals.idGeneratorFactory(),
                 newTrace,
-                internals.events(),
                 true
             ),
             storage

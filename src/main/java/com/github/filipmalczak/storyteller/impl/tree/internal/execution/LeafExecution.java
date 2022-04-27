@@ -42,7 +42,7 @@ public class LeafExecution<Id extends Comparable<Id>, Definition, Type extends E
     }
 
     private void runInstructions() {
-        var storage = new NitriteReadWriteStorage(internals.storageConfig(), internals.history(), id);
+        var storage = internals.storageFactory().readWrite(id);
         try {
             body.perform(storage);
             storage.flush();

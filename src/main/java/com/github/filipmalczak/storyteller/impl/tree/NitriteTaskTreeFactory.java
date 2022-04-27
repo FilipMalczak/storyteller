@@ -30,7 +30,6 @@ public class NitriteTaskTreeFactory<Id extends Comparable<Id>, Definition, Type 
             config.getStorageConfig(),
             config.getGeneratorFactory(),
             new LinkedList<>(),
-            new Events<>(managers.getJournalEntryManager(), new JournalEntryFactory(managers.getSessionManager())),
             true
         );
     }

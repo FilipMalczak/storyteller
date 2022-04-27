@@ -7,6 +7,8 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.dizitart.no2.FindOptions;
+import org.dizitart.no2.SortOrder;
 import org.dizitart.no2.objects.ObjectRepository;
 
 import java.util.stream.Stream;
@@ -34,6 +36,12 @@ public class NitritieJournalManager<TaskId extends Comparable<TaskId>> implement
 
     @Override
     public Stream<JournalEntry> findByTaskId(TaskId taskId) {
-        return toStream(repository.find(eq("taskId", taskId))).sorted(comparing(JournalEntryData::getHappenedAt)).map(serializer::toEntry);
+        return toStream(
+            repository
+                .find(
+                    eq("taskId", taskId),
+                    FindOptions.sort("happenedAt", SortOrder.Ascending)
+                )
+        ).map(serializer::toEntry);
     }
 }

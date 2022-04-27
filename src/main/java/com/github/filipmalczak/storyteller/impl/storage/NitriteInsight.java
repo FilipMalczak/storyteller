@@ -10,13 +10,15 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.dizitart.no2.Nitrite;
 
+import java.util.Optional;
+
 import static com.github.filipmalczak.storyteller.impl.storage.utils.NitriteFsUtils.load;
 
-@FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
-public class NitriteReadStorage<Id extends Comparable<Id>> extends AbstractNitriteStorage<Id> {
-    @NonNull IndexedReadFiles<Id> readFiles;
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class NitriteInsight<Id extends Comparable<Id>> extends AbstractNitriteStorage<Id> {
+    @NonNull IndexedReadFiles readFiles;
 
-    NitriteReadStorage(@NonNull NitriteStorageConfig<Id> config, @NonNull HistoryTracker<Id> tracker, @NonNull Id current, @NonNull IndexedReadFiles<Id> readFiles) {
+    NitriteInsight(@NonNull NitriteStorageConfig<Id> config, @NonNull HistoryTracker<Id> tracker, @NonNull Id current, @NonNull IndexedReadFiles<Id> readFiles) {
         super(config, tracker, current);
         this.readFiles = readFiles;
     }
@@ -25,4 +27,5 @@ public class NitriteReadStorage<Id extends Comparable<Id>> extends AbstractNitri
     public ReadFilesApi files() {
         return readFiles;
     }
+
 }

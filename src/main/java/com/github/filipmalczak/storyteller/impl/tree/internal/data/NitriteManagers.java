@@ -18,8 +18,11 @@ public class NitriteManagers<Id extends Comparable<Id>, Definition, Type extends
     @NonNull TaskManager<Id, Definition, Type> taskManager;
     @NonNull SessionManager sessionManager;
     @NonNull JournalEntryManager<Id> journalEntryManager;
+    @NonNull Nitrite nitrite;
 
     public NitriteManagers(Nitrite nitrite) {
+        this.nitrite = nitrite;
+
         JournalEntrySerializer journalEntrySerializer = new JournalEntrySerializer();
 
         NitritieJournalManager<Id> journal = new NitritieJournalManager<>();

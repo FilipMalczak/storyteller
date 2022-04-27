@@ -3,14 +3,14 @@ package com.github.filipmalczak.storyteller.impl.tree.internal;
 import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
-import com.github.filipmalczak.storyteller.api.tree.task.body.ChoiceBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.ParallelNodeBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.handles.Insight;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
-import com.github.filipmalczak.storyteller.impl.storage.InsightIntoNitriteStorage;
+import com.github.filipmalczak.storyteller.impl.storage.NitriteInsight;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
+import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageFactory;
 import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTree;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
@@ -39,7 +39,6 @@ public class ParallelSubtree<Id extends Comparable<Id>, Definition, Type extends
     @NonNull HistoryTracker<Id> history;
     @NonNull NitriteStorageConfig<Id> storageConfig;
     @NonNull IdGeneratorFactory<Id, Definition, Type> idGeneratorFactory;
-    @NonNull Events<Id> events;
     @NonNull List<TraceEntry<Id, Definition, Type>> trace;
     @NonNull Map<Id, Long> startingTimestamps = new HashMap<>();
     @NonNull Map<Id, IncrementalHistoryTracker<Id>> histories = new HashMap<>();
@@ -53,7 +52,6 @@ public class ParallelSubtree<Id extends Comparable<Id>, Definition, Type extends
             storageConfig,
             idGeneratorFactory,
             new ArrayList<>(trace),
-            events,
             false
         );
         var subtask = specification.apply(delegateTree);
@@ -96,9 +94,20 @@ public class ParallelSubtree<Id extends Comparable<Id>, Definition, Type extends
 
     public Insight<Id, Definition, Type, Nitrite> getInsights() {
         return id -> {
-            log.atFine().log("Insight into %s", id);
-            require(histories.containsKey(id));
-            return new InsightIntoNitriteStorage<>(storageConfig, histories.get(id), histories.get(id).getWritingAncestors(id).findFirst().get());
+            log.atFine().log("Obtaining insight into %s", id);
+            require(histories.containsKey(id)); //todo specialized exception
+            return new NitriteStorageFactory<>(
+                    managers.getNitrite(),
+                    storageConfig,
+                    histories.get(id)
+                )
+                .insight(
+                    histories
+                        .get(id)
+                        .getWritingAncestors(id)
+                        .findFirst()
+                        .get()
+                );
         };
     }
 }
