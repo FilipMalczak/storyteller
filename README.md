@@ -1,13 +1,165 @@
 # Storyteller
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+[![develop](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml/badge.svg?branch=develop)](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml)
+
+[![Nitrire](https://img.shields.io/badge/uses-Nitrite-blue.svg)][https://github.com/nitrite/nitrite-java]
+
 Research scenarios given some love. Persist the progress of your story and don't lose your results.
+
+## Story time, or motivation for this framework
+
+### TL;DR
+
+Storyteller is a framework that aims at providing a generic structure for running tasks that can be interrupted, started
+again and proceed from the interruption point. It was created with scientific research in mind. 
+
+### Intro
+
+Imagine that you wanna conduct an experiment. Say, for example, you came up with some new twist when it comes to 
+evolutionary algorithms or neural networks. You will probably want to compare its results with existing methods.
+To do that, you will implement both your method and the contender, tweak parameters for both and compare results with
+optimized params.
+
+Now, tweaking parameters will require you to run the method for different parameters a lot of times to find the best ones
+(or at least good ones). There are many approaches how to do that (greedy search, full search or maybe some other heuristic),
+but that is not what we wanna solve here. The thing is, each run takes time.
+
+### Rough numbers
+
+Let's make this a bit more real. We wanna tweak parameters for evolutionary algorithm. In an oversimplified  case you
+have 3 parameters: population size, crossover probability and mutation probability.
+
+You wanna test 20 different population sizes (25, 50, 75..., 475, 500) and 10 values for each probability (0.05, 0.1, 0.15..., 0.5). 
+
+For simplicity you do greedy search: you assume some initial probabilities, choose best population size for them, 
+then choose the best crossover probability for the chosen size and assumed mutation probability, then do the same with 
+mutation probability and best size and crossover probability from previous steps.
+
+Evolutionary algorithms have random element, so you need to repeat the experiment couple time and take some kind of 
+statistic, like average or median. Again, for simplicity, you run it 3 times for each parameter set.
+
+In the end you get 3 runs*(20 sizes + 10 probabilities + 10 probabilities) = 120 runs. Let's say that single experiment
+take 3 minutes, on average (of course the time will depend on parameters and your optimizations, but we're looking for a
+ballpark, so this will do). You end up with 360 minutes. That is 6 hours.
+
+### The problem
+
+So, you implement the algorithm, you write the code (or maybe a script) that will automate the search for parameters, you
+run it in the evening and you go to sleep, thinking that in the morning you'll get a pretty little CSV that summarizes these
+120 runs.
+
+You wake up, look at the screen... And after 2 hours you got a NullPointerException. You calm yourself down, you fix it,
+run it again, and after 5 hours the electricity in your building goes down.
+
+Finally, you succeed. It took you one wasted night and another 11 hours of computing.
+
+When you start working on similar setup for the other method, you create an abstraction that can recover after failure 
+and start computations from last succesful point. In the end, you finish the paper that compares both these evolutionary 
+algorithm variants.
+
+After some time you start another paper that compare 2 different approaches to neural networks. All the scripting, 
+persistence, recoverability have to be reimplemented from scratch, because neural networks have very different parameters
+and its models are stored in a very different way.
+
+### Enter Storyteller
+
+As was stated at the top of this, Storyteller aims to be a generic framework to replace that scripting, persistence, etc.
+
+The entry point is a "story". Story consists of arcs, threads and decissons. 
+
+Arcs are used to give your story structure. In fact, story is just a root arc.
+
+Threads consist of scenes. Scenes are the actual units of computations.
+
+Decisions are parts of story where you provide some set to be looked through (a domain), and a way to evaluate each 
+element of that set.
+
+Arcs, threads and decision run each time the code is executed, but scenes are skipped if they were succesfully executed 
+in the past. Every task has a workspace (with managed access to raw files and a NoSQL database; in case of default 
+implementation, it is [Nitrite](https://github.com/nitrite/nitrite-java)); it is empty when a story starts and every other task
+starts from the state of workspace of previous finished task. Scenes have write access to it, while all the other 
+tasks - just read access. Story, arc and thread workspace state always matches the state of last finished subtask.
+Decisions are a bit more tricky - they branch out to a new workspace per a domain element, then, once all the branches finish,
+chooses the best (by evaluating each) and proceeds with its state.
+
+> Underlying implementation allows for some degree of parallelism and manual integration of subtasks; in fact, decisions
+> are implemented over "parallel nodes" (while arcs and threads are "sequential nodes"). They will be exposed to Storyteller
+> API in the future, when the feature matures enough. For now, mostly everything is sequential and decisions can "merge in"
+> only one branch.
+
+For example, your evolutionary algorithm research could look like:
+
+> This is not real Storyteller API, just a simplified version for examples sake;
+> at this point development is focused on more crucial issues, like persistence and recoverability, while fluent API
+> and syntactic sugar is gonna come in the future. 
+> 
+> Rationale is simple - its better to have a bit messier code that will not lose your results, than pretty code that will
+> lose them.
+> 
+> See an actual, yet trivial, runnable experiment [here](src/test/java/com/github/filipmalczak/storyteller/story/example1/ExampleExperiment.java)
+> and its short description [here](src/test/java/com/github/filipmalczak/storyteller/story/example1/README.md). 
+> 
+> Personally, I favour functional testing over unit testing every little detail. Have a look at 
+> [the test suite](src/test/java/com/github/filipmalczak/storyteller) and 
+> [how the Storyteller is implemented over the "task tree" structure](src/main/java/com/github/filipmalczak/storyteller/impl/story/TreeStoryteller.java);
+> it should tell you more on how the API really looks like and how to use it.
+
+    record Result(int size, float cp, float mp, int iteration, double result) {}
+    
+    storyteller.tell("Method1 param search", () -> {
+        thread("Initialize parameters", () -> {
+            scene("Store them", () -> {
+                file("size").write(100);
+                file("cp").write(0.4);
+                file("mp").write(0.2);
+            });
+        });
+        decision("Find best size", () -> {
+            var cp = file("cp").readFloat();
+            var mp = file("mp").readFloat();
+            domain(25, 50, 75, ..., 475, 500); //or IntStream.range(1, 20).map(i -> i*25)
+            research((size) -> {
+                // each thread will get its own workspace and database that starts with the state of parent workspace and db
+                thread("runs", () -> {
+                    var algo = new Algorithm(size, cp, mp);
+                    for (int i=0; i<3; ++i) {
+                        scene("run #"+i, () -> {
+                            var result = algo.run();
+                            //Storyteller provides file storage, as well as NoSQL storage; default implementation uses Nitrite
+                            noSql().insert(new Result(size, cp, mp, i, result));
+                        });
+                    }
+                });
+            });
+            // each workspace will be evaluated in isolation and the one that scores best will be used to proceed
+            evaluate((size) -> {
+                  noSql()
+                    .find(and(eq("size", size), eq("cp", cp), eq("mp", mp)))
+                    .stream()
+                    .mapToDouble(Result::result)
+                    .average()  
+            });
+        });
+        decision("Find best crossover probability", () -> {
+            var cp = file("size").readInt(); //will read data from the best workspace chosen in previous decision
+            var mp = file("mp").readFloat();
+            (...)
+        });
+        decision("Find best mutation probability", () -> {
+            //a lot of code can be reused; e.g. evaluation lambdas actually implement a type that can be defined once and reused in each decision
+            (...)
+        });
+    });
 
 ## ToDo
 
 ### v0.0.1
 
-- [ ] add license
-- [ ] add some meaningful readme and make it public (long way until there)
+- [x] add license
+- [x] add some meaningful readme 
+- [ ] make the repo public (long way until there)
 - [x] add better session management (extract PersistentRoot with start/end session; requires renaming to tree)
     - [x] update tests to use it
 - [x] rename StackedExecutor to PersistentTaskTree
@@ -42,6 +194,14 @@ Research scenarios given some love. Persist the progress of your story and don't
       we should just reuse the orphan to save some time
     - this will be tricky if the orphan was defined with a class that isnt present anymore (e.g. storyteller research
       was deleted and its key class too; when looking up orphans will fail on undeserializable type)
+- [ ] "mimic an orphan"
+  - if you change the structure (e.g. move a node to some parent node that is supposed to group the moved one together with a new one)
+    you will lose a lot of data
+  - if you look up the IDs of disowned task, you should be able to say (inside a post-change task) "this is a disowned task"
+  - the disowned task stays disowned, but the storage state should be virtually copied (without actually copying anything)
+    from the disowned one to the new one
+  - this is first iteration of solving that problem; it is assumed to be quickly deprecated in favour of another approach,
+    but we still need some experience first
 
 ### backlog
 
@@ -65,6 +225,7 @@ Research scenarios given some love. Persist the progress of your story and don't
    - may be easier once we introduce Contexts
    - [ ] first, thread-unsafe implementation
    - [ ] then, thread-safe one (ThreadLocal to the rescue!)
+ - [ ] parallel nodes in storyteller api (they are only available in underlying tree now)
  - [ ] TBD: log capturing? 
    - it would be nice to store logs of leaf execution for later analysis
    - but that would require forcing users to use slf4j or flogger or (...)

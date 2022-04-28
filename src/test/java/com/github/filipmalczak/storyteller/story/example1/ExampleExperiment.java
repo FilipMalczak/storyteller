@@ -41,7 +41,6 @@ public class ExampleExperiment {
                     rw.files().writer(Path.of("b"), w -> w.println(5));
                     rw.files().writer(Path.of("c"), w -> w.println(5));
                     rw.files().writer(Path.of("d"), w -> w.println(5));
-
                 });
                 t.scene("Calculate starting x", rw -> {
                     int aVal = Integer.parseInt(rw.files().readAll(Path.of("a")));
@@ -49,15 +48,12 @@ public class ExampleExperiment {
                     int cVal = Integer.parseInt(rw.files().readAll(Path.of("c")));
                     int dVal = Integer.parseInt(rw.files().readAll(Path.of("d")));
                     rw.files().writer(Path.of("x"), w -> w.println(calculate(aVal, bVal, cVal, dVal)));
-
-
                 });
                 t.scene("Calculate starting number of divisors", rw -> {
                     int xVal = Integer.parseInt(rw.files().readAll(Path.of("x")));
                     rw.documents()
                         .getRepository(Divisors.class)
                         .insert(new Divisors(xVal, numberOfDivisors(xVal)));
-
                 });
             });
             for (var variable: asList("a", "b", "c", "d")) {
@@ -94,11 +90,6 @@ public class ExampleExperiment {
                         })
                         .scoreComparator(comparing(Divisors::getNoOfDivisors).reversed())
                 );
-
-//                if (true)
-//                    throw new RuntimeException();
-//                if (variable.equals("c"))
-//                    throw new RuntimeException("last exception and well succeed in a moment");
             }
             int aVal = Integer.parseInt(as.files().readAll(Path.of("a")));
             int bVal = Integer.parseInt(as.files().readAll(Path.of("b")));
