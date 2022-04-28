@@ -4,7 +4,7 @@
 
 [![develop](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml/badge.svg?branch=develop)](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml)
 
-[![Nitrire](https://img.shields.io/badge/uses-Nitrite-blue.svg)][https://github.com/nitrite/nitrite-java]
+[![Nitrite](https://img.shields.io/badge/uses-Nitrite-blue.svg)](https://github.com/nitrite/nitrite-java)
 
 Research scenarios given some love. Persist the progress of your story and don't lose your results.
 
@@ -91,21 +91,6 @@ chooses the best (by evaluating each) and proceeds with its state.
 
 For example, your evolutionary algorithm research could look like:
 
-> This is not real Storyteller API, just a simplified version for examples sake;
-> at this point development is focused on more crucial issues, like persistence and recoverability, while fluent API
-> and syntactic sugar is gonna come in the future. 
-> 
-> Rationale is simple - its better to have a bit messier code that will not lose your results, than pretty code that will
-> lose them.
-> 
-> See an actual, yet trivial, runnable experiment [here](src/test/java/com/github/filipmalczak/storyteller/story/example1/ExampleExperiment.java)
-> and its short description [here](src/test/java/com/github/filipmalczak/storyteller/story/example1/README.md). 
-> 
-> Personally, I favour functional testing over unit testing every little detail. Have a look at 
-> [the test suite](src/test/java/com/github/filipmalczak/storyteller) and 
-> [how the Storyteller is implemented over the "task tree" structure](src/main/java/com/github/filipmalczak/storyteller/impl/story/TreeStoryteller.java);
-> it should tell you more on how the API really looks like and how to use it.
-
     record Result(int size, float cp, float mp, int iteration, double result) {}
     
     storyteller.tell("Method1 param search", () -> {
@@ -152,6 +137,21 @@ For example, your evolutionary algorithm research could look like:
             (...)
         });
     });
+
+> This is not real Storyteller API, just a simplified version for examples sake;
+> at this point development is focused on more crucial issues, like persistence and recoverability, while fluent API
+> and syntactic sugar is gonna come in the future.
+>
+> Rationale is simple - its better to have a bit messier code that will not lose your results, than pretty code that will
+> lose them.
+>
+> See an actual, yet trivial, runnable experiment [here](src/test/java/com/github/filipmalczak/storyteller/story/example1/ExampleExperiment.java)
+> and its short description [here](src/test/java/com/github/filipmalczak/storyteller/story/example1/README.md).
+>
+> Personally, I favour functional testing over unit testing every little detail. Have a look at
+> [the test suite](src/test/java/com/github/filipmalczak/storyteller) and
+> [how the Storyteller is implemented over the "task tree" structure](src/main/java/com/github/filipmalczak/storyteller/impl/story/TreeStoryteller.java);
+> it should tell you more on how the API really looks like and how to use it.
 
 ## ToDo
 
