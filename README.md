@@ -34,17 +34,16 @@ Research scenarios given some love. Persist the progress of your story and don't
 ### v0.0.2
 
 - [ ] currently we assume that all failures are caused by exceptions, so the throw/catch/finally is sufficient for cleanup;
-  if power went down during task execution, then we need to start cleaning up on task start **needed for v0.0.2**
+  if power went down during task execution, then we need to start cleaning up on task start
     - [ ] clean up data on task start
     - [ ] flush at appropriate moment, so we are sure that data isnt lost
-- [ ] adopting orphans **needed for v0.0.2**
+- [ ] adopting orphans
     - if we orphan a task by changing ir shrinking body of the parent, then in the next run we extend it with task with the same definition as orphan,
       we should just reuse the orphan to save some time
     - this will be tricky if the orphan was defined with a class that isnt present anymore (e.g. storyteller research
       was deleted and its key class too; when looking up orphans will fail on undeserializable type)
 
 ### backlog
-
 
  - [ ] add some initial docs
  - [ ] more work on listeners
