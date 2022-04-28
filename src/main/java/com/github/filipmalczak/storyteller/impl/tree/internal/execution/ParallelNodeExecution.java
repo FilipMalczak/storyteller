@@ -61,6 +61,23 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
             internals.events().subtaskIncorporated(thisTask, t);
         });
         storage.flush();
+        if (!newEntry.getExpectedSubtaskIds().isEmpty()) {
+            log.atFine().log("After running the node some subtasks are still expected; disowning them, as the node has shrunk");
+            internals.events().bodyShrunk(
+                thisTask,
+                newEntry
+                    .getExpectedSubtaskIds()
+                    .stream()
+                    .map(
+                        internals
+                            .managers()
+                            .getTaskManager()::getById
+                    )
+                    .map(t -> (Task) t)
+                    .toList()
+            );
+            disownExpectedUpTheTrace(newTrace);
+        }
     }
 
 }

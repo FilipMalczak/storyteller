@@ -157,21 +157,6 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
         }
         internals.history().start(id, parent.map(Task::getId));
         handleBody();
-        //fixme this is not the place to notice shrinking
-//        if (orderingStrategy.hasExpectations()) {
-//            //todo this is pretty messy, make it nicer
-//            var leftovers = orderingStrategy.getCandidatesForReusing()
-//                .stream()
-//                .map(internals.managers().getTaskManager()::getById)
-//                .toList();
-//            internals.events().bodyShrunk(
-//                thisTask,
-//                leftovers.stream().map(t -> (Task) t).toList()
-//            );
-//            getLogger().atFine().log("Task %s has shrunk", id);
-//            disownSubtasks(thisTask, orderingStrategy.getCandidatesForReusing().stream().toList());
-//            disownExpectedUpTheTrace();
-//        }
         internals.history().add(id, id, type.isWriting());
         for (var traceEntry : internals.trace()) {
             internals.history().add(traceEntry.getExecutedTask().getId(), id, type.isWriting());
@@ -257,7 +242,11 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
     }
 
     protected void disownExpectedUpTheTrace() {
-        for (var entry : internals.trace()) {
+        disownExpectedUpTheTrace(internals.trace());
+    }
+
+    protected void disownExpectedUpTheTrace(List<TraceEntry<Id, Definition, Type>> trace) {
+        for (var entry : trace) {
             disownExpectationsThatAreLeft(entry);
         }
     }
