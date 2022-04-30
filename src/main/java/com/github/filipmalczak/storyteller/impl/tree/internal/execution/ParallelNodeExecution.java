@@ -62,7 +62,7 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
         });
         storage.flush();
         if (!newEntry.getExpectedSubtaskIds().isEmpty()) {
-            log.atFine().log("After running the node some subtasks are still expected; disowning them, as the node has shrunk");
+            log.atFine().log("After running the node some subtasks are still expected; disowning them, as the node has narrowed");
             internals.events().bodyShrunk(
                 thisTask,
                 newEntry

@@ -59,7 +59,7 @@ public class SequentialNodeExecution<Id extends Comparable<Id>, Definition, Type
             storage
         );
         if (!newEntry.getExpectedSubtaskIds().isEmpty()) {
-            log.atFine().log("After running the node some subtasks are still expected; disowning them, as the node has shrunk");
+            log.atFine().log("After running the node some subtasks are still expected; disowning them, as the node has narrowed");
             internals.events().bodyShrunk(
                 thisTask,
                 newEntry

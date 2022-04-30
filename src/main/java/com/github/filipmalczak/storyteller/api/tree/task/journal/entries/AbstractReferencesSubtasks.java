@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public sealed class AbstractReferencesSubtasks extends AbstractJournalEntry implements ReferencesSubtask permits BodyChanged, BodyShrunk, ChoiceWasMade, SubtaskDefined, SubtaskDisowned, SubtaskIncorporated {
+public sealed class AbstractReferencesSubtasks extends AbstractJournalEntry implements ReferencesSubtask permits BodyChanged, BodyNarrowed, SubtaskDefined, SubtaskDisowned, SubtaskIncorporated {
     @NonNull List<Task> referenced;
 
     public AbstractReferencesSubtasks(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Task> referenced) {

@@ -78,9 +78,9 @@ public class JournalEntryFactory {
         return new BodyExecuted(sessionManager.getCurrent(), ZonedDateTime.now());
     }
 
-    public BodyShrunk bodyShrunk(@NonNull List<Task> disappeared) {
+    public BodyNarrowed bodyShrunk(@NonNull List<Task> disappeared) {
         //todo require non-empty and non-null?
-        return new BodyShrunk(sessionManager.getCurrent(), ZonedDateTime.now(), disappeared);
+        return new BodyNarrowed(sessionManager.getCurrent(), ZonedDateTime.now(), disappeared);
     }
 
     public TaskAmended taskAmended() {
@@ -89,10 +89,6 @@ public class JournalEntryFactory {
 
     public TaskInterrupted taskInterrupted() {
         return new TaskInterrupted(sessionManager.getCurrent(), ZonedDateTime.now());
-    }
-
-    public ChoiceWasMade choiceWasMade(Task decision) {
-        return new ChoiceWasMade(sessionManager.getCurrent(), ZonedDateTime.now(), asList(decision));
     }
 
     public SubtaskIncorporated subtaskIncorporated(Task child) {

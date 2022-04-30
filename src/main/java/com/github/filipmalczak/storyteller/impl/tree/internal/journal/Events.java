@@ -78,10 +78,6 @@ public class Events<TaskId extends Comparable<TaskId>> {
         manager.record(ancestor, factory.taskInterrupted());
     }
 
-    public void decided(Task<TaskId, ?, ?> choice, Task decision){
-        manager.record(choice, factory.choiceWasMade(decision));
-    }
-
     public void subtaskIncorporated(Task<TaskId, ?, ?> parent, Task child){
         manager.record(parent, factory.subtaskIncorporated(child));
     }

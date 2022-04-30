@@ -11,12 +11,12 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public final class ChoiceWasMade extends AbstractReferencesSubtasks {
-    public ChoiceWasMade(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Task> referenced) {
+public final class BodyNarrowed extends AbstractReferencesSubtasks {
+    public BodyNarrowed(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Task> referenced) {
         super(session, happenedAt, referenced);
     }
 
-    public Task getDecision(){
-        return getReferenced().get(0);
+    public List<Task> getDisappeared(){
+        return getReferenced();
     }
 }
