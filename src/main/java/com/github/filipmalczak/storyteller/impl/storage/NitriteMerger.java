@@ -32,6 +32,7 @@ public class NitriteMerger {
     /**
      * Pivot is excluded; if you want to merge changes that happened at that exact millisecond, subtract 1 from your desired pivot.
      */
+    @SneakyThrows
     public void applyChanges(long pivotalTimestamp, @NonNull Nitrite source){
         require(pivotalTimestamp > 0, "Pivotal timestamp cannot be 0 or negative");
         require(pivotalTimestamp < System.currentTimeMillis(), "Pivotal timestamp must be in the past");

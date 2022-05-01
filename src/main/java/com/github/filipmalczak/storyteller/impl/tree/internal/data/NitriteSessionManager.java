@@ -7,6 +7,7 @@ import com.github.filipmalczak.storyteller.api.session.events.SessionStarted;
 import com.github.filipmalczak.storyteller.api.session.listener.JournalListener;
 import com.github.filipmalczak.storyteller.api.session.listener.ListenerHandle;
 import com.github.filipmalczak.storyteller.api.session.listener.SessionListener;
+import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.model.SessionData;

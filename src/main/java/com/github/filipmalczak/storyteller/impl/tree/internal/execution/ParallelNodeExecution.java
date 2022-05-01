@@ -1,9 +1,9 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.execution;
 
+import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.ParallelNodeBody;
-import com.github.filipmalczak.storyteller.impl.storage.NitriteParallelStorage;
 import com.github.filipmalczak.storyteller.impl.tree.internal.NitriteTreeInternals;
 import com.github.filipmalczak.storyteller.impl.tree.internal.ParallelSubtree;
 import com.github.filipmalczak.storyteller.impl.tree.internal.TraceEntry;
@@ -44,7 +44,7 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
     private void runInstructions() {
         var storage = internals.storageFactory().parallelRead(id);
         var newTrace = new LinkedList<>(internals.trace());
-        var newEntry = new TraceEntry<>(thisTask, new LinkedList<>(thisTask.getSubtasks().stream().map(Task::getId).toList()), storage);
+        var newEntry = new TraceEntry<>(thisTask, null, new LinkedList<>(thisTask.getSubtaskIds().toList()), storage);
         getLogger().atFine().log("Pushing new trace entry: %s", newEntry);
         newTrace.addFirst(newEntry);
 
@@ -67,14 +67,6 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
                 thisTask,
                 newEntry
                     .getExpectedSubtaskIds()
-                    .stream()
-                    .map(
-                        internals
-                            .managers()
-                            .getTaskManager()::getById
-                    )
-                    .map(t -> (Task) t)
-                    .toList()
             );
             disownExpectedUpTheTrace(newTrace);
         }

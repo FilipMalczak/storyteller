@@ -1,5 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.tree;
 
+import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.impl.testimpl.TestTreeFactory;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
@@ -56,8 +57,8 @@ public class ChoiceTests {
                 return Stream.of(t1, t2)
                     .sorted(
                         Comparator.<Task<String, String, TrivialTaskType>, Integer>comparing(
-                            t ->
-                                getOr(insight.into(t), "foo", t.getDefinition()).length()
+                                t ->
+                                    getOr(insight.into(t), "foo", t.getDefinition()).length()
                         )
                             .reversed())
                     .findFirst()

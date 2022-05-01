@@ -85,7 +85,7 @@ public class NitriteUsageTests {
         var importer = Importer.of(db1);
         importer.importFrom(exportedInit);
         long ts1 = System.currentTimeMillis();
-//        Thread.sleep(10);
+        Thread.sleep(10);
         db1.getRepository(SimpleDoc.class).update(new SimpleDoc("a", 6, asList(), true));
         db1.getRepository(SimpleDoc.class).update(new SimpleDoc("d", 7, asList(), true));
         db1.getRepository(SimpleDoc.class).update(new SimpleDoc("x", 8, asList(), true), true);
@@ -94,7 +94,7 @@ public class NitriteUsageTests {
         importer = Importer.of(db2);
         importer.importFrom(exportedInit);
         long ts2 = System.currentTimeMillis();
-//        Thread.sleep(10);
+        Thread.sleep(10);
         db2.getRepository(SimpleDoc.class).update(new SimpleDoc("b", 9, asList(), true));
         db2.getRepository(SimpleDoc.class).update(new SimpleDoc("d", 10, asList(), true));
         db2.getRepository(SimpleDoc.class).update(new SimpleDoc("y", 11, asList(), true), true);

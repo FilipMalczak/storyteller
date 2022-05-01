@@ -10,6 +10,6 @@ import com.github.filipmalczak.storyteller.api.tree.task.body.handles.Insight;
 public interface ParallelNodeBody<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> {
     void perform(TaskTree<Id, Definition, Type, NoSql> executor,
                  ReadStorage<NoSql> storage,
-                 Insight<Id, Definition, Type, NoSql> insights,
+                 Insight<Id, NoSql> insights,
                  Incorporate<Id, Definition, Type> incorporate);
 }

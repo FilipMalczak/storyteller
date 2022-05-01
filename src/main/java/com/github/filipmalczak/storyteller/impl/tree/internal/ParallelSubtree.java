@@ -90,7 +90,7 @@ public class ParallelSubtree<Id extends Comparable<Id>, Definition, Type extends
     }
 
 
-    public Insight<Id, Definition, Type, Nitrite> getInsights() {
+    public Insight<Id, Nitrite> getInsights() {
         return id -> {
             log.atFine().log("Obtaining insight into %s", id);
             require(histories.containsKey(id)); //todo specialized exception

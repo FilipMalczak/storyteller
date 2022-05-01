@@ -1,49 +1,37 @@
 package com.github.filipmalczak.storyteller.api.tree.task;
 
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
-import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.SubtaskDisowned;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-@Value
-@Builder
-public class Task<Id, Definition, Type extends Enum<Type> & TaskType> {
-    @NonNull Id id;
-    @NonNull Definition definition;
-    @NonNull Type type;
-    @Builder.Default
-    List<Task<Id, Definition, Type>>  subtasks = new LinkedList<>();
-    @Builder.Default
-    List<JournalEntry> journal = new LinkedList<>();
+public interface Task<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>{
+    Id getId();
+    Definition getDefinition();
+    Type getType();
 
-    public JournalEntry record(JournalEntry entry){
-        journal.add(entry);
-        return entry;
+    //todo parenty task, sibling task ? tbd
+    Id getParentId();
+    Id getPreviousSiblingId();
+
+    JournalEntry record(JournalEntry entry);
+    Stream<JournalEntry> getJournalEntries();
+
+    Stream<Id> getSubtaskIds();
+    //todo define proper exception protocol for missing subtasks (no such subtask, no such task; no such orphan)
+    Optional<Task<Id, Definition, Type>> findSubtask(Id id);
+    Stream<Task<Id, Definition, Type>> getSubtasks();
+
+    default Task<Id, Definition, Type> getSubtask(Id id){
+        return findSubtask(id).get(); //todo ditto
     }
 
-    public Stream<JournalEntry> getJournalEntries() {
-        return journal.stream();
+    Stream<Id> getDisownedSubtaskIds();
+    Optional<Task<Id, Definition, Type>> findDisownedSubtask(Id id);
+    Stream<Task<Id, Definition, Type>> getDisownedSubtasks();
+
+    default Task<Id, Definition, Type> getDisownedSubtask(Id id){
+        return findDisownedSubtask(id).get(); //todo ditto
     }
 
-    public Stream<Task<Id, Definition, Type>> getDisownedSubtasks(){
-        return getJournalEntries()
-            .filter(e -> e instanceof SubtaskDisowned)
-            .map(e -> ((SubtaskDisowned) e).getDisownedSubtask());
-    }
-
-    @Override
-    public String toString() {
-        return "Task(" +
-            "id=" + id +
-            ", definition=" + definition +
-            ", type=" + type +
-            ", subtasks=" + subtasks +
-            ", journal[" + journal.size()+"]" +
-            ')';
-    }
 }

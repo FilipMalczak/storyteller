@@ -49,6 +49,7 @@ public class NitriteTaskTree<Id extends Comparable<Id>, Definition, Type extends
         this.idGeneratorFactory = idGeneratorFactory;
         this.trace = trace;
         this.events = new Events<>(
+            managers.getTaskManager(),
             managers.getJournalEntryManager(),
             new JournalEntryFactory(managers.getSessionManager())
         );

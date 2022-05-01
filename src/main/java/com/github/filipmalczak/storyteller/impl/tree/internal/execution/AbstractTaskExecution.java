@@ -1,5 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.execution;
 
+import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
+import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGenerator;
@@ -22,8 +24,11 @@ import lombok.experimental.FieldDefaults;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import static java.util.Collections.reverse;
+import static java.util.function.Predicate.isEqual;
+import static java.util.function.Predicate.not;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.valid4j.Assertive.require;
 
@@ -55,6 +60,14 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
         return internals.trace().stream().findFirst().map(TraceEntry::getExecutedTask);
     }
 
+    /**
+     * nullable
+     * todo cache during init()
+     */
+    private Id getPreviousSiblingId(){
+        return internals.trace().stream().findFirst().map(TraceEntry::getLastSubtaskId).orElse(null);
+    }
+
     private void init() {
         getLogger().atFine().log("Executing '%s' of type %s", definition, type);
         parent = getParent();
@@ -67,6 +80,12 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
     }
 
     protected abstract void validateContract();
+
+    private static <T> boolean nullableEquals(T t1, T t2){
+        if (t1 == null)
+            return t2 == null;
+        return t1.equals(t2);
+    }
 
     private void build() {
         defined = false;
@@ -85,28 +104,43 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
                 disownExpectedUpTheTrace();
             }
         } else {
-            var candidates= orderingStrategy.getCandidatesForReusing();
-            getLogger().atFine().log("Candidate IDs for reusing: %s", candidates);
-            var reusable = candidates.stream().filter(idGenerator::canReuse).toList();
-            getLogger().atFine().log("Reusable IDs: %s", reusable);
+            var candidateIds= orderingStrategy.getCandidatesForReusing();
+            getLogger().atFine().log("Candidate IDs for reusing: %s", candidateIds);
+            var reusableIds = candidateIds.stream().filter(idGenerator::canReuse).toList();
+            getLogger().atFine().log("Reusable IDs: %s", reusableIds);
+            var reusable = reusableIds
+                .stream()
+                .map(internals.managers().getTaskManager()::getById)
+                .filter(
+                    t ->
+                        nullableEquals(t.getPreviousSiblingId(), getPreviousSiblingId()) &&
+                        nullableEquals(t.getParentId(), parent.map(Task::getId).orElse(null))
+                )
+                .toList();
+            //todo
             require(reusable.size() < 2, "At most 1 ID can be reusable");
             if (reusable.size() == 1) {
                 defined = true;
-                id = orderingStrategy.reuse(reusable.get(0));
+                thisTask = reusable.get(0);
+                id = orderingStrategy.reuse(thisTask.getId());
                 getLogger().atFine().log("Reusing ID of already defined task: %s", id);
             } else {
-                orderingStrategy.onNoReusable(candidates);
-                amended = true;
+                orderingStrategy.onNoReusable(candidateIds);
+                amended = true; //this will be modified later, and will stay true only if the task has been finished
+                getLogger().atFine().log("No IDs are reusable and referring to a task matching a parent and previous sibling");
             }
         }
         var found = internals.managers().getTaskManager().findById(id);
         getLogger().atFine().log("Retrieved task: %s", found.map(t -> t.getId()+"::"+t.getDefinition()));
         thisTask = found
             .orElseGet(
-                () -> Task.<Id, Definition, Type>builder()
+                () -> SimpleTask.<Id, Definition, Type>builder()
                     .id(id)
                     .definition(definition)
+                    .parentId(parent.map(Task::getId).orElse(null))
+                    .previousSiblingId(getPreviousSiblingId())
                     .type(type)
+                    .taskResolver(internals.managers().getTaskManager())
                     .build()
             );
         if (found.isPresent()) {
@@ -173,7 +207,11 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
         if (recordIncorporateToParent && parent.isPresent()) {
             internals.events().subtaskIncorporated(parent.get(), thisTask);
         }
-
+        if (!internals.trace().isEmpty()) {
+            var traceEntry = internals.trace().get(0);
+            traceEntry.setLastSubtaskId(thisTask.getId());
+            getLogger().atFine().log("Last subtask ID of %s set to %s", thisTask.getParentId(), thisTask.getId());
+        }
     }
 
     @SneakyThrows
@@ -236,8 +274,6 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
     private void defineInParent() {
         var p = parent.get();
         getLogger().atFine().log("Defining subtask %s in parent %s", id, p.getId());
-        p.getSubtasks().add(thisTask);
-        internals.managers().getTaskManager().update(p);
         internals.events().defineSubtask(p, thisTask);
     }
 
@@ -261,18 +297,15 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
             getLogger().atFine().log("No subtasks to disown for task %s", task.getId());
         } else {
             var pivot = toDisown.get(0);
-            var currentSubtasks = task.getSubtasks();
-            var keptSubtasks = currentSubtasks.stream().takeWhile(x -> !x.getId().equals(pivot)).toList();
+            var currentSubtasks = task.getSubtaskIds().toList();
+            var keptSubtasks = currentSubtasks.stream().takeWhile(not(isEqual(pivot))).toList();
             var disownedSubtasks = currentSubtasks.subList(keptSubtasks.size(), currentSubtasks.size());
             require(
-                disownedSubtasks.stream().map(Task::getId).toList().equals(toDisown.stream().toList()),
+                disownedSubtasks.equals(toDisown),
                 "All the disowned tasks must be at the end of the subtask list of the parent"
             );
             getLogger().atFine().log("Disowning %s subtasks of task %s: %s", disownedSubtasks.size(), task.getId(), toDisown);
             internals.events().subtasksDisowned(task, disownedSubtasks);
-            disownedSubtasks.clear();
-            toDisown.clear(); //this is passed by reference and actually points to the same list as the trace entry
-            internals.managers().getTaskManager().update(task);
         }
     }
 

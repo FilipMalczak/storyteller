@@ -216,7 +216,11 @@ public enum EntryType {
         return entryType == CAUGHT;
     }
 
-    public static boolean referencesSubtasks(EntryType entryType){
+    public static boolean referencesSubtask(EntryType entryType){
         return ReferencesSubtask.class.isAssignableFrom(entryType.entryClass);
+    }
+
+    public static boolean referencesSubtasks(EntryType entryType){
+        return ReferencesSubtasks.class.isAssignableFrom(entryType.entryClass);
     }
 }

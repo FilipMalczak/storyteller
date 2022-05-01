@@ -1,6 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.journal;
 
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
+import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.*;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.SessionManager;
 import lombok.AccessLevel;
@@ -21,8 +22,9 @@ import static java.util.Arrays.asList;
 public class JournalEntryFactory {
     SessionManager sessionManager;
 
-    public SubtaskDefined subtaskDefined(@NonNull Task child){
-        return new SubtaskDefined(sessionManager.getCurrent(), ZonedDateTime.now(), asList(child));
+
+    public <Id extends Comparable<Id>> SubtaskDefined subtaskDefined(@NonNull Id child){
+        return new SubtaskDefined(sessionManager.getCurrent(), ZonedDateTime.now(), child);
     }
 
     public TaskStarted taskStarted(){
@@ -37,7 +39,7 @@ public class JournalEntryFactory {
         return new InstructionsSkipped(sessionManager.getCurrent(), ZonedDateTime.now());
     }
 
-    public BodyChanged bodyChanged(@NonNull List<Task> conflictingTasks){
+    public <Id extends Comparable<Id>> BodyChanged bodyChanged(@NonNull List<Id> conflictingTasks){
         //todo require non-empty and non-null?
         return new BodyChanged(sessionManager.getCurrent(), ZonedDateTime.now(), conflictingTasks);
     }
@@ -46,8 +48,8 @@ public class JournalEntryFactory {
         return new BodyExtended(sessionManager.getCurrent(), ZonedDateTime.now());
     }
 
-    public SubtaskDisowned subtaskDisowned(@NonNull Task disowned){
-        return new SubtaskDisowned(sessionManager.getCurrent(), ZonedDateTime.now(), asList(disowned));
+    public <Id extends Comparable<Id>> SubtaskDisowned subtaskDisowned(@NonNull Id disowned){
+        return new SubtaskDisowned(sessionManager.getCurrent(), ZonedDateTime.now(), disowned);
     }
 
     public TaskOrphaned taskOrphaned(){
@@ -78,7 +80,7 @@ public class JournalEntryFactory {
         return new BodyExecuted(sessionManager.getCurrent(), ZonedDateTime.now());
     }
 
-    public BodyNarrowed bodyShrunk(@NonNull List<Task> disappeared) {
+    public <Id extends Comparable<Id>> BodyNarrowed bodyShrunk(@NonNull List<Id> disappeared) {
         //todo require non-empty and non-null?
         return new BodyNarrowed(sessionManager.getCurrent(), ZonedDateTime.now(), disappeared);
     }
@@ -92,6 +94,6 @@ public class JournalEntryFactory {
     }
 
     public SubtaskIncorporated subtaskIncorporated(Task child) {
-        return new SubtaskIncorporated(sessionManager.getCurrent(), ZonedDateTime.now(), asList(child));
+        return new SubtaskIncorporated(sessionManager.getCurrent(), ZonedDateTime.now(), child.getId());
     }
 }

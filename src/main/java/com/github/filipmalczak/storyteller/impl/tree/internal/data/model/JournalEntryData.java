@@ -5,7 +5,6 @@ import com.github.filipmalczak.storyteller.api.tree.task.journal.EntryType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.dizitart.no2.objects.Id;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
@@ -13,11 +12,11 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class JournalEntryData<TaskId extends Comparable<TaskId>> {
-    @Id
+public class JournalEntryData<Id extends Comparable<Id>> {
+    @org.dizitart.no2.objects.Id
     String id;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "className")
-    TaskId taskId;
+    Id taskId;
     EntryType type;
     String sessionId;
     ZonedDateTime happenedAt;

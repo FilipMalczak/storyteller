@@ -132,7 +132,8 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
                 .getJournalEntries()
                 //if options.excludeDisowned we can simply browser task.subtasks
                 .filter(e -> e instanceof SubtaskDefined)
-                .map(e -> ((SubtaskDefined) e).getDefinedSubtask())
+                .map(e -> ((SubtaskDefined<Id>) e).getDefinedSubtaskId())
+                .map(managers.getTaskManager()::getById)
                 .forEach(t -> handle(newAncestors, t));
         }
 
@@ -287,7 +288,7 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
                 ),
                 node("div", cssClass("row"),
                     node("div", cssClass("col"),
-                        taskList(task.getSubtasks().stream(), depth)
+                        taskList(task.getSubtasks(), depth)
                     )
                 )
             );
@@ -309,7 +310,7 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
                                 return def;
                             return sequence(
                                 def,
-                                taskList(t.getSubtasks().stream(), depth - 1)
+                                taskList(t.getSubtasks(), depth - 1)
                             );
                         })
                         .map(i -> node("li", cssClass("subtask-item"), i))
@@ -362,7 +363,7 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
             List<Session> orderedSessions = sessions.keySet().stream().sorted(comparing(Session::getStartedAt)).toList();
             this.sessions.addAll(orderedSessions);
             List<List<Renderable>> rows = new ArrayList<>();
-            for (var entry : task.getJournal()) {
+            task.getJournalEntries().forEach(entry -> {
 
                 int sessionIdx = orderedSessions.indexOf(entry.getSession());
                 List<Renderable> row = new ArrayList<>();
@@ -370,15 +371,21 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
                 for (int i = 0; i < sessionIdx; ++i)
                     row.add(empty());
                 String entryTxt = EntryType.toType(entry).toString();
-                if (entry instanceof ReferencesSubtask) {
-                    entryTxt += " -> "+((ReferencesSubtask) entry).getReferenced().stream().map(Task::getDefinition).toList();
+                if (entry instanceof ReferencesSubtasks) {
+                    entryTxt += " -> "+
+                        ((ReferencesSubtasks<Id>) entry)
+                            .getReferences()
+                            .stream()
+                            .map(managers.getTaskManager()::getById)
+                            .map(Task::getDefinition)
+                            .toList();
                 } else if (entry instanceof ExceptionCaught)
                     entryTxt += " : "+((ExceptionCaught) entry).getClassName()+"("+((ExceptionCaught) entry).getMessage()+")";
                 row.add(literal(entryTxt));
                 for (int i = sessionIdx + 1; i < orderedSessions.size(); ++i)
                     row.add(empty());
                 rows.add(row);
-            }
+            });
             return sequence(
                 node("div", cssClass("row"),
                     node("div", cssClass("col"),

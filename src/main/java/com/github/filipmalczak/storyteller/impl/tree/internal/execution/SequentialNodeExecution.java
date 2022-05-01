@@ -1,9 +1,8 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.execution;
 
-import com.github.filipmalczak.storyteller.api.tree.task.Task;
+import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
-import com.github.filipmalczak.storyteller.impl.storage.NitriteReadStorage;
 import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTree;
 import com.github.filipmalczak.storyteller.impl.tree.internal.NitriteTreeInternals;
 import com.github.filipmalczak.storyteller.impl.tree.internal.TraceEntry;
@@ -44,7 +43,7 @@ public class SequentialNodeExecution<Id extends Comparable<Id>, Definition, Type
     private void runInstructions() {
         var storage = internals.storageFactory().read(id);
         var newTrace = new LinkedList<>(internals.trace());
-        var newEntry = new TraceEntry<>(thisTask, new LinkedList<>(thisTask.getSubtasks().stream().map(Task::getId).toList()), storage);
+        var newEntry = new TraceEntry<>(thisTask, null, new LinkedList<>(thisTask.getSubtaskIds().toList()), storage);
         getLogger().atFine().log("Pushing new trace entry: %s", newEntry);
         newTrace.addFirst(newEntry);
         body.perform(
@@ -62,16 +61,7 @@ public class SequentialNodeExecution<Id extends Comparable<Id>, Definition, Type
             log.atFine().log("After running the node some subtasks are still expected; disowning them, as the node has narrowed");
             internals.events().bodyShrunk(
                 thisTask,
-                newEntry
-                    .getExpectedSubtaskIds()
-                    .stream()
-                    .map(
-                        internals
-                            .managers()
-                            .getTaskManager()::getById
-                    )
-                    .map(t -> (Task) t)
-                    .toList()
+                newEntry.getExpectedSubtaskIds()
             );
             disownExpectedUpTheTrace(newTrace);
         }

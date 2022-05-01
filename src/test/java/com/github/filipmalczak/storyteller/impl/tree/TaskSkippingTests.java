@@ -497,8 +497,8 @@ class TaskSkippingTests {
         });
         tracker.expect(1, 2, 4, 5);
         assertNotNull(theNode[0]);
-        assertEquals(1, theNode[0].getSubtasks().size());
-        assertEquals("first leaf task", theNode[0].getSubtasks().get(0).getDefinition());
+        assertEquals(1, theNode[0].getSubtasks().count());
+        assertEquals("first leaf task", theNode[0].getSubtasks().findFirst().get().getDefinition());
         assertEquals(1, theNode[0].getDisownedSubtasks().count());
         assertEquals("second leaf task", theNode[0].getDisownedSubtasks().findFirst().get().getDefinition());
     }
@@ -539,8 +539,8 @@ class TaskSkippingTests {
         });
         tracker.expect(1, 2, 3, 4, 5);
         assertNotNull(theNode[0]);
-        assertEquals(1, theNode[0].getSubtasks().size());
-        assertEquals("second leaf task", theNode[0].getSubtasks().get(0).getDefinition());
+        assertEquals(1, theNode[0].getSubtasks().count());
+        assertEquals("second leaf task", theNode[0].getSubtasks().findFirst().get().getDefinition());
         assertEquals(2, theNode[0].getDisownedSubtasks().count());
         assertEquals(
             asList(
@@ -607,8 +607,8 @@ class TaskSkippingTests {
         });
         tracker.expect(1, 2, 4, 5, 6, 7, 8, 9);
         assertNotNull(firstNode[0]);
-        assertEquals(1, firstNode[0].getSubtasks().size());
-        assertEquals("first leaf task", firstNode[0].getSubtasks().get(0).getDefinition());
+        assertEquals(1, firstNode[0].getSubtasks().count());
+        assertEquals("first leaf task", firstNode[0].getSubtasks().findFirst().get().getDefinition());
         assertEquals(1, firstNode[0].getDisownedSubtasks().count());
         assertEquals("second leaf task", firstNode[0].getDisownedSubtasks().findFirst().get().getDefinition());
         //todo add checks for root and its disowned task

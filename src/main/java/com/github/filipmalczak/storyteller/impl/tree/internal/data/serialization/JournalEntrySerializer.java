@@ -1,10 +1,11 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.data.serialization;
 
 import com.github.filipmalczak.storyteller.api.session.Session;
+import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.ExceptionCaught;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
-import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.ReferencesSubtask;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.ReferencesSubtasks;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.SessionManager;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.TaskManager;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.model.JournalEntryData;
@@ -43,13 +44,22 @@ public class JournalEntrySerializer {
                     (String) data.getAdditionalFields().get("stackTrace")
                 );
         }
+        if (referencesSubtask(data.getType())) {
+            return (T) resultClass
+                .getConstructor(Session.class, ZonedDateTime.class, Comparable.class)
+                .newInstance(
+                    sessionManager.getById(data.getSessionId()),
+                    data.getHappenedAt(),
+                    ((List) data.getAdditionalFields().get("references")).get(0)
+                );
+        }
         if (referencesSubtasks(data.getType())) {
             return (T) resultClass
                 .getConstructor(Session.class, ZonedDateTime.class, List.class)
                 .newInstance(
                     sessionManager.getById(data.getSessionId()),
                     data.getHappenedAt(),
-                    ((List) data.getAdditionalFields().get("referenced")).stream().map(taskManager::getById).toList()
+                    data.getAdditionalFields().get("references")
                 );
         }
         return (T) resultClass
@@ -60,11 +70,11 @@ public class JournalEntrySerializer {
             );
     }
 
-    public <TaskId extends Comparable<TaskId>> JournalEntryData<TaskId> fromEntry(Task<TaskId, ?, ?> task, JournalEntry entry){
+    public <Id extends Comparable<Id>> JournalEntryData<Id> fromEntry(Task<Id, ?, ?> task, JournalEntry entry){
         return fromEntry(task.getId(), entry);
     }
 
-    public <TaskId extends Comparable<TaskId>> JournalEntryData<TaskId> fromEntry(TaskId taskId, JournalEntry entry){
+    public <Id extends Comparable<Id>> JournalEntryData<Id> fromEntry(Id taskId, JournalEntry entry){
         Map<String, Object> additional = new HashMap<>();
         var type = toType(entry);
         if (describesException(type)){
@@ -72,7 +82,7 @@ public class JournalEntrySerializer {
             additional.put("message", ((ExceptionCaught) entry).getMessage());
             additional.put("stackTrace", ((ExceptionCaught) entry).getFullStackTrace());
         } else if (referencesSubtasks(type)){
-            additional.put("referenced", ((ReferencesSubtask) entry).getReferenced().stream().map(Task::getId).toList());
+            additional.put("references", ((ReferencesSubtasks) entry).getReferences());
         }
         String id = taskId.toString()+"::"+toTimestamp(entry.getHappenedAt());
         return new JournalEntryData<>(

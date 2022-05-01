@@ -1,7 +1,7 @@
 package com.github.filipmalczak.storyteller.api.tree.task.journal.entries;
 
 import com.github.filipmalczak.storyteller.api.session.Session;
-import com.github.filipmalczak.storyteller.api.tree.task.Task;
+import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,11 +12,11 @@ import java.util.List;
 @Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public sealed class AbstractReferencesSubtasks extends AbstractJournalEntry implements ReferencesSubtask permits BodyChanged, BodyNarrowed, SubtaskDefined, SubtaskDisowned, SubtaskIncorporated {
-    @NonNull List<Task> referenced;
+public sealed class AbstractReferencesSubtasks<Id extends Comparable<Id>> extends AbstractJournalEntry implements ReferencesSubtasks<Id> permits AbstractReferencesSubtask, BodyChanged, BodyNarrowed {
+    @NonNull List<Id> references;
 
-    public AbstractReferencesSubtasks(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Task> referenced) {
+    public AbstractReferencesSubtasks(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Id> references) {
         super(session, happenedAt);
-        this.referenced = referenced;
+        this.references = references;
     }
 }

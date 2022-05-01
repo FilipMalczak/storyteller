@@ -1,5 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.data.serialization;
 
+import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.JournalEntryManager;
@@ -14,26 +15,29 @@ import java.util.LinkedList;
 
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TaskSerializer<TaskId extends Comparable<TaskId>, Definition, Type extends Enum<Type> & TaskType>  {
-    @NonNull JournalEntryManager<TaskId> journalEntryManager;
-    @NonNull TaskManager<TaskId, Definition, Type> taskManager;
+public class TaskSerializer<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>  {
+    @NonNull JournalEntryManager<Id> journalEntryManager;
+    @NonNull TaskManager<Id, Definition, Type> taskManager;
 
-    public Task<TaskId, Definition, Type> toTask(TaskData<TaskId, Definition, Type> data){
-        return Task.<TaskId, Definition, Type>builder()
+    public Task<Id, Definition, Type> toTask(TaskData<Id, Definition, Type> data){
+        return SimpleTask.<Id, Definition, Type>builder()
             .id(data.getId())
             .definition(data.getDefinition())
             .type(data.getType())
-            .subtasks(new LinkedList<>(data.getSubtasks().stream().map(taskManager::getById).toList()))
-            .journal(new LinkedList<>(journalEntryManager.findByTaskId(data.getId()).toList()))
+            .parentId(data.getParentId())
+            .previousSiblingId(data.getPreviousSiblingId())
+            .journal(new LinkedList<>(journalEntryManager.findById(data.getId()).toList()))
+            .taskResolver(taskManager)
             .build();
     }
 
-    public TaskData<TaskId, Definition, Type> fromTask(Task<TaskId, Definition, Type> task){
+    public TaskData<Id, Definition, Type> fromTask(Task<Id, Definition, Type> task){
         return new TaskData<>(
             task.getId(),
             task.getDefinition(),
             task.getType(),
-            task.getSubtasks().stream().map(Task::getId).toList()
+            task.getParentId(),
+            task.getPreviousSiblingId()
         );
     }
 }

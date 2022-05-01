@@ -12,14 +12,16 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaskData<TaskId extends Comparable<TaskId>, Definition, Type extends Enum<Type> & TaskType> {
-    @Id
+public class TaskData<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> {
+    @org.dizitart.no2.objects.Id
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "className")
-    TaskId id;
+    Id id;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "className")
     Definition definition;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "className")
     Type type;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "className")
-    List<TaskId> subtasks;
+    Id parentId;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "className")
+    Id previousSiblingId;
 }

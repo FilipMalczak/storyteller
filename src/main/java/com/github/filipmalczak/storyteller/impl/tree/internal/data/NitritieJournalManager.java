@@ -20,14 +20,14 @@ import static org.dizitart.no2.objects.filters.ObjectFilters.in;
 
 @Setter(AccessLevel.PACKAGE)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class NitritieJournalManager<TaskId extends Comparable<TaskId>> implements JournalEntryManager<TaskId> {
+public class NitritieJournalManager<Id extends Comparable<Id>> implements JournalEntryManager<Id> {
     @NonNull ObjectRepository<JournalEntryData> repository;
     @NonNull JournalEntrySerializer serializer;
     @NonNull SessionManager sessionManager;
 
     @Override
-    public void record(TaskEntry<TaskId>... entries) {
-        JournalEntryData<TaskId>[] toInsert = new JournalEntryData[entries.length];
+    public void record(TaskEntry<Id>... entries) {
+        JournalEntryData<Id>[] toInsert = new JournalEntryData[entries.length];
         for (int i = 0; i< entries.length; ++i){
             var e = entries[i];
             e.task().record(e.entry());
@@ -40,7 +40,7 @@ public class NitritieJournalManager<TaskId extends Comparable<TaskId>> implement
     }
 
     @Override
-    public Stream<JournalEntry> findByTaskId(TaskId taskId) {
+    public Stream<JournalEntry> findById(Id taskId) {
         return toStream(
             repository
                 .find(
