@@ -5,9 +5,6 @@ import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.dizitart.no2.objects.Id;
-
-import java.util.List;
 
 @Data
 @AllArgsConstructor

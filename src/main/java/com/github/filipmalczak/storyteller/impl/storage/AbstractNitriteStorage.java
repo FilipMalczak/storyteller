@@ -1,7 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.storage;
 
 import com.github.filipmalczak.storyteller.api.storage.ReadStorage;
-import com.github.filipmalczak.storyteller.impl.storage.files.IndexedReadFiles;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import lombok.AccessLevel;
 import lombok.NonNull;

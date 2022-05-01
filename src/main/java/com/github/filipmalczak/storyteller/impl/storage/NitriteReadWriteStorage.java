@@ -9,7 +9,6 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.tool.Exporter;
-import org.jetbrains.annotations.NotNull;
 
 import static com.github.filipmalczak.storyteller.impl.storage.utils.NitriteFsUtils.getNitriteFile;
 

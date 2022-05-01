@@ -1,6 +1,5 @@
 package com.github.filipmalczak.storyteller.impl.tree;
 
-import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.impl.testimpl.TestTreeFactory;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;

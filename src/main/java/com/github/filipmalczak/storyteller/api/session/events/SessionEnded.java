@@ -4,7 +4,6 @@ import com.github.filipmalczak.storyteller.api.session.Session;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
-import lombok.Value;
 
 
 @EqualsAndHashCode(callSuper = true)

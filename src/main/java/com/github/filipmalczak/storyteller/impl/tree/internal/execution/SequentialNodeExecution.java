@@ -1,6 +1,5 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.execution;
 
-import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
 import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTree;

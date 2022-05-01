@@ -1,7 +1,5 @@
 package com.github.filipmalczak.storyteller.impl.storage.files;
 
-import com.github.filipmalczak.storyteller.api.storage.files.ReadFilesApi;
-import com.github.filipmalczak.storyteller.api.storage.files.ReadWriteFilesApi;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.storage.files.indexing.ModificationEvent;
 import com.github.filipmalczak.storyteller.impl.storage.files.indexing.ModificationIndex;

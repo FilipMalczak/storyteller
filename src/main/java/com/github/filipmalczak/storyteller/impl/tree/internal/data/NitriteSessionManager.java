@@ -7,7 +7,6 @@ import com.github.filipmalczak.storyteller.api.session.events.SessionStarted;
 import com.github.filipmalczak.storyteller.api.session.listener.JournalListener;
 import com.github.filipmalczak.storyteller.api.session.listener.ListenerHandle;
 import com.github.filipmalczak.storyteller.api.session.listener.SessionListener;
-import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.model.SessionData;
@@ -17,7 +16,10 @@ import org.dizitart.no2.objects.ObjectRepository;
 
 import java.net.InetAddress;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
 import static org.valid4j.Assertive.require;

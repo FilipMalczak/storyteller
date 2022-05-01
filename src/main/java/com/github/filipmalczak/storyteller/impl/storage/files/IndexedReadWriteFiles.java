@@ -6,11 +6,11 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.flogger.Flogger;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.function.Consumer;
-
-import static org.valid4j.Assertive.require;
 
 @Flogger
 public class IndexedReadWriteFiles<Id extends Comparable<Id>> extends IndexedReadFiles<Id> implements ReadWriteFilesApi {

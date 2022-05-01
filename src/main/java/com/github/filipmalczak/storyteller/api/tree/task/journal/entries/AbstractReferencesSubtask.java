@@ -6,7 +6,6 @@ import lombok.NonNull;
 import lombok.ToString;
 
 import java.time.ZonedDateTime;
-import java.util.List;
 
 import static java.util.Arrays.asList;
 

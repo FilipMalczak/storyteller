@@ -6,8 +6,6 @@ import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
-import com.github.filipmalczak.storyteller.impl.tree.internal.journal.Events;
-import com.github.filipmalczak.storyteller.impl.tree.internal.journal.JournalEntryFactory;
 import org.dizitart.no2.Nitrite;
 
 import java.util.LinkedList;

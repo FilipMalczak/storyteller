@@ -1,7 +1,6 @@
 package com.github.filipmalczak.storyteller.api.tree.task.journal.entries;
 
 import com.github.filipmalczak.storyteller.api.session.Session;
-import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;

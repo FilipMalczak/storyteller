@@ -2,7 +2,6 @@ package com.github.filipmalczak.storyteller.impl.tree.internal.data;
 
 import com.github.filipmalczak.storyteller.api.session.Session;
 import com.github.filipmalczak.storyteller.api.session.Sessions;
-import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
 

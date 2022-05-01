@@ -1,7 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.journal;
 
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
-import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.*;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.SessionManager;
 import lombok.AccessLevel;
@@ -14,8 +13,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.ZonedDateTime;
 import java.util.List;
-
-import static java.util.Arrays.asList;
 
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

@@ -1,8 +1,9 @@
 package com.github.filipmalczak.storyteller.api.session.events;
 
 import com.github.filipmalczak.storyteller.api.session.Session;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.ToString;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

@@ -2,7 +2,6 @@ package com.github.filipmalczak.storyteller.impl.tree.internal.execution;
 
 import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
-import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGenerator;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.InstructionsSkipped;
@@ -24,7 +23,6 @@ import lombok.experimental.FieldDefaults;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import static java.util.Collections.reverse;
 import static java.util.function.Predicate.isEqual;

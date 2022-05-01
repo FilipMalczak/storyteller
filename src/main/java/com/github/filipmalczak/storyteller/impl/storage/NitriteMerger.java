@@ -11,9 +11,6 @@ import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.filters.Filters;
 import org.dizitart.no2.objects.ObjectRepository;
 import org.dizitart.no2.objects.filters.ObjectFilters;
-import org.valid4j.Assertive;
-
-import java.util.HashSet;
 
 import static org.dizitart.no2.Constants.*;
 import static org.dizitart.no2.util.ObjectUtils.getIdField;
