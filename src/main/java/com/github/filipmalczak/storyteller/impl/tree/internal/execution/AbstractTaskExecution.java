@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.reverse;
 import static java.util.function.Predicate.isEqual;
 import static java.util.function.Predicate.not;
@@ -186,6 +187,7 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
             }
             internals.events().taskAmended(thisTask);
             getLogger().atFine().log("Amended task %s", id);
+            finished = false;
         }
         internals.history().start(id, parent.map(Task::getId));
         handleBody();
@@ -193,9 +195,7 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
         for (var traceEntry : internals.trace()) {
             internals.history().add(traceEntry.getExecutedTask().getId(), id, type.isWriting());
         }
-//        if (!type.isParallel()) {
-            internals.trace().stream().findFirst().ifPresent(e -> e.getStorage().reload());
-//        }
+        internals.trace().stream().findFirst().ifPresent(e -> e.getStorage().reload());
         if (!finished) {
             internals.events().taskEnded(thisTask);
             getLogger().atFine().log("Ended task %s", id);
@@ -203,7 +203,7 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
             getLogger().atFine().log("Task %s already finished", id);
         }
         if (recordIncorporateToParent && parent.isPresent()) {
-            internals.events().subtaskIncorporated(parent.get(), thisTask);
+            internals.events().subtaskIncorporated(parent.get(), id);
         }
         if (!internals.trace().isEmpty()) {
             var traceEntry = internals.trace().get(0);
@@ -313,6 +313,11 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
             @Override
             public void disownExpectedUpTheTrace() {
                 AbstractTaskExecution.this.disownExpectedUpTheTrace();
+            }
+
+            @Override
+            public void disownSubtask(Task<Id, Definition, Type> task, Id toDisown) {
+                AbstractTaskExecution.this.disownSubtasks(task, asList(toDisown));
             }
 
             @Override

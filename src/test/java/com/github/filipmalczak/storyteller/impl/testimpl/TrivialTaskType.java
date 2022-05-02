@@ -10,9 +10,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum TrivialTaskType implements TaskType {
-    ROOT(TaskTypeModifier.ROOT),
-    NODE(TaskTypeModifier.NONE),
-    LEAF(TaskTypeModifier.LEAF);
+    ROOT(TaskKind.ROOT),
+    NODE(TaskKind.SEQUENTIAL_NODE),
+    LEAF(TaskKind.LEAF);
 
-    TaskTypeModifier modifier;
+    TaskKind modifier;
 }

@@ -6,11 +6,12 @@ import lombok.NonNull;
 import lombok.ToString;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public final class OrderingTightened extends AbstractJournalEntry {
-    public OrderingTightened(@NonNull Session session, @NonNull ZonedDateTime happenedAt) {
+public final class ParallelNodeInflated extends AbstractJournalEntry {
+    public ParallelNodeInflated(@NonNull Session session, @NonNull ZonedDateTime happenedAt) {
         super(session, happenedAt);
     }
 }

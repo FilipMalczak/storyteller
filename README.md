@@ -169,6 +169,7 @@ For example, your evolutionary algorithm research could look like:
 - [ ] change choice to parallel task (will be way easier after renaming to tree, because methods will be easier to name)
     - [x] keep choice as a utility method?
     - [ ] THIS REQUIRES MUCH MORE TESTING
+    - [ ] PARALLEL NODES IN GENERAL NEEDS TESTING
 - [ ] test journaling (will be easier once session management is done, as we won't have to spin up subprocess just to do amendments, etc)
     - [x] actually implement SHRUNK entry
 - [ ] more extensive testing (see comments in existing tests)

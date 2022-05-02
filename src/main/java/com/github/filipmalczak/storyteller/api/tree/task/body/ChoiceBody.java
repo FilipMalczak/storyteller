@@ -26,5 +26,5 @@ public interface ChoiceBody<Id extends Comparable<Id>, Definition, Type extends 
         throw new CannotChooseException(); //todo
     }
 
-    Task<Id, Definition, Type> makeChoice(TaskTree<Id, Definition, Type, NoSql> executor, ReadStorage<NoSql> storage, Insight<Id, NoSql> insights);
+    Task<Id, Definition, Type> makeChoice(TaskTree<Id, Definition, Type, NoSql> executor, ReadStorage<NoSql> storage);
 }

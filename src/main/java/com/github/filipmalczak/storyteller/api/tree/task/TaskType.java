@@ -1,26 +1,29 @@
 package com.github.filipmalczak.storyteller.api.tree.task;
 
 public interface TaskType {
-    enum TaskTypeModifier { //fixme awful name
-        NONE, ROOT, PARALLEL, LEAF;
-
+    enum TaskKind {
+        ROOT, PARALLEL_NODE, SEQUENTIAL_NODE, LEAF;
     }
 
-    TaskTypeModifier getModifier();
+    TaskKind getModifier();
 
     default boolean isRoot(){
-        return getModifier() == TaskTypeModifier.ROOT;
+        return getModifier() == TaskKind.ROOT;
+    }
+
+    default boolean isSequential(){
+        return getModifier() == TaskKind.ROOT || getModifier() == TaskKind.SEQUENTIAL_NODE;
     }
 
     default boolean isLeaf(){
-        return getModifier() == TaskTypeModifier.LEAF;
+        return getModifier() == TaskKind.LEAF;
     }
 
     default boolean isParallel(){
-        return getModifier() == TaskTypeModifier.PARALLEL;
+        return getModifier() == TaskKind.PARALLEL_NODE;
     }
 
     default boolean isWriting(){
-        return isParallel() || isLeaf();
+        return isLeaf();
     }
 }

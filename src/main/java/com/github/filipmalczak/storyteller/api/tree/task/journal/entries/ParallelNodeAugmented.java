@@ -9,8 +9,8 @@ import java.time.ZonedDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public final class Augmented extends AbstractJournalEntry {
-    public Augmented(@NonNull Session session, @NonNull ZonedDateTime happenedAt) {
+public final class ParallelNodeAugmented extends AbstractJournalEntry {
+    public ParallelNodeAugmented(@NonNull Session session, @NonNull ZonedDateTime happenedAt) {
         super(session, happenedAt);
     }
 }

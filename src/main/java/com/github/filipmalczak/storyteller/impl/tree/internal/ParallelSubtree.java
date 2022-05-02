@@ -5,12 +5,13 @@ import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.ParallelNodeBody;
-import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
+import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.handles.Insight;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageFactory;
 import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTree;
+import com.github.filipmalczak.storyteller.impl.tree.config.MergeSpecFactory;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.IncrementalHistoryTracker;
@@ -37,6 +38,7 @@ public class ParallelSubtree<Id extends Comparable<Id>, Definition, Type extends
     @NonNull HistoryTracker<Id> history;
     @NonNull NitriteStorageConfig<Id> storageConfig;
     @NonNull IdGeneratorFactory<Id, Definition, Type> idGeneratorFactory;
+    @NonNull MergeSpecFactory<Id, Definition, Type> mergeSpecFactory;
     @NonNull List<TraceEntry<Id, Definition, Type>> trace;
     @NonNull Map<Id, Long> startingTimestamps = new HashMap<>();
     @NonNull Map<Id, IncrementalHistoryTracker<Id>> histories = new HashMap<>();
@@ -49,6 +51,7 @@ public class ParallelSubtree<Id extends Comparable<Id>, Definition, Type extends
             subtaskHistory,
             storageConfig,
             idGeneratorFactory,
+            mergeSpecFactory,
             new ArrayList<>(trace),
             false
         );
@@ -59,13 +62,13 @@ public class ParallelSubtree<Id extends Comparable<Id>, Definition, Type extends
     }
 
     @Override
-    public Task<Id, Definition, Type> execute(Definition definition, Type type, SequentialNodeBody<Id, Definition, Type, Nitrite> body) {
+    public Task<Id, Definition, Type> execute(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body) {
         return branchOff(tree -> tree.execute(definition, type, body));
     }
 
     @Override
-    public Task<Id, Definition, Type> execute(Definition definition, Type type, ParallelNodeBody<Id, Definition, Type, Nitrite> body) {
-        return branchOff(tree -> tree.execute(definition, type, body));
+    public Task<Id, Definition, Type> execute(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, IncorporationFilter<Id, Definition, Type, Nitrite> filter) {
+        return branchOff(tree -> tree.execute(definition, type, body, filter));
     }
 
     @Override
@@ -73,22 +76,13 @@ public class ParallelSubtree<Id extends Comparable<Id>, Definition, Type extends
         return branchOff(tree -> tree.execute(definition, type, body));
     }
 
-    public IncrementalHistoryTracker<Id> getHistory(Task<Id, Definition, Type> task){
-        return getHistory(task.getId());
-    }
-
     public IncrementalHistoryTracker<Id> getHistory(Id id){
         return histories.get(id);
-    }
-
-    public long getStartTimestamp(Task<Id, Definition, Type> task){
-        return getStartTimestamp(task.getId());
     }
 
     public long getStartTimestamp(Id id){
         return startingTimestamps.get(id);
     }
-
 
     public Insight<Id, Nitrite> getInsights() {
         return id -> {

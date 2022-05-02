@@ -12,8 +12,11 @@ import lombok.experimental.FieldDefaults;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.ZonedDateTime;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
+//todo this can be moved to API as soon as I replace session manager with Sessions
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class JournalEntryFactory {
@@ -86,11 +89,27 @@ public class JournalEntryFactory {
         return new TaskAmended(sessionManager.getCurrent(), ZonedDateTime.now());
     }
 
+    public ParallelNodeDeflated nodeDeflated(){
+        return new ParallelNodeDeflated(sessionManager.getCurrent(), ZonedDateTime.now());
+    }
+
+    public ParallelNodeInflated nodeInflated(){
+        return new ParallelNodeInflated(sessionManager.getCurrent(), ZonedDateTime.now());
+    }
+
+    public ParallelNodeRefiltered nodeRefiltered(){
+        return new ParallelNodeRefiltered(sessionManager.getCurrent(), ZonedDateTime.now());
+    }
+
+    public ParallelNodeAugmented nodeAugmented(){
+        return new ParallelNodeAugmented(sessionManager.getCurrent(), ZonedDateTime.now());
+    }
+
     public TaskInterrupted taskInterrupted() {
         return new TaskInterrupted(sessionManager.getCurrent(), ZonedDateTime.now());
     }
 
-    public SubtaskIncorporated subtaskIncorporated(Task child) {
-        return new SubtaskIncorporated(sessionManager.getCurrent(), ZonedDateTime.now(), child.getId());
+    public <Id extends  Comparable<Id>> SubtaskIncorporated subtaskIncorporated(Id child) {
+        return new SubtaskIncorporated(sessionManager.getCurrent(), ZonedDateTime.now(), child);
     }
 }

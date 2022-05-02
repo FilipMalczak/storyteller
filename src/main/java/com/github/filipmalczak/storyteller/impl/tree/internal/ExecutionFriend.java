@@ -12,6 +12,7 @@ import java.util.Optional;
  */
 public interface ExecutionFriend<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> {
     void disownExpectedUpTheTrace();
+    void disownSubtask(Task<Id, Definition, Type> task, Id toDisown);
     void setId(Id id);
     IdGenerator<Id, Definition, Type> idGenerator();
     //todo replace with resolver

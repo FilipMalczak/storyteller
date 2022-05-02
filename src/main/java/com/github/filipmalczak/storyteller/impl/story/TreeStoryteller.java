@@ -14,17 +14,20 @@ import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
 import com.github.filipmalczak.storyteller.api.tree.task.body.ChoiceBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
-import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
+import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.valid4j.Assertive.require;
 
@@ -47,7 +50,8 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
 
             @Override
             public <Key, Score> void decision(String decision, ActionBody<DecisionClosure<Key, Score, NoSql>> body) {
-                exec.chooseBranchToProceed(new StorytellerDefinition(decision), EpisodeType.DECISION, decisionToChoiceBody(body));
+                var args = decisionToChoiceBody(body);
+                exec.execute(new StorytellerDefinition(decision), EpisodeType.DECISION, args.body(), args.filter());
             }
         };
     }
@@ -63,14 +67,14 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
         };
     }
 
-    private SequentialNodeBody<String, StorytellerDefinition, EpisodeType, NoSql> arcToNodeBody(StructureBody<ArcClosure<NoSql>, ReadStorage<NoSql>> body){
+    private NodeBody<String, StorytellerDefinition, EpisodeType, NoSql> arcToNodeBody(StructureBody<ArcClosure<NoSql>, ReadStorage<NoSql>> body){
         return (exec, storage) -> body.action(
             makeArcClosure(exec),
             storage
         );
     }
 
-    private SequentialNodeBody<String, StorytellerDefinition, EpisodeType, NoSql> threadToNodeBody(StructureBody<ThreadClosure<NoSql>, ReadStorage<NoSql>> body){
+    private NodeBody<String, StorytellerDefinition, EpisodeType, NoSql> threadToNodeBody(StructureBody<ThreadClosure<NoSql>, ReadStorage<NoSql>> body){
         return (exec, storage) -> body.action(
             makeThreadClosure(exec),
             storage
@@ -120,35 +124,50 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
         }
     }
 
-    private <Key, Score> ChoiceBody<String, StorytellerDefinition, EpisodeType, NoSql> decisionToChoiceBody(ActionBody<DecisionClosure<Key, Score, NoSql>> body){
-        return (exec, storage, insight) -> {
-            var closure = new DecisionClosureImpl<Key, Score, NoSql>();
-            body.action(closure);
-            var scores = new HashMap<String, Score>();
-            return closure
-                .domain.get()
-                .map(k -> {
-                    var keyArc = exec.execute(
-                        new StorytellerDefinition("choice option", k),
-                        EpisodeType.ARC,
-                        (domainExec, domainStorage) -> closure.body.research(k, makeArcClosure(domainExec))
+    private static record ParallelNodeArguments<NoSql>(
+        @NonNull NodeBody<String, StorytellerDefinition, EpisodeType, NoSql> body,
+        @NonNull TaskTree.IncorporationFilter<String, StorytellerDefinition,EpisodeType, NoSql> filter
+    ) {}
+
+    private static record Pair<X, Y>(@NonNull X x, @NonNull Y y) {
+        <T> Pair<T, Y> mapX(Function<X, T> foo){
+            return new Pair<>(foo.apply(x), y);
+        }
+
+        <T> Pair<X, T> mapY(Function<Y, T> foo){
+            return new Pair<>(x, foo.apply(y));
+        }
+    }
+
+    private <Key, Score> ParallelNodeArguments<NoSql> decisionToChoiceBody(ActionBody<DecisionClosure<Key, Score, NoSql>> body){
+        var closure = new DecisionClosureImpl<Key, Score, NoSql>();
+        body.action(closure);
+        return new ParallelNodeArguments<>(
+            (exec, storage) -> {
+
+                closure
+                    .domain.get()
+                    .forEach(k ->
+                        exec.execute(
+                            new StorytellerDefinition("choice option", k),
+                            EpisodeType.ARC,
+                            (domainExec, domainStorage) -> closure.body.research(k, makeArcClosure(domainExec))
+                        )
                     );
-                    var keyStorageInsight = insight.into(keyArc);
-                    var score = closure.evaluator.apply(keyStorageInsight);
-                    scores.put(keyArc.getId(), score);
-                    return keyArc;
-                })
-                .sorted(
-                    (t1, t2) ->
-                        closure.comparator
-                            .compare(
-                                scores.get(t1.getId()),
-                                scores.get(t2.getId())
-                            )
-                )
-                .findFirst()
-                .get();
-        };
+            },
+            (subtasks, insight) ->
+                subtasks
+                    .stream()
+                    .map(t -> new Pair<>(t, insight.into(t)))
+                    .map(p -> p.mapY(closure.evaluator::apply))
+                    .sorted(
+                        (p1, p2) ->
+                            closure.comparator.compare(p1.y, p2.y)
+                    )
+                    .map(Pair::x)
+                    .limit(1)
+                    .collect(toSet())
+        );
     }
 
     @Override

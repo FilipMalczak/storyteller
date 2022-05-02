@@ -4,7 +4,8 @@ import com.github.filipmalczak.storyteller.api.tree.TaskTreeFactory;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTreeFactory;
-import com.github.filipmalczak.storyteller.impl.tree.NitriteTreeConfig;
+import com.github.filipmalczak.storyteller.impl.tree.config.MergeSpec;
+import com.github.filipmalczak.storyteller.impl.tree.config.NitriteTreeConfig;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
@@ -40,7 +41,8 @@ public class TestTreeFactory implements TaskTreeFactory<String, String, TrivialT
                 .create(
                     NitriteTreeConfig.<String, String, TrivialTaskType>of(
                         forTest(s),
-                        GENERATOR_FACTORY
+                        GENERATOR_FACTORY,
+                        node -> new MergeSpec<>("merge_"+node.getId(), TrivialTaskType.LEAF)
                     )
                 );
     }

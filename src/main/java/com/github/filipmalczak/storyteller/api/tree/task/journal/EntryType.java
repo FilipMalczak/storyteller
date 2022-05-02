@@ -20,8 +20,7 @@ import static org.valid4j.Assertive.neverGetHere;
 //  lifecycle event -> (start, end, amend, augmented, perform, caught, interrupted) //maybe amend and augment are structure events?
 //  structure event -> (subtask event -> (defined, disowned, incorporated, orphaned) //in the future - adopted
 //  )
-
-//todo start using loosened, tightened, reordered, inflated, deflated
+// at that point add details to refiltered and friends
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum EntryType {
@@ -108,79 +107,55 @@ public enum EntryType {
      */
     ORPHANED(TaskOrphaned.class),
     /**
-     * Parallel node depended on incorporation order, but it doesn't anymore. If the
-     * node DEFLATED and/or INFLATED, it is recorded before those. Is recorded before ENDED.
+     * List of subtasks incorporated into parallel node has changed in other way than simply growing (which is considered
+     * INFLATED) or shrinking (DEFLATED).
      * <p>
-     * Owner: parallel node for which the constraint has changed
-     */
-    ORDERING_LOOSENED(OrderingLoosened.class),
-    /**
-     * Parallel node didn't depend on incorporation order, but it does now. Is always recorded before AUGMENTED. If the
-     * node DEFLATED and/or INFLATED, it is recorded before those. Is recorded before AUGMENTED, thus before ENDED.
-     * <p>
-     * Owner: parallel node for which the constraint has changed
-     */
-    ORDERING_TIGHTENED(OrderingTightened.class),
-    /**
-     * Parallel node depends (now, not necesseraly in the past) on incorporation order and the order has changed.
-     * <p>
-     * Note: If there are new incorporated subtasks that are included AFTER the ones that were incorporated in the past,
-     * or if the tail of list of subtasks incorporated in the past has changed, it is not emitted. If there are new tasks
-     * in between already incorporated ones and if the order of already incorporated ones has changed or if a task "in the middle"
-     * has disappeared, then it is recorded. Is recorded before AUGMENTED, thus before ENDED.
+     * Is recorded before AUGMENTED, thus before ENDED.
      * <p>
      * Examples when it is emitted:
      * <li> a b -> a c b
      * <li> a b -> b a
      * <li> a b c -> a c
      * <li> b -> b c
+     * <li> a b c -> a b d
      * <p>
      * Examples when it is not emitted:
      * <li> a b -> a b c (this is considered INFLATED)
      * <li> a b c -> a b (this is considered DEFLATED)
-     * <li> a b c -> a b d (this is considered DEFLATED and INFLATED)
-     * <p>
-     * Owner: parallel node that depends on incorporation order
-     */
-    REORDERED(Reordered.class),
-    /**
-     * Subtasks that weren't incorporated in the past were incorporated now.
-     * <p>
-     * Examples when this is emitted:
-     * <li> a b -> a b c (no matter if node depends on incorporation order)
-     * <li> a b -> a c b (if node doesn't depend on incorporation order)
-     * <li> a b -> a c (no matter if node depends on incorporation order)
-     * <p>
-     * Note: it is possible that a node has been both INFLATED and DEFLATED (see the last example case). In that situation
-     * INFLATED is recorded after DEFLATED. Is recorded before AUGMENTED, thus before ENDED.
      * <p>
      * Owner: parallel node
      */
-    INFLATED(Inflated.class),
+    REFILTERED(ParallelNodeRefiltered.class),
     /**
-     * Subtasks that were incorporated in the past were not incorporated this time.
+     * Tail of the list of the incorporated subtasks has grown.
      * <p>
-     * Examples when this is emitted:
-     * <li> a b -> a (no matter if node depends on incorporation order)
-     * <li> b a -> a (if node doesn't depend on incorporation order)
-     * <li> a b c -> a c (if node doesn't depend on incorporation order; if it does, it is REORDERED instead)
-     * <li> a b -> a c (no matter if node depends on incorporation order)
+     * Is recorded before AUGMENTED, thus before ENDED.
      * <p>
-     * Note: it is possible that a node has been both INFLATED and DEFLATED (see the last example case). In that situation
-     * DEFLATED is recorded before INFLATED . Is recorded before AUGMENTED, thus before ENDED.
+     * Note: If the tail of the incoporated subtasks list has been modified (a subtask isn't incorporated anymore, but a
+     * new one is), it is considered REFILTERED.
      * <p>
      * Owner: parallel node
      */
-    DEFLATED(Deflated.class),
+    INFLATED(ParallelNodeInflated.class),
     /**
-     * The incorporated subtask set or order (only in case of parallel tasks that depend on incorporation order) has
-     * changed in any way. That also includes constraints tightening, as in the past there effectively was no order, while
-     * there is one now, which is an order change. It is recorded after ORDERING_TIGHTENED, REORDERED, INFLATED and/or
-     * DEFLATED, but before ENDED.
+     * Tail of the list of the incorporated subtasks has grown.
      * <p>
-     * Owner: parallel node for which the set or order of incorporated subtasks has changed
+     * Is recorded before AUGMENTED, thus before ENDED.
+     * <p>
+     * Note: If the tail of the incorporated subtasks list has been modified (a subtask isn't incorporated anymore, but a
+     * new one is), it is considered REFILTERED.
+     * <p>
+     * Owner: parallel node
      */
-    AUGMENTED(Augmented.class),
+    DEFLATED(ParallelNodeDeflated.class),
+    /**
+     * Set of incorporated subtasks has changed in some way.
+     * <p>
+     * It is recorded after REWRITTEN, INFLATED or DEFLATED, but before ENDED.
+     * <p>
+     * Owner: parallel node
+     */
+    AUGMENTED(ParallelNodeAugmented.class),
     /**
      * Storage state has been fast-forwarded to state after subtask has finished. In other words, subtask has finished
      * performing (executing, running or has been skipped) and further reads from parent task will reflect changes

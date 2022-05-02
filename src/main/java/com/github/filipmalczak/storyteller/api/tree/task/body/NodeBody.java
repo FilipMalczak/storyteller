@@ -5,6 +5,6 @@ import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 
 @FunctionalInterface
-public interface SequentialNodeBody<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> {
-    void perform(TaskTree<Id, Definition, Type, NoSql> executor, ReadStorage storage);
+public interface NodeBody<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> {
+    void perform(TaskTree<Id, Definition, Type, NoSql> executor, ReadStorage<NoSql> storage);
 }

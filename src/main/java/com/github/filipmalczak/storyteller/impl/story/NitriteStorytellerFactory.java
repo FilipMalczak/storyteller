@@ -4,7 +4,8 @@ import com.github.filipmalczak.storyteller.api.story.Storyteller;
 import com.github.filipmalczak.storyteller.api.story.StorytellerFactory;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTreeFactory;
-import com.github.filipmalczak.storyteller.impl.tree.NitriteTreeConfig;
+import com.github.filipmalczak.storyteller.impl.tree.config.NitriteTreeConfig;
+import com.github.filipmalczak.storyteller.impl.tree.config.MergeSpec;
 import org.dizitart.no2.Nitrite;
 
 import java.nio.file.Path;
@@ -20,7 +21,8 @@ public class NitriteStorytellerFactory implements StorytellerFactory<Nitrite, Pa
                     .create(
                         NitriteTreeConfig.of(
                             new NitriteStorageConfig<>(dataPath, s -> s),
-                            new StorytellerIdGeneratorFactory<EpisodeType>()
+                            new StorytellerIdGeneratorFactory<EpisodeType>(),
+                            node -> new MergeSpec<>(new StorytellerDefinition("merge", node.getId()), EpisodeType.SCENE)
                         )
                     )
             );

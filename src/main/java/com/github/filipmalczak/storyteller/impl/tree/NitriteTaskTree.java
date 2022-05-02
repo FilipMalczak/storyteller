@@ -6,10 +6,11 @@ import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.ParallelNodeBody;
-import com.github.filipmalczak.storyteller.api.tree.task.body.SequentialNodeBody;
+import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageFactory;
+import com.github.filipmalczak.storyteller.impl.tree.config.MergeSpecFactory;
 import com.github.filipmalczak.storyteller.impl.tree.internal.NitriteTreeInternals;
 import com.github.filipmalczak.storyteller.impl.tree.internal.TraceEntry;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
@@ -42,14 +43,16 @@ public class NitriteTaskTree<Id extends Comparable<Id>, Definition, Type extends
     @NonNull NitriteStorageFactory<Id> storageFactory;
     @NonNull HistoryTracker<Id> history;
     @NonNull IdGeneratorFactory<Id, Definition, Type> idGeneratorFactory;
+    @NonNull MergeSpecFactory<Id, Definition, Type> mergeSpecFactory;
     @NonNull List<TraceEntry<Id, Definition, Type>> trace; // trace[0] - parent; trace[-1] - root; empty for root
     @NonNull Events<Id> events;
     boolean recordIncorporateToParent;
 
-    public NitriteTaskTree(@NonNull NitriteManagers<Id, Definition, Type> managers, @NonNull HistoryTracker<Id> history, @NonNull NitriteStorageConfig<Id> storageConfig, @NonNull IdGeneratorFactory<Id, Definition, Type> idGeneratorFactory, @NonNull List<TraceEntry<Id, Definition, Type>> trace, boolean recordIncorporateToParent) {
+    public NitriteTaskTree(@NonNull NitriteManagers<Id, Definition, Type> managers, @NonNull HistoryTracker<Id> history, @NonNull NitriteStorageConfig<Id> storageConfig, @NonNull IdGeneratorFactory<Id, Definition, Type> idGeneratorFactory, MergeSpecFactory<Id, Definition, Type> mergeSpecFactory, @NonNull List<TraceEntry<Id, Definition, Type>> trace, boolean recordIncorporateToParent) {
         this.managers = managers;
         this.history = history;
         this.idGeneratorFactory = idGeneratorFactory;
+        this.mergeSpecFactory = mergeSpecFactory;
         this.trace = trace;
         this.events = new Events<>(
             managers.getTaskManager(),
@@ -66,13 +69,14 @@ public class NitriteTaskTree<Id extends Comparable<Id>, Definition, Type extends
             storageFactory,
             history,
             idGeneratorFactory,
+            mergeSpecFactory,
             trace,
             events
         );
     }
 
     @Override
-    public Task<Id, Definition, Type> execute(Definition definition, Type type, SequentialNodeBody<Id, Definition, Type, Nitrite> body) {
+    public Task<Id, Definition, Type> execute(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body) {
         var strategy = new LinearSubtaskOrderingStrategy<Id, Definition, Type>(
             trace.stream().findFirst().map(TraceEntry::getExpectedSubtaskIds).orElseGet(LinkedList::new)
         );
@@ -83,11 +87,11 @@ public class NitriteTaskTree<Id extends Comparable<Id>, Definition, Type extends
     }
 
     @Override
-    public Task<Id, Definition, Type> execute(Definition definition, Type type, ParallelNodeBody<Id, Definition, Type, Nitrite> body) {
+    public Task<Id, Definition, Type> execute(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, IncorporationFilter<Id, Definition, Type, Nitrite> filter) {
         var strategy = new AnyOrderStrategy<Id, Definition, Type>(
             trace.stream().findFirst().map(TraceEntry::getExpectedSubtaskIds).orElseGet(LinkedList::new)
         );
-        var execution = new ParallelNodeExecution<>(getInternals(), definition, type, body, strategy, recordIncorporateToParent);
+        var execution = new ParallelNodeExecution<>(getInternals(), definition, type, body, strategy, filter, recordIncorporateToParent);
         execution.run();
         return execution.getThisTask();
     }

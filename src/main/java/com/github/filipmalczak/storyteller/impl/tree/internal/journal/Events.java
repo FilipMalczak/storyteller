@@ -23,6 +23,7 @@ public class Events<Id extends Comparable<Id>> {
     @NonNull JournalEntryManager<Id> manager;
     @NonNull JournalEntryFactory factory;
 
+    //fixme second param should be id
     public void defineSubtask(Task<Id, ?, ?> parent, Task<Id, ?, ?> subtask){
         manager.record(parent, factory.subtaskDefined(subtask.getId()));
     }
@@ -79,7 +80,23 @@ public class Events<Id extends Comparable<Id>> {
         manager.record(ancestor, factory.taskInterrupted());
     }
 
-    public void subtaskIncorporated(Task<Id, ?, ?> parent, Task child){
+    public void nodeInflated(Task<Id, ?, ?> node){
+        manager.record(node, factory.nodeInflated());
+    }
+
+    public void nodeDeflated(Task<Id, ?, ?> node){
+        manager.record(node, factory.nodeDeflated());
+    }
+
+    public void nodeRefiltered(Task<Id, ?, ?> node){
+        manager.record(node, factory.nodeRefiltered());
+    }
+
+    public void nodeAugmented(Task<Id, ?, ?> node){
+        manager.record(node, factory.nodeAugmented());
+    }
+
+    public void subtaskIncorporated(Task<Id, ?, ?> parent, Id child){
         manager.record(parent, factory.subtaskIncorporated(child));
     }
 

@@ -17,12 +17,12 @@ public class Icons {
         return node("ion-icon", empty(), finalAttributes);
     }
 
-    public static Renderable iconForTypeModifier(TaskType.TaskTypeModifier modifier){
+    public static Renderable iconForTypeModifier(TaskType.TaskKind modifier){
         return badge(
             (switch (modifier) {
                 case ROOT -> icon("play-circle");
-                case NONE -> icon("layers");
-                case PARALLEL -> icon("git-branch");
+                case SEQUENTIAL_NODE -> icon("layers");
+                case PARALLEL_NODE -> icon("git-branch");
                 case LEAF -> icon("leaf");
             }).renderHtml(),
             true,
