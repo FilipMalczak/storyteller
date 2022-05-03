@@ -4,9 +4,7 @@ import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGenerator;
-import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.InstructionsSkipped;
-import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.TaskEnded;
-import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.TaskStarted;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.*;
 import com.github.filipmalczak.storyteller.impl.tree.internal.ExecutionFriend;
 import com.github.filipmalczak.storyteller.impl.tree.internal.NitriteTreeInternals;
 import com.github.filipmalczak.storyteller.impl.tree.internal.ThrowingAlreadyRecordedException;
@@ -260,13 +258,18 @@ abstract class AbstractTaskExecution<Id extends Comparable<Id>, Definition, Type
     }
 
     private static boolean isTaskFinished(Task task) {
-        var entries = new ArrayList<>(task.getJournalEntries().toList());
+        var entries = new ArrayList<JournalEntry>(task.getJournalEntries().toList());
         if (entries.isEmpty())
             return false;
         reverse(entries);
-        var firstNonSkip = entries.stream().dropWhile(e -> e instanceof InstructionsSkipped).findFirst();
-        require(firstNonSkip.isPresent(), "Journal has to consist of something else than just 'skip' records");
-        return firstNonSkip.get() instanceof TaskEnded;
+        var endAugmentOrAmend = entries.stream()
+            .filter(e ->
+                e instanceof TaskEnded ||
+                e instanceof TaskAmended ||
+                e instanceof ParallelNodeAugmented
+            )
+            .findFirst();
+        return endAugmentOrAmend.map(e -> e instanceof TaskEnded).orElse(false);
     }
 
     private void defineInParent() {

@@ -173,11 +173,11 @@ For example, your evolutionary algorithm research could look like:
     - [x] PARALLEL NODES IN GENERAL NEEDS TESTING
 - [ ] test journaling (will be easier once session management is done, as we won't have to spin up subprocess just to do amendments, etc)
     - [x] actually implement SHRUNK entry
-    - [ ] start, define, run, end
+    - [x] start, define, run, end
     - [ ] start, define, run, catch, interrupt
     - [ ] extend, amend
     - [ ] narrow, amend
-    - [ ] change, amend
+    - [ ] change, amend <- WIP
     - [ ] inflate, augment,
     - [ ] deflate, augment
     - [ ] refilter, augment
