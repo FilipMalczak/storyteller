@@ -14,8 +14,7 @@ version = '0.0.1-SNAPSHOT'
 
 repositories {
   mavenCentral()
-//todo see recordtuples comment below
-//  maven { url 'https://jitpack.io' }
+  maven { url 'https://jitpack.io' }
 }
 
 dependencyManagement {
@@ -24,24 +23,21 @@ dependencyManagement {
         dependency 'org.junit.jupiter:junit-jupiter-api:5.8.1'
         dependency 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
-
         dependency 'org.dizitart:nitrite:3.4.4'
-
         dependency 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
 
+        dependency 'org.valid4j:valid4j:0.5.0'
 
-        dependency group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
+        dependency 'com.github.filipmalczak:recordtuples:0.2.0'
+
+        dependency 'org.slf4j:slf4j-api:1.7.32'
         dependency 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.1'
         dependency 'org.apache.logging.log4j:log4j-api:2.14.1'
 
         dependency 'commons-io:commons-io:2.11.0'
 
-
         dependency 'com.google.flogger:flogger-slf4j-backend:0.7.2'
         dependency 'com.google.flogger:flogger:0.7.2'
-
-        dependency 'org.valid4j:valid4j:0.5.0'
-
     }
 
 }
@@ -50,10 +46,10 @@ dependencies {
     //impl
     implementation 'org.dizitart:nitrite'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
     implementation 'org.valid4j:valid4j'
 
-// todo reenable this once you fix recordtuples; use it in parallel node exec
-//    implementation "com.github.filipmalczak:recordtuples:0.1.0"
+    implementation 'com.github.filipmalczak:recordtuples'
 
     //testing
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
@@ -71,7 +67,6 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
-
 }
 
 test {
@@ -92,6 +87,7 @@ tasks.withType(JavaExec) {
 }
 
 wrapper {
+    //todo newest is 7.4.2
     gradleVersion = "7.1.1"
     distributionType = Wrapper.DistributionType.ALL
 }

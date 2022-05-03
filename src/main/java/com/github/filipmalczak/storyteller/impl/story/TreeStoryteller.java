@@ -1,5 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.story;
 
+import com.github.filipmalczak.recordtuples.Pair;
 import com.github.filipmalczak.storyteller.api.session.Sessions;
 import com.github.filipmalczak.storyteller.api.storage.ReadStorage;
 import com.github.filipmalczak.storyteller.api.storage.ReadWriteStorage;
@@ -129,16 +130,6 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
         @NonNull TaskTree.IncorporationFilter<String, StorytellerDefinition,EpisodeType, NoSql> filter
     ) {}
 
-    private static record Pair<X, Y>(@NonNull X x, @NonNull Y y) {
-        <T> Pair<T, Y> mapX(Function<X, T> foo){
-            return new Pair<>(foo.apply(x), y);
-        }
-
-        <T> Pair<X, T> mapY(Function<Y, T> foo){
-            return new Pair<>(x, foo.apply(y));
-        }
-    }
-
     private <Key, Score> ParallelNodeArguments<NoSql> decisionToChoiceBody(ActionBody<DecisionClosure<Key, Score, NoSql>> body){
         var closure = new DecisionClosureImpl<Key, Score, NoSql>();
         body.action(closure);
@@ -159,12 +150,12 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
                 subtasks
                     .stream()
                     .map(t -> new Pair<>(t, insight.into(t)))
-                    .map(p -> p.mapY(closure.evaluator::apply))
+                    .map(p -> p.map1(closure.evaluator::apply))
                     .sorted(
                         (p1, p2) ->
-                            closure.comparator.compare(p1.y, p2.y)
+                            closure.comparator.compare(p1.get1(), p2.get1())
                     )
-                    .map(Pair::x)
+                    .map(Pair::get0)
                     .limit(1)
                     .collect(toSet())
         );

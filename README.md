@@ -2,10 +2,11 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-
 [![develop](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml/badge.svg?branch=develop)](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml)
 
 [![Nitrite](https://img.shields.io/badge/uses-Nitrite-blue.svg)](https://github.com/nitrite/nitrite-java)
+[![valid4j](https://img.shields.io/badge/uses-valid4j-blue.svg)](https://github.com/valid4j/valid4j)
+[![recordtuples](https://img.shields.io/badge/uses-recordtuples-blue.svg)](https://github.com/FilipMalczak/recordtuples)
 
 Research scenarios given some love. Persist the progress of your story and don't lose your results.
 
