@@ -18,7 +18,7 @@ public class FilesTests {
 
     @BeforeEach
     private void setup(){
-        tracker = new ExecutionTracker<>();
+        tracker = new ExecutionTracker<>(String.class);
     }
 
     @Test

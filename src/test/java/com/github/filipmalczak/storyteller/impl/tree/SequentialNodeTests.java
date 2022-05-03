@@ -12,13 +12,13 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class TaskSkippingTests {
+class SequentialNodeTests {
     private ExecutionTracker<Integer> tracker;
     private static final TestTreeFactory FACTORY = new TestTreeFactory("TaskSkippingTests");
 
     @BeforeEach
     private void setup(){
-        tracker = new ExecutionTracker<>();
+        tracker = new ExecutionTracker<>(Integer.class);
     }
 
     @Test

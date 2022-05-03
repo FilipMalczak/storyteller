@@ -14,6 +14,8 @@ version = '0.0.1-SNAPSHOT'
 
 repositories {
   mavenCentral()
+//todo see recordtuples comment below
+//  maven { url 'https://jitpack.io' }
 }
 
 dependencyManagement {
@@ -49,6 +51,9 @@ dependencies {
     implementation 'org.dizitart:nitrite'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     implementation 'org.valid4j:valid4j'
+
+// todo reenable this once you fix recordtuples; use it in parallel node exec
+//    implementation "com.github.filipmalczak:recordtuples:0.1.0"
 
     //testing
     testImplementation 'org.junit.jupiter:junit-jupiter-api'

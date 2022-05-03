@@ -160,30 +160,50 @@ For example, your evolutionary algorithm research could look like:
 
 - [x] add license
 - [x] add some meaningful readme 
-- [ ] make the repo public (long way until there)
+- [x] make the repo public (long way until there)
 - [x] add better session management (extract PersistentRoot with start/end session; requires renaming to tree)
     - [x] update tests to use it
 - [x] rename StackedExecutor to PersistentTaskTree
-  - [ ] tests and some impl details still use executor as variable names
+  - [x] tests and some impl details still use executor as variable names (not done; in a way it makes sense, since tree has execute() methods)
 - [x] add journal listener (may be easier if sessions are well handled already)
-- [ ] change choice to parallel task (will be way easier after renaming to tree, because methods will be easier to name)
-    - [x] keep choice as a utility method?
-    - [ ] THIS REQUIRES MUCH MORE TESTING
-    - [ ] PARALLEL NODES IN GENERAL NEEDS TESTING
+- [x] change choice to parallel task (will be way easier after renaming to tree, because methods will be easier to name)
+    - [x] keep choice as a utility method? (nope, see below)
+    - [x] THIS REQUIRES MUCH MORE TESTING (this didnt actually happen; choice isnt part of task tree API anymore)
+    - [x] PARALLEL NODES IN GENERAL NEEDS TESTING
 - [ ] test journaling (will be easier once session management is done, as we won't have to spin up subprocess just to do amendments, etc)
     - [x] actually implement SHRUNK entry
-- [ ] more extensive testing (see comments in existing tests)
-- [ ] deletion
+    - [ ] start, define, run, end
+    - [ ] start, define, run, catch, interrupt
+    - [ ] extend, amend
+    - [ ] narrow, amend
+    - [ ] change, amend
+    - [ ] inflate, augment,
+    - [ ] deflate, augment
+    - [ ] refilter, augment
+- [x] deletion
     - [x] deleting files
         - [x] implementation
         - [x] testing
-        - [ ] add file modification summary to the report
     - [x] when merging DBs (in parallel nodes) - deleting documents/objects
         - [x] implementation
         - [x] testing
-- [ ] parallel node needs to track what has been incorporated; if that has changed between runs, we need to amend the node
+- [x] parallel node needs to track what has been incorporated; if that has changed between runs, we need to amend the node
   - give choice whether incorporation order matters
   - if it does, add some new journal entry ("reordered"?)
+- [ ] add JitPack info to README
+
+### mid-version, probably 0.1.1
+
+- [ ] parallel nodes testing, data-oriented
+- [ ] more extensive testing (see comments in existing tests)
+- [ ] add file modification summary to the report
+  - maybe check if DB changed too?
+- [ ] use pattern matching, its 2022, for gods sake (if (x instanceof A) { do((A) x); } -> if (x instanceOf A aX) { do(aX); })
+- [ ] enhance APIs;
+    - [ ] storyteller: add overloads with single XContext param (x=root/arc/thread/decision/scene) that group all the parameters of bodies
+        - make them abstract, unrolled variants should be default methods
+    - [ ] task tree: ditto, (x=SequentialNode/ParalleNode/Leaf)
+    - [ ] task tree: add TaskSpec = definition+type, make it the default (probably remove distinct param approaches too)
 
 ### v0.0.2
 
@@ -220,7 +240,6 @@ For example, your evolutionary algorithm research could look like:
    - [ ] SQL? 
    - [ ] use case: something (experiment written in C/C++/D2) handles file on its own and we want to inject them into storage
      - maybe some symlink magic?
- - [ ] enhance storyteller API; add overloads with single XContext param (x=SequentialNode/ParalleNode/Leaf) that group all the parameters of bodies
  - [ ] fluent storyteller
    - it should track node/leaf parameters and expose them with static methods
    - bodies should be parameterless, users should be able to avoid so many lambda params in favour of these static methods

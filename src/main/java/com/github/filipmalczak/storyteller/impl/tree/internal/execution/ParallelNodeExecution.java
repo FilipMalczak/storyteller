@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 import static org.valid4j.Assertive.require;
 
@@ -60,6 +61,8 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
         var storage = internals.storageFactory().parallelRead(id);
         var newTrace = new LinkedList<>(internals.trace());
         var expectations = new LinkedList<>(thisTask.getSubtaskIds().toList());
+        var mergeSpec = internals.mergeSpecFactory().forParallelNode(thisTask);
+        var mergeIdGenerator = internals.idGeneratorFactory().over(mergeSpec.definition(), mergeSpec.type());
         boolean augmented = false;
         Id mergeLeafId = null;
         Set<Id> previouslyIncorporated = null;
@@ -71,13 +74,16 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
                 .reduce((e1, e2) -> e2) //this is a trick to replace findLast()
                 .get();
             var endedAtSession = endedEntry.getSession();
+            //todo group definition+type as a general TaskSpec; changes to tree API, id generator and who knows what else
             previouslyIncorporated = thisTask
                 .getJournalEntries()
                 .filter(e -> e.getSession().equals(endedAtSession))
                 .filter(e -> e instanceof SubtaskIncorporated)
                 .map(e -> (SubtaskIncorporated<Id>) e)
                 .map(SubtaskIncorporated::getSubtaskId)
+                .filter(not(mergeIdGenerator::canReuse))
                 .collect(toSet());
+            log.atFine().log("Previously incorporated subtask IDs: %s", previouslyIncorporated);
         }
         var newEntry = new TraceEntry<>(thisTask, null, expectations, storage);
         getLogger().atFine().log("Pushing new trace entry: %s", newEntry);
@@ -101,12 +107,15 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
             );
             disownExpectedUpTheTrace(newTrace);
         }
-        var allSubtasks = thisTask.getSubtasks().toList();
+        //well, all besides the merge leaf
+        var allSubtasks = thisTask.getSubtasks().filter(t -> !mergeIdGenerator.canReuse(t.getId())).toList();
         var toIncorporate = filter.chooseIncorporated(new HashSet<>(allSubtasks), subtree.getInsights());
         var idsToIncorporate = toIncorporate.stream().map(Task::getId).collect(toSet());
+        log.atFine().log("Subtask IDs to incorporate: %s", idsToIncorporate);
         //todo write down order of shrunk/refiltered/inflated/deflated/etc in javadocs
         if (finished) {
             if (!idsToIncorporate.equals(previouslyIncorporated)) {
+                log.atFine().log("Parallel node needs augmentation, disowning merge leaf as well as following expected tasks");
                 getFriend().disownSubtask(thisTask, mergeLeafId);
                 disownExpectedUpTheTrace();
                 finished = false;
@@ -138,8 +147,8 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
             newTrace = new LinkedList<>(internals.trace());
             newEntry = new TraceEntry<>(thisTask, null, new LinkedList<>(), storage);
             newTrace.addFirst(newEntry);
-            var mergeSpec = internals.mergeSpecFactory().forParallelNode(thisTask);
             require(mergeSpec.type().isLeaf(), "Merge nodes must be leaves");
+            log.atFine().log("Executing merge leaf");
             new NitriteTaskTree<>(
                 internals.managers(),
                 internals.history(),
@@ -153,6 +162,7 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
                 mergeSpec.type(),
                 rw -> {
                     NitriteMerger merger = NitriteMerger.of(rw.documents());
+                    //todo sort by definition.toString to keep reproducable order?
                     for (var incorporationSubject: idsToIncorporate){
                         internals.history().apply(subtree.getHistory(incorporationSubject).getIncrement());
                         merger.applyChanges(
@@ -164,6 +174,8 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
                 }
             );
         } else {
+            log.atFine().log("Inorporated subtasks set didn't change; applying changes in-memory and reusing merge leaf");
+            //todo sort by definition.toString to keep reproducable order?
             for (var incorporationSubject: idsToIncorporate){
                 internals.history().apply(subtree.getHistory(incorporationSubject).getIncrement());
                 internals.events().subtaskIncorporated(thisTask, incorporationSubject);
