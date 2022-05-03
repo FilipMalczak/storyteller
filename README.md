@@ -156,7 +156,7 @@ For example, your evolutionary algorithm research could look like:
 
 ## ToDo
 
-### v0.0.1
+### v0.1.0
 
 - [x] add license
 - [x] add some meaningful readme 
@@ -204,8 +204,10 @@ For example, your evolutionary algorithm research could look like:
         - make them abstract, unrolled variants should be default methods
     - [ ] task tree: ditto, (x=SequentialNode/ParalleNode/Leaf)
     - [ ] task tree: add TaskSpec = definition+type, make it the default (probably remove distinct param approaches too)
+- [ ] dynamic reporting (I really wanna do this, but it may need to be postponed, as 0.2.0 features may be more important)
+  - REST+websocket API to expose task summaries as JSONs and push events, JS-friendly page that renders them
 
-### v0.0.2
+### v0.2.0
 
 - [ ] currently we assume that all failures are caused by exceptions, so the throw/catch/finally is sufficient for cleanup;
   if power went down during task execution, then we need to start cleaning up on task start
@@ -231,8 +233,6 @@ For example, your evolutionary algorithm research could look like:
  - [ ] more work on listeners
    - [ ] do some testing (not that important, since the impl is trivial and manual tests confirm it works)
    - [ ] VCS integration (commit and push to GIT per entry? do we flush on journal event, or do we give some control over flushing?)
-   - [ ] dynamic reporting
-     - REST+websocket API to expose task summaries as JSONs and push events, JS-friendly page that renders them 
  - [ ] give some love to storyteller (as points above mainly focus on task tree) (overlaps with some ideas below)
  - [ ] enhance storage
    - try to minimize number of dependencies; in perfect scenario, default impl uses just Nitrite and nothing else 
