@@ -3,7 +3,6 @@ package com.github.filipmalczak.storyteller.impl.tree.internal.journal;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.JournalEntryManager;
-import com.github.filipmalczak.storyteller.impl.tree.internal.data.TaskManager;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -18,14 +17,13 @@ import static org.valid4j.Assertive.require;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Flogger
-public class Events<Id extends Comparable<Id>> {
-    @NonNull TaskManager<Id, ?, ?> taskManager; //todo resolver would suffice?
+public class EventsEmitter<Id extends Comparable<Id>> {
     @NonNull JournalEntryManager<Id> manager;
     @NonNull JournalEntryFactory factory;
 
     //fixme second param should be id
-    public void defineSubtask(Task<Id, ?, ?> parent, Task<Id, ?, ?> subtask){
-        manager.record(parent, factory.subtaskDefined(subtask.getId()));
+    public void defineSubtask(Task<Id, ?, ?> parent, Id subtask){
+        manager.record(parent, factory.subtaskDefined(subtask));
     }
 
     public void taskStarted(Task<Id, ?, ?> task){
@@ -45,16 +43,17 @@ public class Events<Id extends Comparable<Id>> {
         }
     }
 
-    public <D, T extends Enum<T> & TaskType> void bodyChanged(Task<Id, ?, ?> task, List<Task<Id, D, T>> conflicting){
-        manager.record(task, factory.bodyChanged(conflicting.stream().map(Task::getId).toList()));
+    public void bodyChanged(Task<Id, ?, ?> task, List<Id> conflicting, Id pivot){
+        //todo add pivot to the data
+        manager.record(task, factory.bodyChanged(conflicting));
     }
 
     public void bodyExtended(Task<Id, ?, ?> task){
         manager.record(task, factory.bodyExtended());
     }
 
-    public void bodyShrunk(Task<Id, ?, ?> task, List<Id> disappeared){
-        manager.record(task, factory.bodyShrunk(disappeared));
+    public void bodyNarrowed(Task<Id, ?, ?> task, List<Id> disappeared){
+        manager.record(task, factory.bodyNarrowed(disappeared));
     }
 
     public void taskAmended(Task<Id, ?, ?> task){
@@ -63,12 +62,11 @@ public class Events<Id extends Comparable<Id>> {
 
     public <D, T extends Enum<T> & TaskType> void subtasksDisowned(Task<Id, ?, ?> parent, List<Id> disowned){
         JournalEntryManager.TaskEntry<Id>[] toRecord = new JournalEntryManager.TaskEntry[disowned.size()*2];
-        int i = 0;
-        for (var child: disowned){
-            var childTask = taskManager.getById(child);
-            toRecord[i++] = taskEntry(parent, factory.subtaskDisowned(child));
-            toRecord[i++] = taskEntry(childTask, factory.taskOrphaned());
-        }
+        int[] i = { 0 };
+        parent.getSubtasks(disowned.stream()).forEach(childTask -> {
+            toRecord[i[0]++] = taskEntry(parent, factory.subtaskDisowned(childTask.getId()));
+            toRecord[i[0]++] = taskEntry(childTask, factory.taskOrphaned());
+        });
         manager.record(toRecord);
     }
 

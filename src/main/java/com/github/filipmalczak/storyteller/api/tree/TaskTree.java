@@ -26,17 +26,4 @@ public interface TaskTree<Id extends Comparable<Id>, Definition, Type extends En
     Task<Id, Definition, Type> execute(Definition definition, Type type, NodeBody<Id, Definition, Type, NoSql> body, IncorporationFilter<Id, Definition,Type, NoSql> filter);
 
     Task<Id, Definition, Type> execute(Definition definition, Type type, LeafBody<Id, Definition, Type, NoSql> body);
-
-    //fixme this name is so awkward...
-    default Task<Id, Definition, Type> chooseBranchToProceed(Definition definition, Type type, ChoiceBody<Id, Definition, Type, NoSql> body) {
-        Task<Id, Definition, Type>[] chosen = new Task[1]; //fixme isnt there a reference type or smth?
-        return execute(
-            definition,
-            type,
-            (exec, storage) -> {
-                chosen[0] = body.makeChoice(exec, storage);
-            },
-            (tasks, insights) -> tasks.stream().filter(t -> chosen[0].equals(t)).collect(toSet())
-        );
-    }
 }

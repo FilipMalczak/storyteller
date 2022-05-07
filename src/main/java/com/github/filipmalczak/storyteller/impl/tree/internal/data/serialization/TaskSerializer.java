@@ -24,8 +24,8 @@ public class TaskSerializer<Id extends Comparable<Id>, Definition, Type extends 
             .id(data.getId())
             .definition(data.getDefinition())
             .type(data.getType())
-            .parentId(data.getParentId())
-            .previousSiblingId(data.getPreviousSiblingId())
+//            .parentId(data.getParentId())
+//            .previousSiblingId(data.getPreviousSiblingId())
             .journal(new LinkedList<>(journalEntryManager.findById(data.getId()).toList()))
             .taskResolver(taskManager)
             .build();
@@ -35,9 +35,9 @@ public class TaskSerializer<Id extends Comparable<Id>, Definition, Type extends 
         return new TaskData<>(
             task.getId(),
             task.getDefinition(),
-            task.getType(),
-            task.getParentId(),
-            task.getPreviousSiblingId()
+            task.getType()
+//            task.getParentId(),
+//            task.getPreviousSiblingId()
         );
     }
 }

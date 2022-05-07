@@ -22,8 +22,9 @@ public class SimpleTask<Id extends Comparable<Id>, Definition, Type extends Enum
     @NonNull Id id;
     @NonNull Definition definition;
     @NonNull Type type;
-    Id parentId;
-    Id previousSiblingId;
+    //todo remove these
+//    Id parentId;
+//    Id previousSiblingId;
     @NonNull TaskResolver<Id, Definition, Type> taskResolver;
     @Builder.Default
     List<JournalEntry> journal = new LinkedList<>();
@@ -54,8 +55,8 @@ public class SimpleTask<Id extends Comparable<Id>, Definition, Type extends Enum
     }
 
     @Override
-    public Stream<Task<Id, Definition, Type>> getSubtasks() {
-        return getSubtaskIds().map(taskResolver::resolve).map(Optional::get);
+    public Stream<Task<Id, Definition, Type>> getSubtasks(Stream<Id> ids) {
+        return ids.map(taskResolver::resolve).map(Optional::get);
     }
 
     @Override

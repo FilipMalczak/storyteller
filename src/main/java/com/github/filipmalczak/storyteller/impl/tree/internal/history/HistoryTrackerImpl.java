@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-final class HistoryTrackerImpl<Id> implements HistoryTracker<Id> {
+public final class HistoryTrackerImpl<Id> implements HistoryTracker<Id> {
     @NonNull final Map<Id, TaskHistory<Id>> backend;
 
     @Override

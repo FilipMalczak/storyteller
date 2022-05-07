@@ -1,76 +1,63 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.execution;
 
+import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
-import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTree;
-import com.github.filipmalczak.storyteller.impl.tree.internal.NitriteTreeInternals;
-import com.github.filipmalczak.storyteller.impl.tree.internal.TraceEntry;
-import com.github.filipmalczak.storyteller.impl.tree.internal.order.SubtaskOrderingStrategy;
-import com.google.common.flogger.FluentLogger;
-import lombok.extern.flogger.Flogger;
+import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageFactory;
+import com.github.filipmalczak.storyteller.impl.tree.TreeContext;
+import com.github.filipmalczak.storyteller.impl.tree.internal.execution.context.ExecutionContext;
+import com.github.filipmalczak.storyteller.impl.tree.internal.executor.SubtaskAdapter;
+import com.github.filipmalczak.storyteller.impl.tree.internal.executor.TaskExecutor;
+import com.github.filipmalczak.storyteller.impl.tree.internal.executor.TaskExecutorImpl;
+import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryDiff;
+import lombok.Value;
 import org.dizitart.no2.Nitrite;
 
-import java.util.LinkedList;
+import java.util.Map;
 
-import static org.valid4j.Assertive.require;
-@Flogger
-public class SequentialNodeExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>
-    extends AbstractTaskExecution<Id, Definition, Type, NodeBody<Id, Definition, Type, Nitrite>> {
-
-    public SequentialNodeExecution(NitriteTreeInternals<Id, Definition, Type> internals, Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, SubtaskOrderingStrategy<Id> orderingStrategy, boolean recordIncorporateToParent) {
-        super(internals, definition, type, body, orderingStrategy, recordIncorporateToParent);
-    }
+@Value
+public class SequentialNodeExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements Execution<Id, Definition, Type> {
+    TreeContext<Id, Definition, Type> treeContext;
+    ExecutionContext<Id, Definition, Type> executionContext;
+    NodeBody<Id, Definition, Type, Nitrite> body;
 
     @Override
-    protected FluentLogger getLogger() {
-        return log;
-    }
-
-    @Override
-    protected void validateContract() {
-        if (type.isRoot()) {
-            require(internals.trace().isEmpty(), "Root task needs to be executed without any tasks at the stack");
-            require(parent.isEmpty(), "Root task cannot have a parent");
-            require(!orderingStrategy.hasExpectations(), "Root task cannot have expected ID");
-            require(body instanceof NodeBody, "Root task body must be implemented as %1", NodeBody.class.getCanonicalName());
-        } else {
-            validateSubtaskContract();
-            require(!type.isParallel(), "Choice tasks should be executed with chooseNextSteps(...) method");
+    public ExecutionContext<Id, Definition, Type> run() {
+        if (!executionContext.isStarted()) {
+            executionContext.events().taskStarted();
         }
-    }
+        var storage = new NitriteStorageFactory<>(
+                treeContext.getNitriteManagers().getNitrite(),
+                treeContext.getStorageConfig(),
+                executionContext.history()
+            )
+            .read(executionContext.id());
+        var tree = new SubtaskAdapter<>(
+            new TaskExecutorImpl<>(treeContext, executionContext),
+            new TaskExecutor.Callback<Id, Definition, Type>() {
+                @Override
+                public void beforeRunning(Task<Id, Definition, Type> finished) {
 
-    private void runInstructions() {
-        var storage = internals.storageFactory().read(id);
-        var newTrace = new LinkedList<>(internals.trace());
-        var newEntry = new TraceEntry<>(thisTask, null, new LinkedList<>(thisTask.getSubtaskIds().toList()), storage);
-        getLogger().atFine().log("Pushing new trace entry: %s", newEntry);
-        newTrace.addFirst(newEntry);
-        body.perform(
-            new NitriteTaskTree<>(
-                internals.managers(),
-                internals.history(),
-                internals.storageFactory().getConfig(),
-                internals.idGeneratorFactory(),
-                internals.mergeSpecFactory(),
-                newTrace,
-                true
-            ),
-            storage
+                }
+
+                @Override
+                public void onFinished(Task<Id, Definition, Type> finished, Map<Id, HistoryDiff<Id>> increment) {
+                    executionContext.incorporate(finished.getId(), increment);
+                    storage.reload();
+                }
+            }
         );
-        if (!newEntry.getExpectedSubtaskIds().isEmpty()) {
-            log.atFine().log("After running the node some subtasks are still expected; disowning them, as the node has narrowed");
-            internals.events().bodyShrunk(
-                thisTask,
-                newEntry.getExpectedSubtaskIds()
-            );
-            disownExpectedUpTheTrace(newTrace);
+        body.perform(tree, storage);
+        executionContext.events().taskPerformed(false);
+        if (!executionContext.expectations().isEmpty()) {
+            executionContext.events().bodyNarrowed(executionContext.expectations());
         }
-    }
-
-    @Override
-    protected void handleRunning() {
-        internals.events().taskPerformed(thisTask, false);
-        getLogger().atFine().log("Running instructions of task %s (as always for nodes)", id);
-        runInstructions();
+        if (executionContext.needsAmendment()) {
+            executionContext.events().taskAmended();
+        }
+        if (!executionContext.isFinished()) {
+            executionContext.events().taskEnded();
+        }
+        return executionContext;
     }
 }

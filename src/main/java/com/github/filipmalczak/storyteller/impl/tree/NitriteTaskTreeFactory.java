@@ -6,7 +6,12 @@ import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.impl.tree.config.NitriteTreeConfig;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
+import com.github.filipmalczak.storyteller.impl.tree.internal.execution.context.NullContext;
+import com.github.filipmalczak.storyteller.impl.tree.internal.executor.RootAdapter;
+import com.github.filipmalczak.storyteller.impl.tree.internal.executor.TaskExecutorImpl;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
+import com.github.filipmalczak.storyteller.impl.tree.internal.journal.EventsEmitter;
+import com.github.filipmalczak.storyteller.impl.tree.internal.journal.JournalEntryFactory;
 import org.dizitart.no2.Nitrite;
 
 import java.util.LinkedList;
@@ -23,14 +28,14 @@ public class NitriteTaskTreeFactory<Id extends Comparable<Id>, Definition, Type 
             .registerModule(new JavaTimeModule())
             .openOrCreate();
         var managers = new NitriteManagers<Id, Definition, Type>(no2);
-        return new NitriteTaskTree<>(
+        var treeContext = new TreeContext<>(
             managers,
-            HistoryTracker.get(),
+            new EventsEmitter<>(managers.getJournalEntryManager(), new JournalEntryFactory(managers.getSessionManager())),
             config.storageConfig(),
             config.generatorFactory(),
             config.mergeSpecFactory(),
-            new LinkedList<>(),
-            true
+            config.mergeOrder()
         );
+        return new RootAdapter<>(managers.getSessionManager(), new TaskExecutorImpl<>(treeContext, new NullContext<>()));
     }
 }

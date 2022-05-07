@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-final class IncrementalHistoryTrackerImpl<Id> implements IncrementalHistoryTracker<Id> {
+public final class IncrementalHistoryTrackerImpl<Id> implements IncrementalHistoryTracker<Id> {
     HistoryTracker<Id> past;
     Map<Id, HistoryDiff<Id>> increments;
 

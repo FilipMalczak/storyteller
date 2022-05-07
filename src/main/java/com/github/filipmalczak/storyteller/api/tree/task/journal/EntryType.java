@@ -198,4 +198,12 @@ public enum EntryType {
     public static boolean referencesSubtasks(EntryType entryType){
         return ReferencesSubtasks.class.isAssignableFrom(entryType.entryClass);
     }
+
+    //todo poor name
+    public static boolean impactsFinishedStateOfTask(EntryType type){
+        return switch (type){
+            case ENDED, CHANGED, NARROWED, EXTENDED, REFILTERED, DEFLATED, INFLATED -> true;
+            default -> false;
+        };
+    }
 }

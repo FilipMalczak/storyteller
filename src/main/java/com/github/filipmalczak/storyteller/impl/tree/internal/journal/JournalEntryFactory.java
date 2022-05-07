@@ -80,7 +80,7 @@ public class JournalEntryFactory {
         return new BodyExecuted(sessionManager.getCurrent(), ZonedDateTime.now());
     }
 
-    public <Id extends Comparable<Id>> BodyNarrowed bodyShrunk(@NonNull List<Id> disappeared) {
+    public <Id extends Comparable<Id>> BodyNarrowed bodyNarrowed(@NonNull List<Id> disappeared) {
         //todo require non-empty and non-null?
         return new BodyNarrowed(sessionManager.getCurrent(), ZonedDateTime.now(), disappeared);
     }
