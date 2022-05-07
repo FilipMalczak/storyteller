@@ -1,5 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.testimpl;
 
+import com.github.filipmalczak.storyteller.api.session.listener.LoggingJournalListener;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeFactory;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
@@ -37,13 +38,15 @@ public class TestTreeFactory implements TaskTreeFactory<String, String, TrivialT
 
     @Override
     public TaskTreeRoot<String, String, TrivialTaskType, Nitrite> create(String s) {
-        return new NitriteTaskTreeFactory<String, String, TrivialTaskType>()
-                .create(
-                    NitriteTreeConfig.<String, String, TrivialTaskType>of(
-                        forTest(s),
-                        GENERATOR_FACTORY,
-                        node -> new MergeSpec<>("merge_"+node.getId(), TrivialTaskType.LEAF)
-                    )
-                );
+        var out = new NitriteTaskTreeFactory<String, String, TrivialTaskType>()
+            .create(
+                NitriteTreeConfig.<String, String, TrivialTaskType>of(
+                    forTest(s),
+                    GENERATOR_FACTORY,
+                    node -> new MergeSpec<>("merge_"+node.getId(), TrivialTaskType.LEAF)
+                )
+            );
+        out.getSessions().addListener(new LoggingJournalListener<>());
+        return out;
     }
 }

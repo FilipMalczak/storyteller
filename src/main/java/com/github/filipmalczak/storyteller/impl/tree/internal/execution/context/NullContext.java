@@ -11,6 +11,7 @@ import com.github.filipmalczak.storyteller.impl.tree.internal.journal.TaskEvents
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
 
@@ -88,5 +89,10 @@ public class NullContext<Id extends Comparable<Id>, Definition, Type extends Enu
     @Override
     public void incorporate(Id subtask, Map<Id, HistoryDiff<Id>> increment) {
 
+    }
+
+    @Override
+    public Stream<Id> taskStack() {
+        return Stream.empty();
     }
 }

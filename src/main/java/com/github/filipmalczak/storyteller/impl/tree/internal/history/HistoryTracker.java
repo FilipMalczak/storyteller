@@ -7,16 +7,6 @@ import java.util.stream.Stream;
 public sealed interface HistoryTracker<Id> permits IncrementalHistoryTracker, HistoryTrackerImpl {
     void startFrom(Id taskId, Id startPoint);
 
-    void startFromScratch(Id taskId);
-
-    //todo the default could go the other way around too...
-    default void start(Id taskId, Optional<Id> startPoint){
-        if (startPoint.isPresent())
-            startFrom(taskId, startPoint.get());
-        else
-            startFromScratch(taskId);
-    }
-
     /**
      * Adds as the last
      */

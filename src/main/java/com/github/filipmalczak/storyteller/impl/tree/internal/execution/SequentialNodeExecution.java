@@ -22,10 +22,12 @@ public class SequentialNodeExecution<Id extends Comparable<Id>, Definition, Type
     NodeBody<Id, Definition, Type, Nitrite> body;
 
     @Override
-    public ExecutionContext<Id, Definition, Type> run() {
-        if (!executionContext.isStarted()) {
-            executionContext.events().taskStarted();
-        }
+    public ExecutionContext<Id, Definition, Type> context() {
+        return executionContext;
+    }
+
+    @Override
+    public void run() {
         var storage = new NitriteStorageFactory<>(
                 treeContext.getNitriteManagers().getNitrite(),
                 treeContext.getStorageConfig(),
@@ -51,13 +53,10 @@ public class SequentialNodeExecution<Id extends Comparable<Id>, Definition, Type
         executionContext.events().taskPerformed(false);
         if (!executionContext.expectations().isEmpty()) {
             executionContext.events().bodyNarrowed(executionContext.expectations());
+            executionContext.disownExpectations();
         }
         if (executionContext.needsAmendment()) {
             executionContext.events().taskAmended();
         }
-        if (!executionContext.isFinished()) {
-            executionContext.events().taskEnded();
-        }
-        return executionContext;
     }
 }

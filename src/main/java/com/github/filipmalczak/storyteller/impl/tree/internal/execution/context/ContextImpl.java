@@ -16,6 +16,7 @@ import lombok.experimental.NonFinal;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @ToString
 @EqualsAndHashCode
@@ -56,7 +57,9 @@ public class ContextImpl<Id extends Comparable<Id>, Definition, Type extends Enu
 
     @Override
     public void disown(List<Id> subtasks) {
-        events().subtasksDisowned(subtasks);
+        if (!subtasks.isEmpty()) {
+            events().subtasksDisowned(subtasks);
+        }
         //slightly leaking abstraction - if we disown merge leaf, we're soon stuck with a finished execution that needs amending
         requireAmendment();
         parent.disownExpectations();
@@ -110,7 +113,7 @@ public class ContextImpl<Id extends Comparable<Id>, Definition, Type extends Enu
 
     @Override
     public void reuseForSubtask(Id id) {
-        expectations.remove(id);
+        expectations.removeIf(t -> t.getId().equals(id));
     }
 
     @Override
@@ -122,5 +125,10 @@ public class ContextImpl<Id extends Comparable<Id>, Definition, Type extends Enu
     public void incorporate(Id subtask, Map<Id, HistoryDiff<Id>> increment) {
         history.apply(increment);
         events().subtaskIncorporated(subtask);
+    }
+
+    @Override
+    public Stream<Id> taskStack() {
+        return Stream.concat(Stream.of(id()), parent.taskStack());
     }
 }

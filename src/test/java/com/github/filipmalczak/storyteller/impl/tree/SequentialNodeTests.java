@@ -1,9 +1,11 @@
 package com.github.filipmalczak.storyteller.impl.tree;
 
+import com.github.filipmalczak.storyteller.api.session.listener.LoggingJournalListener;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.impl.testimpl.TestTreeFactory;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
 import com.github.filipmalczak.storyteller.utils.ExecutionTracker;
+import lombok.extern.flogger.Flogger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,7 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@Flogger
 class SequentialNodeTests {
     private ExecutionTracker<Integer> tracker;
     private static final TestTreeFactory FACTORY = new TestTreeFactory("TaskSkippingTests");
@@ -497,6 +500,7 @@ class SequentialNodeTests {
         });
         tracker.expect(1, 2, 4, 5);
         assertNotNull(theNode[0]);
+        log.atInfo().log("Subtask IDs: %s", theNode[0].getSubtaskIds().toList());
         assertEquals(1, theNode[0].getSubtasks().count());
         assertEquals("first leaf task", theNode[0].getSubtasks().findFirst().get().getDefinition());
         assertEquals(1, theNode[0].getDisownedSubtasks().count());

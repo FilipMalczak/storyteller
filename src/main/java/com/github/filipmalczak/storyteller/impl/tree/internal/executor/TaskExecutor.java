@@ -12,7 +12,7 @@ import java.util.Map;
 
 public interface TaskExecutor<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> {
     interface Callback<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> {
-        void beforeRunning(Task<Id, Definition, Type> finished);
+        void beforeRunning(Task<Id, Definition, Type> toRun);
         void onFinished(Task<Id, Definition, Type> finished, Map<Id, HistoryDiff<Id>> increment);
     }
 

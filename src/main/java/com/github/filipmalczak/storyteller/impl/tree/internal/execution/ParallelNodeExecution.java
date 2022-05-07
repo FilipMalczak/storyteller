@@ -34,12 +34,14 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
     TaskTree.IncorporationFilter<Id, Definition, Type, Nitrite> filter;
 
     @Override
-    public ExecutionContext<Id, Definition, Type> run() {
+    public ExecutionContext<Id, Definition, Type> context() {
+        return executionContext;
+    }
+
+    @Override
+    public void run() {
         var mergeSpec = treeContext.getMergeSpecFactory().forParallelNode(executionContext.task());
         var mergeGenerator = treeContext.getGeneratorFactory().over(mergeSpec.definition(), mergeSpec.type());
-        if (!executionContext.isStarted()) {
-            executionContext.events().taskStarted();
-        }
         var storageFactory = new NitriteStorageFactory<>(
             treeContext.getNitriteManagers().getNitrite(),
             treeContext.getStorageConfig(),
@@ -66,6 +68,7 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
         executionContext.events().taskPerformed(false);
         if (!executionContext.expectations().isEmpty()) {
             executionContext.events().bodyNarrowed(executionContext.expectations());
+            executionContext.disownExpectations();
         }
         if (executionContext.needsAmendment()) {
             executionContext.events().taskAmended();
@@ -117,9 +120,5 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
             var newMerge = subtaskToIncrement.get(subtaskToIncrement.size()-1);
             executionContext.incorporate(newMerge.get0().getId(), newMerge.get1());
         }
-        if (!executionContext.isFinished()) {
-            executionContext.events().taskEnded();
-        }
-        return executionContext;
     }
 }

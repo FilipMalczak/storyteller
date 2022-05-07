@@ -29,7 +29,7 @@ public class ExampleExperiment {
 
     @Test
     @Order(1)
-//    @Disabled
+    @Disabled
     void run(){
         var storyteller = new NitriteStorytellerFactory().create(Path.of("examples/example1"));
         storyteller.sessions().addListener(e -> log.atInfo().log("%s", e));

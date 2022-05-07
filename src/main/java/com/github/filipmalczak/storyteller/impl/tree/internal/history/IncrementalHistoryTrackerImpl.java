@@ -23,11 +23,6 @@ public final class IncrementalHistoryTrackerImpl<Id> implements IncrementalHisto
     }
 
     @Override
-    public void startFromScratch(Id taskId) {
-        throw new UnsupportedOperationException("Incremental tracker cannot be used to start from scratch!");
-    }
-
-    @Override
     public void add(Id taskId, Id toAdd, boolean isWriting) {
         increments.put(taskId, getIncrement(taskId).and(toAdd, isWriting));
     }

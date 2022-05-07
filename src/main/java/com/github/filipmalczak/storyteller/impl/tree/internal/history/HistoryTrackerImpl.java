@@ -18,11 +18,6 @@ public final class HistoryTrackerImpl<Id> implements HistoryTracker<Id> {
         backend.put(taskId, backend.getOrDefault(startPoint, TaskHistory.empty()).copy());
     }
 
-    @Override
-    public void startFromScratch(Id taskId){
-        backend.put(taskId, TaskHistory.empty());
-    }
-
     /**
      * Adds as the last
      */

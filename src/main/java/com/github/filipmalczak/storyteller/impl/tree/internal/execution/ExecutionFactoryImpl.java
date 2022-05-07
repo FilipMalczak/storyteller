@@ -15,6 +15,7 @@ import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTra
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.IncrementalHistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.IncrementalHistoryTrackerImpl;
 import lombok.Value;
+import lombok.extern.flogger.Flogger;
 import org.dizitart.no2.Nitrite;
 
 import java.util.Collections;
@@ -29,6 +30,7 @@ import static java.util.function.Predicate.not;
 import static org.valid4j.Assertive.require;
 
 @Value
+@Flogger
 public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements ExecutionFactory<Id, Definition, Type, Nitrite> {
     TreeContext<Id, Definition, Type> treeContext;
 
@@ -46,34 +48,46 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
             }
 
             private List<Task<Id, Definition, Type>> expectationsFor(Task<Id, Definition, Type> task){
+                List<Task<Id, Definition, Type>> out;
                 if (task.getType().isSequential()){
-                    return new LinkedList<>(task.getSubtasks().toList());
-                }
-                if (task.getType().isParallel()){
+                    out = new LinkedList<>(task.getSubtasks().toList());
+                    log.atFine().log("Expectations for a sequential node %s: %s", task.getId(), out);
+                } else if (task.getType().isParallel()){
                     var mergeSpec = treeContext.getMergeSpecFactory().forParallelNode(task);
                     var mergeGenerator = treeContext.getGeneratorFactory().over(mergeSpec.definition(), mergeSpec.type());
-                    return new LinkedList<>(task.getSubtasks().filter(t -> !mergeGenerator.canReuse(t.getId())).toList());
+                    out =  new LinkedList<>(task.getSubtasks().filter(t -> !mergeGenerator.canReuse(t.getId())).toList());
+                    log.atFine().log("Expectations for a parallel node%s: %s", task.getId(), out);
+                } else {
+                    out = new LinkedList<>();
+                    log.atFine().log("Expectations for a leaf %s: %s", task.getId(), out);
                 }
-                return new LinkedList<>();
+                return out;
             }
 
             private ExecutionContext<Id, Definition, Type> getSubtaskContext(Definition definition, Type type){
                 var idGenerator = treeContext.getGeneratorFactory().over(definition, type);
                 IncrementalHistoryTracker<Id> history = parent.history() == null ? of(empty()) : parent.history().snapshot();
                 Id taskId;
-
-                if (parent.expectations().isEmpty() || parent.id() == null) {
+                log.atFine().log("Parent ID: %s", parent.id());
+                log.atFine().log("Parent expectations: %s", parent.expectations());
+                if (parent.expectations().isEmpty()) {// || parent.id() == null) { //todo cleanup
                     taskId = idGenerator.generate();
+                    log.atFine().log("Generated ID: %s", taskId);
                     if (parent.isFinished()) {
                         parent.events().bodyExtended();
+                        //gradparent, because expectations are empty, so we wanna avoid empty disown journal entry
                         parent.parent().disownExpectations();
                     }
                 } else {
                     var candidates = parent.policy().getCandidates(parent.expectations());
+                    log.atFine().log("Candidates for reusing: %s", candidates);
                     var firstReusable = candidates.stream().filter(id -> idGenerator.canReuse(id)).findFirst();
-
+                    log.atFine().log("First reusable candidate: %s", firstReusable);
                     if (firstReusable.isPresent()) {
                         taskId = firstReusable.get();
+                        parent.reuseForSubtask(taskId);
+                        log.atFine().log("Reused ID: %s", taskId);
+                        log.atFine().log("Updated parent expectations: %s", parent.expectations());
                         var task = treeContext.getNitriteManagers().getTaskManager().getById(taskId);
                         return ContextImpl.<Id, Definition, Type>builder()
                             .parent(parent)
@@ -85,6 +99,7 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                             .build();
                     } else {
                         taskId = idGenerator.generate();
+                        log.atFine().log("Generated ID: %s", taskId);
                         if (parent.policy().noMatchingCandidatesTreatedAsConflict(parent.isFinished())){
                             parent.events().bodyChanged(parent.expectations(), taskId);
                             parent.disownExpectations();

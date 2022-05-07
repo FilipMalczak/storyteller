@@ -7,6 +7,7 @@ import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.Subtask
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
+import lombok.extern.flogger.Flogger;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +19,7 @@ import static java.util.function.Predicate.not;
 
 @Value
 @Builder
+@Flogger
 public class SimpleTask<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements Task<Id, Definition, Type> {
     @NonNull Id id;
     @NonNull Definition definition;
@@ -56,7 +58,8 @@ public class SimpleTask<Id extends Comparable<Id>, Definition, Type extends Enum
 
     @Override
     public Stream<Task<Id, Definition, Type>> getSubtasks(Stream<Id> ids) {
-        return ids.map(taskResolver::resolve).map(Optional::get);
+        //todo remove log
+        return ids.map(taskResolver::resolve).peek(s -> log.atFine().log("Resolved subtask: %s", s)).map(Optional::get);
     }
 
     @Override

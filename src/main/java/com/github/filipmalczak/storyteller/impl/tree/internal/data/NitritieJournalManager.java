@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.flogger.Flogger;
 import org.dizitart.no2.FindOptions;
 import org.dizitart.no2.SortOrder;
 import org.dizitart.no2.objects.ObjectRepository;
@@ -18,6 +19,7 @@ import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
 
 @Setter(AccessLevel.PACKAGE)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Flogger
 public class NitritieJournalManager<Id extends Comparable<Id>> implements JournalEntryManager<Id> {
     @NonNull ObjectRepository<JournalEntryData> repository;
     @NonNull JournalEntrySerializer serializer;
@@ -25,12 +27,14 @@ public class NitritieJournalManager<Id extends Comparable<Id>> implements Journa
 
     @Override
     public void record(TaskEntry<Id>... entries) {
+        log.atFiner().log("Request to record: %s", entries);
         JournalEntryData<Id>[] toInsert = new JournalEntryData[entries.length];
         for (int i = 0; i< entries.length; ++i){
             var e = entries[i];
             e.task().record(e.entry());
             toInsert[i] = serializer.fromEntry(e.task(), e.entry());
         }
+        log.atFiner().log("Inserting new entries: %s", toInsert);
         repository.insert(toInsert);
         for (var e: entries) {
             sessionManager.emit(e.task(), e.entry());
