@@ -118,7 +118,6 @@ public class JournalViaListenerTests {
 
     @Test
     @DisplayName("r(n(l1)) -> r(n(l1, l2))")
-    @Disabled("This doesn't work yet, but its time to go to sleep")
     void reRunWithAddedLeaf(){
         var exec = FACTORY.create("reRunWithAddedLeaf");
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
@@ -129,8 +128,6 @@ public class JournalViaListenerTests {
             });
         });
         var listener = new AssertiveListener(
-            expect(BodyExecuted.class, "root task", TrivialTaskType.ROOT),
-            expect(BodyExecuted.class, "node task", TrivialTaskType.SEQ_NODE),
             expect(InstructionsSkipped.class, "leaf task", TrivialTaskType.LEAF),
             expect(SubtaskIncorporated.class, "node task", TrivialTaskType.SEQ_NODE),
             expect(BodyExtended.class, "node task", TrivialTaskType.SEQ_NODE),
@@ -139,20 +136,58 @@ public class JournalViaListenerTests {
             expect(InstructionsRan.class, "another leaf task", TrivialTaskType.LEAF),
             expect(TaskEnded.class, "another leaf task", TrivialTaskType.LEAF),
             expect(SubtaskIncorporated.class, "node task", TrivialTaskType.SEQ_NODE),
-            expect(TaskAmended.class, "node task", TrivialTaskType.SEQ_NODE),
-            expect(TaskEnded.class, "node task", TrivialTaskType.SEQ_NODE),
+            expect(BodyExecuted.class, "node task", TrivialTaskType.SEQ_NODE),
             expect(SubtaskIncorporated.class, "root task", TrivialTaskType.ROOT),
+            expect(BodyExecuted.class, "root task", TrivialTaskType.ROOT),
             expect(TaskAmended.class, "root task", TrivialTaskType.ROOT),
             expect(TaskEnded.class, "root task", TrivialTaskType.ROOT)
         );
         exec.getSessions().addListener(listener);
-//        exec.getSessions().addListener(new LoggingJournalListener<>());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
 
                 });
                 nodeExec.execute("another leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+
+                });
+            });
+        });
+        listener.end();
+    }
+
+    @Test
+    @DisplayName("r(n(l1, l2)) -> r(n(l1))")
+    void reRunWithRemovedLeaf(){
+        var exec = FACTORY.create("reRunWithAddedLeaf");
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
+                nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+
+                });
+                nodeExec.execute("another leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
+
+                });
+            });
+        });
+        var listener = new AssertiveListener(
+            expect(InstructionsSkipped.class, "leaf task", TrivialTaskType.LEAF),
+            expect(SubtaskIncorporated.class, "node task", TrivialTaskType.SEQ_NODE),
+            expect(BodyNarrowed.class, "node task", TrivialTaskType.SEQ_NODE),
+            expect(SubtaskDisowned.class, "node task", TrivialTaskType.SEQ_NODE),
+            expect(TaskOrphaned.class, "another leaf task", TrivialTaskType.LEAF),
+            expect(BodyExecuted.class, "node task", TrivialTaskType.SEQ_NODE),
+            expect(TaskAmended.class, "node task", TrivialTaskType.SEQ_NODE),
+            expect(TaskEnded.class, "node task", TrivialTaskType.SEQ_NODE),
+            expect(SubtaskIncorporated.class, "root task", TrivialTaskType.ROOT),
+            expect(BodyExecuted.class, "root task", TrivialTaskType.ROOT),
+            expect(TaskAmended.class, "root task", TrivialTaskType.ROOT),
+            expect(TaskEnded.class, "root task", TrivialTaskType.ROOT)
+        );
+        exec.getSessions().addListener(listener);
+        exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
+                nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
 
                 });
             });

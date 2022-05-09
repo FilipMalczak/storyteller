@@ -73,11 +73,11 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
             }
         );
         body.perform(tree, storage);
-        executionContext.events().taskPerformed(false);
         if (!executionContext.expectations().isEmpty()) {
             executionContext.events().bodyNarrowed(executionContext.expectations());
             executionContext.disownExpectations();
         }
+        executionContext.events().taskPerformed(false);
         if (executionContext.needsAmendment()) {
             executionContext.events().taskAmended();
         }

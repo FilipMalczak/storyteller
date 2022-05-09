@@ -60,11 +60,12 @@ public class AssertiveListener implements JournalListener<JournalEntry> {
     ) {
         void match(int entryIdx, Task task, JournalEntry entry){
             try {
-                assertTrue(clazz.isInstance(entry), "Expected entry class is " + clazz.getSimpleName() + " while the actual (#"+entryIdx+") is " + entry.getClass().getSimpleName());
+                assertTrue(clazz.isInstance(entry), "Expected entry class is " + clazz.getSimpleName() + " while the actual is " + entry.getClass().getSimpleName());
                 assertThat(task.getDefinition(), equalTo(definition));
                 assertThat(task.getType(), equalTo(type));
                 assertTrue(details.test((T) entry));
-            } catch (AssertionFailedError e){
+            } catch (AssertionError e){
+                log.atSevere().log("Journal entry #%s", entryIdx);
                 log.atSevere().log("Expected: task.definition=%s, task.type=%s, entry.class=%s", definition, type, clazz.getSimpleName());
                 log.atSevere().log("Actual: task.definition=%s, task.type=%s, entry=%s", task.getDefinition(), task.getType(), entry);
                 throw e;
