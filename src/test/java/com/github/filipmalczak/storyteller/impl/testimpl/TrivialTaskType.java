@@ -11,7 +11,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum TrivialTaskType implements TaskType {
     ROOT(TaskKind.ROOT),
-    NODE(TaskKind.SEQUENTIAL_NODE),
+    SEQ_NODE(TaskKind.SEQUENTIAL_NODE),
+    PAR_NODE(TaskKind.PARALLEL_NODE),
     LEAF(TaskKind.LEAF);
 
     TaskKind modifier;

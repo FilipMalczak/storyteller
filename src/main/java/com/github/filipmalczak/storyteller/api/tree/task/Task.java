@@ -4,7 +4,6 @@ import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.Journal
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.TaskEnded;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.TaskStarted;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 

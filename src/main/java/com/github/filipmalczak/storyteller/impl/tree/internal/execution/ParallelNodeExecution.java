@@ -1,6 +1,5 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.execution;
 
-import com.github.filipmalczak.recordtuples.Pair;
 import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
@@ -16,17 +15,22 @@ import com.github.filipmalczak.storyteller.impl.tree.internal.executor.TaskExecu
 import com.github.filipmalczak.storyteller.impl.tree.internal.executor.TaskExecutorImpl;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryDiff;
 import lombok.Value;
+import lombok.extern.flogger.Flogger;
 import org.dizitart.no2.Nitrite;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static java.util.Comparator.comparing;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 import static org.valid4j.Assertive.require;
 
 @Value
+@Flogger
 public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements Execution<Id, Definition, Type> {
     TreeContext<Id, Definition, Type> treeContext;
     ExecutionContext<Id, Definition, Type> executionContext;
@@ -48,19 +52,23 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
             executionContext.history()
         );
         var storage = storageFactory.read(executionContext.id());
-        List<Pair<Task<Id, Definition, Type>, Map<Id, HistoryDiff<Id>>>> subtaskToIncrement = new ArrayList<>();
+        //filter.chooseIncorporated works on full tasks, and I don't want to use Tasks as keys, thus list of pairs and not a map
+        Map<Id, Task<Id, Definition, Type>> subtasks = new HashMap<>();
+        Map<Id, Map<Id, HistoryDiff<Id>>> increments = new HashMap<>();
         Map<Id, Long> timestamps = new HashMap<>();
         var tree = new SubtaskAdapter<>(
             new TaskExecutorImpl<>(treeContext, executionContext),
             new TaskExecutor.Callback<Id, Definition, Type>() {
                 @Override
-                public void beforeRunning(Task<Id, Definition, Type> finished) {
-                    timestamps.put(finished.getId(), System.currentTimeMillis());
+                public void beforeRunning(Task<Id, Definition, Type> toStart) {
+                    var id = toStart.getId();
+                    subtasks.put(id, toStart);
+                    timestamps.put(id, System.currentTimeMillis());
                 }
 
                 @Override
                 public void onFinished(Task<Id, Definition, Type> finished, Map<Id, HistoryDiff<Id>> increment) {
-                    subtaskToIncrement.add(Pair.of(finished, increment));
+                    increments.put(finished.getId(), increment);
                 }
             }
         );
@@ -73,52 +81,71 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
         if (executionContext.needsAmendment()) {
             executionContext.events().taskAmended();
         }
-        var possibleMergeIds = executionContext.task().getSubtaskIds().filter(mergeGenerator::canReuse).toList(); //todo
-        require(possibleMergeIds.size() < 2, "At most 1 ID should be reusable for a merge leaf");
-        var mergeLeaf = possibleMergeIds.stream().findFirst();
-        var endedEntry = executionContext.task()
-            .getJournalEntries()
-            .filter(e -> e instanceof TaskEnded)
-            .reduce((e1, e2) -> e2) //this is a trick to replace findLast()
-            .get();
-        var endedAtSession = endedEntry.getSession();
         //todo group definition+type as a general TaskSpec; changes to tree API, id generator and who knows what else
-        var previouslyIncorporated = executionContext.task()
-            .getJournalEntries()
-            .filter(e -> e.getSession().equals(endedAtSession))
-            .filter(e -> e instanceof SubtaskIncorporated)
-            .map(e -> (SubtaskIncorporated<Id>) e)
-            .map(SubtaskIncorporated::getSubtaskId)
-            .filter(not(mergeGenerator::canReuse))
-            .collect(toSet());
+        var insights = storageFactory.insights(increments);
         var toIncorporate = filter
             .chooseIncorporated(
-                subtaskToIncrement.stream().map(Pair::get0).collect(toSet()),
-                storageFactory::insight
+                new HashSet<Task<Id, Definition, Type>>(subtasks.values()),
+                insights
             );
-
-        if (mergeLeaf.isEmpty() || !previouslyIncorporated.equals(toIncorporate)){
-            if (mergeLeaf.isPresent()) {
-                executionContext.disown(asList(mergeLeaf.get()));
+        var idsToIncorporate = toIncorporate.stream().map(Task::getId).collect(toSet());
+        log.atFine().log("IDs to incorporate: %s", idsToIncorporate);
+        var possibleMergeIds = executionContext.task().getSubtaskIds().filter(mergeGenerator::canReuse).toList();
+        require(possibleMergeIds.size() < 2, "At most 1 ID should be reusable for a merge leaf");
+        var optionalMergeLeaf = possibleMergeIds.stream().findFirst();
+        Id mergeLeafId = null;
+        if (executionContext.isFinished()) {
+            require(optionalMergeLeaf.isPresent(), "Merge leaf should have been added before finishing the task");
+            var endedEntry = executionContext.task()
+                .getJournalEntries()
+                .filter(e -> e instanceof TaskEnded)
+                .reduce((e1, e2) -> e2) //this is a trick to replace findLast()
+                .get();
+            var endedAtSession = endedEntry.getSession();
+            var previouslyIncorporated = executionContext.task()
+                .getJournalEntries()
+                .filter(e -> e.getSession().equals(endedAtSession))
+                .filter(e -> e instanceof SubtaskIncorporated)
+                .map(e -> (SubtaskIncorporated<Id>) e)
+                .map(SubtaskIncorporated::getSubtaskId)
+                .filter(not(mergeGenerator::canReuse))
+                .collect(toSet());
+            log.atFine().log("IDs incorporated in the last session that ended the parallel node: %s", previouslyIncorporated);
+            if (previouslyIncorporated.equals(idsToIncorporate)){
+                mergeLeafId = optionalMergeLeaf.get();
+                log.atFine().log("Reusing merge leaf %s", mergeLeafId);
+            } else {
+                log.atFine().log("Will need augmentation");
+                //todo augmentation and friends
+                executionContext.disown(asList(optionalMergeLeaf.get()));
             }
-            //todo inflated and friends
+        }
+        //todo use comparing0()
+        var incorporationOrder = new LinkedList<>(subtasks.values().stream().filter(toIncorporate::contains).toList());
+        incorporationOrder.sort((t1, t2) -> treeContext.getMergeOrder().compare(t1.getId(), t2.getId()));
+        Map<Id, HistoryDiff<Id>> mergeIncrement;
+        if (mergeLeafId == null) {
             tree.execute(mergeSpec.definition(), mergeSpec.type(), rw -> {
                 NitriteMerger merger = NitriteMerger.of(rw.documents());
-                var incorporationOrder = new LinkedList<>(subtaskToIncrement);
-                incorporationOrder.sort((t1, t2) -> treeContext.getMergeOrder().compare(t1.get0().getId(), t2.get0().getId()));
+
                 for (var incorporationSubject: incorporationOrder){
-                    //todo we only use id
-                    var task = incorporationSubject.get0();
-                    var increment = incorporationSubject.get1();
                     merger.applyChanges(
-                        timestamps.get(task.getId()),
-                        storageFactory.insight(task.getId()).documents()
+                        timestamps.get(incorporationSubject.getId()),
+                        insights.into(incorporationSubject.getId()).documents()
                     );
-                    executionContext.incorporate(task.getId(), increment);
                 }
             });
-            var newMerge = subtaskToIncrement.get(subtaskToIncrement.size()-1);
-            executionContext.incorporate(newMerge.get0().getId(), newMerge.get1());
+            mergeLeafId = timestamps.keySet().stream().sorted(comparing(timestamps::get).reversed()).findFirst().get();
+            mergeIncrement = increments.get(mergeLeafId);
+        } else {
+            var snap = executionContext.history().snapshot();
+            snap.add(mergeLeafId, mergeLeafId, true);
+            mergeIncrement = snap.getIncrement();
         }
+        for (var incorporationSubject: incorporationOrder){
+            var increment = increments.get(incorporationSubject.getId());
+            executionContext.incorporate(incorporationSubject.getId(), increment, incorporationSubject.getType().isWriting());
+        }
+        executionContext.incorporate(mergeLeafId, mergeIncrement, true);
     }
 }

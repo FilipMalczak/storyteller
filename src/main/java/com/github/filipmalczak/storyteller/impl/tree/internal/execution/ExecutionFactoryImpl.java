@@ -6,27 +6,20 @@ import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
-import com.github.filipmalczak.storyteller.api.tree.task.journal.EntryType;
 import com.github.filipmalczak.storyteller.impl.tree.TreeContext;
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.context.ContextImpl;
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.context.ExecutionContext;
 import com.github.filipmalczak.storyteller.impl.tree.internal.expectations.ExpectationsPolicy;
-import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.IncrementalHistoryTracker;
-import com.github.filipmalczak.storyteller.impl.tree.internal.history.IncrementalHistoryTrackerImpl;
 import lombok.Value;
 import lombok.extern.flogger.Flogger;
 import org.dizitart.no2.Nitrite;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.filipmalczak.storyteller.api.tree.task.journal.EntryType.toType;
 import static com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTrackerImpl.empty;
 import static com.github.filipmalczak.storyteller.impl.tree.internal.history.IncrementalHistoryTrackerImpl.of;
-import static java.util.Collections.emptyList;
-import static java.util.function.Predicate.not;
 import static org.valid4j.Assertive.require;
 
 @Value
@@ -54,6 +47,7 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                     log.atFine().log("Expectations for a sequential node %s: %s", task.getId(), out);
                 } else if (task.getType().isParallel()){
                     var mergeSpec = treeContext.getMergeSpecFactory().forParallelNode(task);
+                    log.atFine().log("Merge spec: %s", mergeSpec);
                     var mergeGenerator = treeContext.getGeneratorFactory().over(mergeSpec.definition(), mergeSpec.type());
                     out =  new LinkedList<>(task.getSubtasks().filter(t -> !mergeGenerator.canReuse(t.getId())).toList());
                     log.atFine().log("Expectations for a parallel node%s: %s", task.getId(), out);
@@ -136,16 +130,19 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
 
             @Override
             public Execution<Id, Definition, Type> sequentialNode(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body) {
+                require(type.isSequential(), "Tried to run task '%s' of type %s (modifier: %s) as sequential node", definition, type, type.getModifier());
                 return new SequentialNodeExecution<>(treeContext, getSubtaskContext(definition, type), body);
             }
 
             @Override
             public Execution<Id, Definition, Type> parallelNode(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, TaskTree.IncorporationFilter<Id, Definition, Type, Nitrite> filter) {
+                require(type.isParallel(), "Tried to run task '%s' of type %s (modifier: %s) as parallel node", definition, type, type.getModifier());
                 return new ParallelNodeExecution<>(treeContext, getSubtaskContext(definition, type), body, filter);
             }
 
             @Override
             public Execution<Id, Definition, Type> leaf(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
+                require(type.isLeaf(), "Tried to run task '%s' of type %s (modifier: %s) as leaf", definition, type, type.getModifier());
                 return new LeafExecution<>(treeContext, getSubtaskContext(definition, type), body);
             }
         };

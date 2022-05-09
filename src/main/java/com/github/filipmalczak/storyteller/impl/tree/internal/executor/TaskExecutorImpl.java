@@ -8,14 +8,15 @@ import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
 import com.github.filipmalczak.storyteller.impl.tree.TreeContext;
 import com.github.filipmalczak.storyteller.impl.tree.internal.ThrowingAlreadyRecordedException;
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.Execution;
-import com.github.filipmalczak.storyteller.impl.tree.internal.execution.ExecutionFactory;
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.ExecutionFactoryImpl;
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.context.ExecutionContext;
 import lombok.SneakyThrows;
 import lombok.Value;
+import lombok.extern.flogger.Flogger;
 import org.dizitart.no2.Nitrite;
 
 @Value
+@Flogger
 public class TaskExecutorImpl<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements TaskExecutor<Id, Definition, Type, Nitrite> {
     TreeContext<Id, Definition, Type> treeContext;
     ExecutionContext<Id, Definition, Type> context;
@@ -24,7 +25,12 @@ public class TaskExecutorImpl<Id extends Comparable<Id>, Definition, Type extend
     private Task<Id, Definition, Type> performLifecycle(Execution<Id, Definition, Type> execution, Callback<Id, Definition, Type> callback){
         var ctx = execution.context();
         if (!ctx.isRoot()){
+            log.atFine().log("Task %s is root, starting history from parent: %s", ctx.id(), ctx.parent().id());
             ctx.history().startFrom(ctx.id(), ctx.parent().id());
+            log.atFine().log("All ancestors: %s", ctx.history().getAllAncestors(ctx.id()).toList());
+            log.atFine().log("Writing ancestors: %s", ctx.history().getWritingAncestors(ctx.id()).toList());
+        } else {
+            log.atFine().log("Task %s is root, starting history from scratch", ctx.id());
         }
         if (!ctx.isStarted()){
             ctx.events().taskStarted();

@@ -1,8 +1,6 @@
 package com.github.filipmalczak.storyteller.api.session.listener;
 
 import com.github.filipmalczak.storyteller.api.session.events.SessionEvent;
-import com.github.filipmalczak.storyteller.api.tree.task.Task;
-import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
 import lombok.Value;
 import lombok.extern.flogger.Flogger;
 

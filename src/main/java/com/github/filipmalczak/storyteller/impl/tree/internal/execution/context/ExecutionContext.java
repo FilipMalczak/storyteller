@@ -4,7 +4,6 @@ import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.impl.tree.internal.expectations.ExpectationsPolicy;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryDiff;
-import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.IncrementalHistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.journal.TaskEvents;
 
@@ -32,7 +31,7 @@ public interface ExecutionContext<Id extends Comparable<Id>, Definition, Type ex
     List<Id> expectations();
     void reuseForSubtask(Id id);
     IncrementalHistoryTracker<Id> history();
-    void incorporate(Id subtask, Map<Id, HistoryDiff<Id>> increment);
+    void incorporate(Id subtask, Map<Id, HistoryDiff<Id>> increment, boolean isWriting);
     Stream<Id> taskStack(); //first - this is, last - root
 
     default void makeHistory(){

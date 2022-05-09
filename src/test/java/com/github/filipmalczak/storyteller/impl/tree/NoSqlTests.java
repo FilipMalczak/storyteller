@@ -26,7 +26,7 @@ public class NoSqlTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(getOr(rootStorage, "foo", "-")+1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(getOr(rootStorage, "foo", "-")+2);
                 tracker.mark(getOr(nodeStorage, "foo", "-")+3);
                 nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -60,7 +60,7 @@ public class NoSqlTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(getOr(rootStorage, "foo", "-")+1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(getOr(rootStorage, "foo", "-")+2);
                 tracker.mark(getOr(nodeStorage, "foo", "-")+3);
                 nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -88,7 +88,7 @@ public class NoSqlTests {
         tracker.clear();
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(getOr(rootStorage, "foo", "-")+1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(getOr(rootStorage, "foo", "-")+2);
                 tracker.mark(getOr(nodeStorage, "foo", "-")+3);
                 nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -120,7 +120,7 @@ public class NoSqlTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(getOr(rootStorage, "foo", "-")+1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(getOr(rootStorage, "foo", "-")+2);
                 tracker.mark(getOr(nodeStorage, "foo", "-")+3);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -168,7 +168,7 @@ public class NoSqlTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(getOr(rootStorage, "foo", "-")+1);
-            rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("first node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(getOr(rootStorage, "foo", "-") + 2);
                 tracker.mark(getOr(nodeStorage, "foo", "-") + 3);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -184,7 +184,7 @@ public class NoSqlTests {
                 tracker.mark(getOr(nodeStorage, "foo", "-") + 11);
             });
             tracker.mark(getOr(rootStorage, "foo", "-") + 12);
-            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(getOr(rootStorage, "foo", "-")+13);
                 tracker.mark(getOr(nodeStorage, "foo", "-")+14);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {

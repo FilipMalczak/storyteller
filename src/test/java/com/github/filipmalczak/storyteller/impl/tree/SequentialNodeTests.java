@@ -1,6 +1,5 @@
 package com.github.filipmalczak.storyteller.impl.tree;
 
-import com.github.filipmalczak.storyteller.api.session.listener.LoggingJournalListener;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.impl.testimpl.TestTreeFactory;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
@@ -30,7 +29,7 @@ class SequentialNodeTests {
         var exec = FACTORY.create("runThreeTasks");
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
 
                 });
@@ -45,7 +44,7 @@ class SequentialNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -58,7 +57,7 @@ class SequentialNodeTests {
         tracker.clear();
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -77,7 +76,7 @@ class SequentialNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -90,7 +89,7 @@ class SequentialNodeTests {
         tracker.clear();
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -114,7 +113,7 @@ class SequentialNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -127,7 +126,7 @@ class SequentialNodeTests {
         tracker.clear();
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -144,7 +143,7 @@ class SequentialNodeTests {
         tracker.clear();
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -167,7 +166,7 @@ class SequentialNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -184,7 +183,7 @@ class SequentialNodeTests {
         tracker.clear();;
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -211,7 +210,7 @@ class SequentialNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -232,7 +231,7 @@ class SequentialNodeTests {
         tracker.clear();;
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -263,7 +262,7 @@ class SequentialNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -284,7 +283,7 @@ class SequentialNodeTests {
         tracker.clear();;
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -315,7 +314,7 @@ class SequentialNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("first node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -327,7 +326,7 @@ class SequentialNodeTests {
                 tracker.mark(6);
             });
             tracker.mark(7);
-            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(8);
                 nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(9);
@@ -344,7 +343,7 @@ class SequentialNodeTests {
         tracker.clear();
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("first node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -360,7 +359,7 @@ class SequentialNodeTests {
                 tracker.mark(8);
             });
             tracker.mark(9);
-            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(10);
                 nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(11);
@@ -383,7 +382,7 @@ class SequentialNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("first node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -395,7 +394,7 @@ class SequentialNodeTests {
                 tracker.mark(6);
             });
             tracker.mark(7);
-            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(8);
                 nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(9);
@@ -412,7 +411,7 @@ class SequentialNodeTests {
         tracker.clear();
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("first node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -424,7 +423,7 @@ class SequentialNodeTests {
                 tracker.mark(6);
             });
             tracker.mark(7);
-            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(8);
                 nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(9);
@@ -471,7 +470,7 @@ class SequentialNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -489,7 +488,7 @@ class SequentialNodeTests {
         Task<String, String, TrivialTaskType>[] theNode = new Task[1];
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            theNode[0] = rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            theNode[0] = rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -514,7 +513,7 @@ class SequentialNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -532,7 +531,7 @@ class SequentialNodeTests {
         Task<String, String, TrivialTaskType>[] theNode = new Task[1];
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            theNode[0] = rootExec.execute("node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            theNode[0] = rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("second leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -565,7 +564,7 @@ class SequentialNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("first node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -577,7 +576,7 @@ class SequentialNodeTests {
                 tracker.mark(6);
             });
             tracker.mark(7);
-            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(8);
                 nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(9);
@@ -592,7 +591,7 @@ class SequentialNodeTests {
         Task<String, String, TrivialTaskType>[] root = new Task[1];
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            firstNode[0] = rootExec.execute("first node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            firstNode[0] = rootExec.execute("first node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(2);
                 nodeExec.execute("first leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(3);
@@ -600,7 +599,7 @@ class SequentialNodeTests {
                 tracker.mark(4);
             });
             tracker.mark(5);
-            rootExec.execute("second node task", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("second node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(6);
                 nodeExec.execute("third leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(7);

@@ -1,7 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.history;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 public sealed interface HistoryTracker<Id> permits IncrementalHistoryTracker, HistoryTrackerImpl {

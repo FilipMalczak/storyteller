@@ -5,7 +5,6 @@ import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
-import com.github.filipmalczak.storyteller.impl.tree.internal.execution.context.ExecutionContext;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryDiff;
 
 import java.util.Map;

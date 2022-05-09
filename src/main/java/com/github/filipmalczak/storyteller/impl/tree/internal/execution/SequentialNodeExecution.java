@@ -44,7 +44,7 @@ public class SequentialNodeExecution<Id extends Comparable<Id>, Definition, Type
 
                 @Override
                 public void onFinished(Task<Id, Definition, Type> finished, Map<Id, HistoryDiff<Id>> increment) {
-                    executionContext.incorporate(finished.getId(), increment);
+                    executionContext.incorporate(finished.getId(), increment, finished.getType().isWriting());
                     storage.reload();
                 }
             }

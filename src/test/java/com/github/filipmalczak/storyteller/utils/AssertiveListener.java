@@ -10,7 +10,6 @@ import lombok.extern.flogger.Flogger;
 import org.opentest4j.AssertionFailedError;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.function.Predicate;
 
 import static java.util.Arrays.asList;

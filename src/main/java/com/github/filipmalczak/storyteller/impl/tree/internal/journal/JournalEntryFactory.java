@@ -1,6 +1,5 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.journal;
 
-import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.*;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.SessionManager;
 import lombok.AccessLevel;
@@ -12,8 +11,6 @@ import lombok.experimental.FieldDefaults;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 //todo this can be moved to API as soon as I replace session manager with Sessions

@@ -1,11 +1,11 @@
 package com.github.filipmalczak.storyteller.api.tree.task.journal.entries;
 
 import com.github.filipmalczak.storyteller.api.session.Session;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.ToString;
 
 import java.time.ZonedDateTime;
-import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

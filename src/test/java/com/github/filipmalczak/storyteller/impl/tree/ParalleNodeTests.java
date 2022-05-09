@@ -4,12 +4,10 @@ import com.github.filipmalczak.storyteller.impl.testimpl.TestTreeFactory;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
 import com.github.filipmalczak.storyteller.utils.ExecutionTracker;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
-import java.util.stream.Collectors;
 
 import static com.github.filipmalczak.storyteller.utils.ExecutionTracker.unordered;
 import static java.util.stream.Collectors.toSet;
@@ -32,7 +30,7 @@ public class ParalleNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("parallel node", TrivialTaskType.NODE,
+            rootExec.execute("parallel node", TrivialTaskType.PAR_NODE,
                 (nodeExec, nodeStorage) -> {
                     tracker.mark(2);
                     nodeExec.execute("A", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -48,7 +46,7 @@ public class ParalleNodeTests {
                 }
             );
             tracker.mark(6);
-            rootExec.execute("sequential node", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("sequential node", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(7);
                 nodeExec.execute("C", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(8);
@@ -61,7 +59,7 @@ public class ParalleNodeTests {
         tracker.clear();
         exec.execute("root", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("parallel node", TrivialTaskType.NODE,
+            rootExec.execute("parallel node", TrivialTaskType.PAR_NODE,
                 (nodeExec, nodeStorage) -> {
                     tracker.mark(2);
                     nodeExec.execute("A", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -77,7 +75,7 @@ public class ParalleNodeTests {
                 }
             );
             tracker.mark(6);
-            rootExec.execute("sequential node", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("sequential node", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(7);
                 nodeExec.execute("C", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(8);
@@ -96,7 +94,7 @@ public class ParalleNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("parallel node", TrivialTaskType.NODE,
+            rootExec.execute("parallel node", TrivialTaskType.PAR_NODE,
                 (nodeExec, nodeStorage) -> {
                     tracker.mark(2);
                     nodeExec.execute("A", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -112,7 +110,7 @@ public class ParalleNodeTests {
                 }
             );
             tracker.mark(6);
-            rootExec.execute("sequential node", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("sequential node", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(7);
                 nodeExec.execute("C", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(8);
@@ -125,7 +123,7 @@ public class ParalleNodeTests {
         tracker.clear();
         exec.execute("root", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("parallel node", TrivialTaskType.NODE,
+            rootExec.execute("parallel node", TrivialTaskType.PAR_NODE,
                 (nodeExec, nodeStorage) -> {
                     tracker.mark(2);
                     nodeExec.execute("A", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -141,7 +139,7 @@ public class ParalleNodeTests {
                 }
             );
             tracker.mark(6);
-            rootExec.execute("sequential node", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("sequential node", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(7);
                 nodeExec.execute("C", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(8);
@@ -160,7 +158,7 @@ public class ParalleNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("parallel node", TrivialTaskType.NODE,
+            rootExec.execute("parallel node", TrivialTaskType.PAR_NODE,
                 (nodeExec, nodeStorage) -> {
                     tracker.mark(2);
                     nodeExec.execute("A", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -176,7 +174,7 @@ public class ParalleNodeTests {
                 }
             );
             tracker.mark(6);
-            rootExec.execute("sequential node", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("sequential node", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(7);
                 nodeExec.execute("C", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(8);
@@ -189,7 +187,7 @@ public class ParalleNodeTests {
         tracker.clear();
         exec.execute("root", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("parallel node", TrivialTaskType.NODE,
+            rootExec.execute("parallel node", TrivialTaskType.PAR_NODE,
                 (nodeExec, nodeStorage) -> {
                     tracker.mark(2);
                     nodeExec.execute("A", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -205,7 +203,7 @@ public class ParalleNodeTests {
                 }
             );
             tracker.mark(6);
-            rootExec.execute("sequential node", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("sequential node", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(7);
                 nodeExec.execute("C", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(8);
@@ -224,7 +222,7 @@ public class ParalleNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("parallel node", TrivialTaskType.NODE,
+            rootExec.execute("parallel node", TrivialTaskType.PAR_NODE,
                 (nodeExec, nodeStorage) -> {
                     tracker.mark(2);
                     nodeExec.execute("A", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -240,7 +238,7 @@ public class ParalleNodeTests {
                 }
             );
             tracker.mark(6);
-            rootExec.execute("sequential node", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("sequential node", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(7);
                 nodeExec.execute("C", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(8);
@@ -253,7 +251,7 @@ public class ParalleNodeTests {
         tracker.clear();
         exec.execute("root", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("parallel node", TrivialTaskType.NODE,
+            rootExec.execute("parallel node", TrivialTaskType.PAR_NODE,
                 (nodeExec, nodeStorage) -> {
                     tracker.mark(2);
                     nodeExec.execute("A", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -269,7 +267,7 @@ public class ParalleNodeTests {
                 }
             );
             tracker.mark(6);
-            rootExec.execute("sequential node", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("sequential node", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(7);
                 nodeExec.execute("C", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(8);
@@ -288,7 +286,7 @@ public class ParalleNodeTests {
         tracker.setSessions(exec.getSessions());
         exec.execute("root", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("parallel node", TrivialTaskType.NODE,
+            rootExec.execute("parallel node", TrivialTaskType.PAR_NODE,
                 (nodeExec, nodeStorage) -> {
                     tracker.mark(2);
                     nodeExec.execute("A", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -307,7 +305,7 @@ public class ParalleNodeTests {
                 }
             );
             tracker.mark(7);
-            rootExec.execute("sequential node", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("sequential node", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(8);
                 nodeExec.execute("C", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(9);
@@ -320,7 +318,7 @@ public class ParalleNodeTests {
         tracker.clear();
         exec.execute("root", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             tracker.mark(1);
-            rootExec.execute("parallel node", TrivialTaskType.NODE,
+            rootExec.execute("parallel node", TrivialTaskType.PAR_NODE,
                 (nodeExec, nodeStorage) -> {
                     tracker.mark(2);
                     nodeExec.execute("A", TrivialTaskType.LEAF, (leafStorage) -> {
@@ -339,7 +337,7 @@ public class ParalleNodeTests {
                 }
             );
             tracker.mark(7);
-            rootExec.execute("sequential node", TrivialTaskType.NODE, (nodeExec, nodeStorage) -> {
+            rootExec.execute("sequential node", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 tracker.mark(8);
                 nodeExec.execute("C", TrivialTaskType.LEAF, (leafStorage) -> {
                     tracker.mark(9);

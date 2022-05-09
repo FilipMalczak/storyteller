@@ -13,7 +13,6 @@ import com.github.filipmalczak.storyteller.api.story.closure.DecisionClosure;
 import com.github.filipmalczak.storyteller.api.story.closure.ThreadClosure;
 import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
-import com.github.filipmalczak.storyteller.api.tree.task.body.ChoiceBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
 import lombok.AccessLevel;
@@ -22,10 +21,8 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;

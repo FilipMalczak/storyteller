@@ -4,7 +4,6 @@ import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.impl.tree.internal.expectations.ExpectationsPolicy;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryDiff;
-import com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.history.IncrementalHistoryTracker;
 import com.github.filipmalczak.storyteller.impl.tree.internal.journal.NullEvents;
 import com.github.filipmalczak.storyteller.impl.tree.internal.journal.TaskEvents;
@@ -87,7 +86,7 @@ public class NullContext<Id extends Comparable<Id>, Definition, Type extends Enu
     }
 
     @Override
-    public void incorporate(Id subtask, Map<Id, HistoryDiff<Id>> increment) {
+    public void incorporate(Id subtask, Map<Id, HistoryDiff<Id>> increment, boolean isWriting) {
 
     }
 

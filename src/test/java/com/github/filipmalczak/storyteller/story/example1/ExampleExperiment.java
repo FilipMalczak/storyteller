@@ -9,6 +9,7 @@ import com.github.filipmalczak.storyteller.impl.visualize.NitriteReportGenerator
 import com.github.filipmalczak.storyteller.impl.visualize.start.StartingPoints;
 import lombok.SneakyThrows;
 import lombok.extern.flogger.Flogger;
+import org.dizitart.no2.exceptions.NitriteIOException;
 import org.junit.jupiter.api.*;
 
 import java.io.File;
@@ -29,11 +30,11 @@ public class ExampleExperiment {
 
     @Test
     @Order(1)
-    @Disabled
+//    @Disabled
     void run(){
         var storyteller = new NitriteStorytellerFactory().create(Path.of("examples/example1"));
-        storyteller.sessions().addListener(e -> log.atInfo().log("%s", e));
-        storyteller.sessions().addListener((t, e) -> log.atInfo().log("task: %s/%s%s", t.getId(), t.getDefinition(), e));
+//        storyteller.sessions().addListener(e -> log.atInfo().log("%s", e));
+//        storyteller.sessions().addListener((t, e) -> log.atInfo().log("task: %s/%s%s", t.getId(), t.getDefinition(), e));
         storyteller.tell("Finding x", (a, as) -> {
             a.thread("Initialize best", (t, ts) -> {
                 t.scene("Save starting point", rw ->{
@@ -111,13 +112,32 @@ public class ExampleExperiment {
     }
 
     //fixme even if we do the ordering, it still fails when running all the tests with gradle, becsuse the db is already opened...
+    // this probably requires the tree and storyteller to be auto closeable
     @Test
     @Order(2)
     @Disabled
+    @SneakyThrows
     void renderReport(){
-        var generator = new NitriteReportGenerator<String, StorytellerDefinition, EpisodeType>(
-            new File("examples/example1/index.no2")
-        );
+        NitriteReportGenerator generator = null;
+        int retried = 0;
+        long sleep = 1000; //ms
+        while (generator == null ) {
+            try {
+                generator = new NitriteReportGenerator<String, StorytellerDefinition, EpisodeType>(
+                    new File("examples/example1/index.no2")
+                );
+            } catch (NitriteIOException e){
+                if (e.getErrorMessage().getErrorCode().equals("NO2.2001") && retried < 5) {
+                    //opened in another process
+                    retried += 1;
+                    sleep *= 2;
+                    log.atInfo().withCause(e).log("Opening the DB failed at retry #%s; sleeping for %s ms", retried, sleep);
+                    Thread.sleep(sleep);
+                } else {
+                    throw e;
+                }
+            }
+        }
         generator.generateReport(
             new File("examples/example1/report"),
             StartingPoints.of(

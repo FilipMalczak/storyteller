@@ -4,8 +4,8 @@ import com.github.filipmalczak.storyteller.api.story.Storyteller;
 import com.github.filipmalczak.storyteller.api.story.StorytellerFactory;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTreeFactory;
-import com.github.filipmalczak.storyteller.impl.tree.config.NitriteTreeConfig;
 import com.github.filipmalczak.storyteller.impl.tree.config.MergeSpec;
+import com.github.filipmalczak.storyteller.impl.tree.config.NitriteTreeConfig;
 import org.dizitart.no2.Nitrite;
 
 import java.nio.file.Path;

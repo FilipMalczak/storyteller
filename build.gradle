@@ -5,7 +5,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(16)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -19,7 +19,7 @@ repositories {
 
 dependencyManagement {
     dependencies {
-        dependency 'org.projectlombok:lombok:1.18.20'
+        dependency 'org.projectlombok:lombok:1.18.24'
         dependency 'org.junit.jupiter:junit-jupiter-api:5.8.1'
         dependency 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
@@ -29,6 +29,7 @@ dependencyManagement {
         dependency 'org.valid4j:valid4j:0.5.0'
 
         dependency 'com.github.filipmalczak:recordtuples:0.2.0'
+//        dependency 'com.github.filipmalczak:recordtuples:0.3.0-SNAPSHOT'
 
         dependency 'org.slf4j:slf4j-api:1.7.32'
         dependency 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.1'
@@ -73,21 +74,20 @@ test {
     useJUnitPlatform()
 }
 
-tasks.withType(JavaCompile) {
-    options.compilerArgs += "--enable-preview"
-}
-
-tasks.withType(Test) {
-    jvmArgs += "--enable-preview"
-    systemProperty("flogger.backend_factory", "com.google.common.flogger.backend.slf4j.Slf4jBackendFactory#getInstance")
-}
-
-tasks.withType(JavaExec) {
-    jvmArgs += '--enable-preview'
-}
+//tasks.withType(JavaCompile) {
+//    options.compilerArgs += "--enable-preview"
+//}
+//
+//tasks.withType(Test) {
+//    jvmArgs += "--enable-preview"
+//    systemProperty("flogger.backend_factory", "com.google.common.flogger.backend.slf4j.Slf4jBackendFactory#getInstance")
+//}
+//
+//tasks.withType(JavaExec) {
+//    jvmArgs += '--enable-preview'
+//}
 
 wrapper {
-    //todo newest is 7.4.2
-    gradleVersion = "7.1.1"
+    gradleVersion = "7.4.2"
     distributionType = Wrapper.DistributionType.ALL
 }

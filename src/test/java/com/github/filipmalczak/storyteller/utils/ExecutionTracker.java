@@ -1,16 +1,17 @@
 package com.github.filipmalczak.storyteller.utils;
 
 import com.github.filipmalczak.storyteller.api.session.Sessions;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.flogger.Flogger;
 
-import java.security.PublicKey;
 import java.util.*;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.valid4j.Assertive.require;
 
