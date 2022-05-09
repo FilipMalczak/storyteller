@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static com.github.filipmalczak.storyteller.utils.AssertiveListener.expect;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class JournalViaListenerTests {
     private static final TestTreeFactory FACTORY = new TestTreeFactory("DataConsistencyTests");
@@ -192,6 +193,132 @@ public class JournalViaListenerTests {
                 });
             });
         });
+        listener.end();
+    }
+
+    static class AnException extends RuntimeException {
+        public AnException(String message) {
+            super(message);
+        }
+    }
+
+    @Test
+    @DisplayName("r(throw)")
+    void throwInRoot(){
+        var exec = FACTORY.create("throwInRoot");
+        var listener = new AssertiveListener(
+            expect(TaskStarted.class, "root", TrivialTaskType.ROOT),
+            expect(ExceptionCaught.class, "root", TrivialTaskType.ROOT, e ->
+                e.getClassName().equals(AnException.class.getCanonicalName()) &&
+                    e.getMessage().equals("abc")
+            )
+        );
+        exec.getSessions().addListener(listener);
+        assertThrows(
+            AnException.class,
+            () -> exec.execute("root", TrivialTaskType.ROOT, (rt, rs) -> {throw new AnException("abc");}),
+            "abc"
+        );
+        listener.end();
+    }
+
+    @Test
+    @DisplayName("r(n(throw))")
+    void throwInNode(){
+        var exec = FACTORY.create("throwInNode");
+        var listener = new AssertiveListener(
+            expect(TaskStarted.class, "root", TrivialTaskType.ROOT),
+            expect(SubtaskDefined.class, "root", TrivialTaskType.ROOT),
+            expect(TaskStarted.class, "node", TrivialTaskType.SEQ_NODE),
+            expect(ExceptionCaught.class, "node", TrivialTaskType.SEQ_NODE, e ->
+                e.getClassName().equals(AnException.class.getCanonicalName()) &&
+                    e.getMessage().equals("abc")
+            ),
+            expect(TaskInterrupted.class, "root", TrivialTaskType.ROOT)
+        );
+        exec.getSessions().addListener(listener);
+        assertThrows(
+            AnException.class,
+            () -> exec.execute("root", TrivialTaskType.ROOT, (rt, rs) -> {
+                rt.execute("node", TrivialTaskType.SEQ_NODE, (nt, ns) -> {
+                    throw new AnException("abc");
+                });
+
+            }),
+            "abc"
+        );
+        listener.end();
+    }
+
+    @Test
+    @DisplayName("r(n(l(throw)))")
+    void throwInFirstLeaf(){
+        var exec = FACTORY.create("throwInFirstLeaf");
+        var listener = new AssertiveListener(
+            expect(TaskStarted.class, "root", TrivialTaskType.ROOT),
+            expect(SubtaskDefined.class, "root", TrivialTaskType.ROOT),
+            expect(TaskStarted.class, "node", TrivialTaskType.SEQ_NODE),
+            expect(SubtaskDefined.class, "node", TrivialTaskType.SEQ_NODE),
+            expect(TaskStarted.class, "leaf", TrivialTaskType.LEAF),
+            expect(ExceptionCaught.class, "leaf", TrivialTaskType.LEAF, e ->
+                e.getClassName().equals(AnException.class.getCanonicalName()) &&
+                    e.getMessage().equals("abc")
+            ),
+            expect(TaskInterrupted.class, "node", TrivialTaskType.SEQ_NODE),
+            expect(TaskInterrupted.class, "root", TrivialTaskType.ROOT)
+        );
+        exec.getSessions().addListener(listener);
+        assertThrows(
+            AnException.class,
+            () -> exec.execute("root", TrivialTaskType.ROOT, (rt, rs) -> {
+                rt.execute("node", TrivialTaskType.SEQ_NODE, (nt, ns) -> {
+                    nt.execute("leaf", TrivialTaskType.LEAF, rw -> {
+                        throw new AnException("abc");
+                    });
+                });
+
+            }),
+            "abc"
+        );
+        listener.end();
+    }
+
+    @Test
+    @DisplayName("r(n(l1(), l2(throw)))")
+    void throwInSecondLeaf(){
+        var exec = FACTORY.create("throwInFirstLeaf");
+        var listener = new AssertiveListener(
+            expect(TaskStarted.class, "root", TrivialTaskType.ROOT),
+            expect(SubtaskDefined.class, "root", TrivialTaskType.ROOT),
+            expect(TaskStarted.class, "node", TrivialTaskType.SEQ_NODE),
+            expect(SubtaskDefined.class, "node", TrivialTaskType.SEQ_NODE),
+            expect(TaskStarted.class, "leaf1", TrivialTaskType.LEAF),
+            expect(InstructionsRan.class, "leaf1", TrivialTaskType.LEAF),
+            expect(TaskEnded.class, "leaf1", TrivialTaskType.LEAF),
+            expect(SubtaskIncorporated.class, "node", TrivialTaskType.SEQ_NODE),
+            expect(SubtaskDefined.class, "node", TrivialTaskType.SEQ_NODE),
+            expect(TaskStarted.class, "leaf2", TrivialTaskType.LEAF),
+            expect(ExceptionCaught.class, "leaf2", TrivialTaskType.LEAF, e ->
+                e.getClassName().equals(AnException.class.getCanonicalName()) &&
+                    e.getMessage().equals("abc")
+            ),
+            expect(TaskInterrupted.class, "node", TrivialTaskType.SEQ_NODE),
+            expect(TaskInterrupted.class, "root", TrivialTaskType.ROOT)
+        );
+        exec.getSessions().addListener(listener);
+        assertThrows(
+            AnException.class,
+            () -> exec.execute("root", TrivialTaskType.ROOT, (rt, rs) -> {
+                rt.execute("node", TrivialTaskType.SEQ_NODE, (nt, ns) -> {
+                    nt.execute("leaf1", TrivialTaskType.LEAF, rw -> {});
+                    nt.execute("leaf2", TrivialTaskType.LEAF, rw -> {
+                        throw new AnException("abc");
+                    });
+                });
+
+            }),
+            "abc"
+        );
         listener.end();
     }
 }
