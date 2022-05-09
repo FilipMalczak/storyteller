@@ -187,6 +187,7 @@ public enum EntryType {
         return null;
     }
 
+    //fixme these below aint API, but rather impl details
     public static boolean describesException(EntryType entryType){
         return entryType == CAUGHT;
     }
@@ -202,7 +203,7 @@ public enum EntryType {
     //todo poor name
     public static boolean impactsFinishedStateOfTask(EntryType type){
         return switch (type){
-            case ENDED, CHANGED, NARROWED, EXTENDED, REFILTERED, DEFLATED, INFLATED -> true;
+            case ENDED, AMENDED, AUGMENTED -> true;
             default -> false;
         };
     }

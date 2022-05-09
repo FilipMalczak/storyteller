@@ -29,6 +29,7 @@ dependencyManagement {
         dependency 'org.valid4j:valid4j:0.5.0'
 
         dependency 'com.github.filipmalczak:recordtuples:0.2.0'
+        //todo bump to snapshot
 //        dependency 'com.github.filipmalczak:recordtuples:0.3.0-SNAPSHOT'
 
         dependency 'org.slf4j:slf4j-api:1.7.32'

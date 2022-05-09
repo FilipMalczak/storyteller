@@ -1,5 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.tree;
 
+import com.github.filipmalczak.storyteller.api.session.listener.LoggingJournalListener;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.*;
 import com.github.filipmalczak.storyteller.impl.testimpl.TestTreeFactory;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
@@ -21,17 +22,17 @@ public class JournalViaListenerTests {
         var exec = FACTORY.create("singleRun");
         var listener = new AssertiveListener(
             expect(TaskStarted.class, "root task", TrivialTaskType.ROOT),
-            expect(BodyExecuted.class, "root task", TrivialTaskType.ROOT),
             expect(SubtaskDefined.class, "root task", TrivialTaskType.ROOT),
             expect(TaskStarted.class, "node task", TrivialTaskType.SEQ_NODE),
-            expect(BodyExecuted.class, "node task", TrivialTaskType.SEQ_NODE),
             expect(SubtaskDefined.class, "node task", TrivialTaskType.SEQ_NODE),
             expect(TaskStarted.class, "leaf task", TrivialTaskType.LEAF),
             expect(InstructionsRan.class, "leaf task", TrivialTaskType.LEAF),
             expect(TaskEnded.class, "leaf task", TrivialTaskType.LEAF),
             expect(SubtaskIncorporated.class, "node task", TrivialTaskType.SEQ_NODE),
+            expect(BodyExecuted.class, "node task", TrivialTaskType.SEQ_NODE),
             expect(TaskEnded.class, "node task", TrivialTaskType.SEQ_NODE),
             expect(SubtaskIncorporated.class, "root task", TrivialTaskType.ROOT),
+            expect(BodyExecuted.class, "root task", TrivialTaskType.ROOT),
             expect(TaskEnded.class, "root task", TrivialTaskType.ROOT)
         );
         exec.getSessions().addListener(listener);
@@ -57,11 +58,11 @@ public class JournalViaListenerTests {
             });
         });
         var listener = new AssertiveListener(
-            expect(BodyExecuted.class, "root task", TrivialTaskType.ROOT),
-            expect(BodyExecuted.class, "node task", TrivialTaskType.SEQ_NODE),
             expect(InstructionsSkipped.class, "leaf task", TrivialTaskType.LEAF),
             expect(SubtaskIncorporated.class, "node task", TrivialTaskType.SEQ_NODE),
-            expect(SubtaskIncorporated.class, "root task", TrivialTaskType.ROOT)
+            expect(BodyExecuted.class, "node task", TrivialTaskType.SEQ_NODE),
+            expect(SubtaskIncorporated.class, "root task", TrivialTaskType.ROOT),
+            expect(BodyExecuted.class, "root task", TrivialTaskType.ROOT)
         );
         exec.getSessions().addListener(listener);
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
@@ -86,8 +87,7 @@ public class JournalViaListenerTests {
             });
         });
         var listener = new AssertiveListener(
-            expect(BodyExecuted.class, "root task", TrivialTaskType.ROOT),
-            expect(BodyExecuted.class, "node task", TrivialTaskType.SEQ_NODE),
+            expect(BodyChanged.class, "node task", TrivialTaskType.SEQ_NODE),
             expect(SubtaskDisowned.class, "node task", TrivialTaskType.SEQ_NODE),
             expect(TaskOrphaned.class, "leaf task", TrivialTaskType.LEAF),
             expect(SubtaskDefined.class, "node task", TrivialTaskType.SEQ_NODE),
@@ -95,7 +95,13 @@ public class JournalViaListenerTests {
             expect(InstructionsRan.class, "another leaf task", TrivialTaskType.LEAF),
             expect(TaskEnded.class, "another leaf task", TrivialTaskType.LEAF),
             expect(SubtaskIncorporated.class, "node task", TrivialTaskType.SEQ_NODE),
-            expect(SubtaskIncorporated.class, "root task", TrivialTaskType.ROOT)
+            expect(BodyExecuted.class, "node task", TrivialTaskType.SEQ_NODE),
+            expect(TaskAmended.class, "node task", TrivialTaskType.SEQ_NODE),
+            expect(TaskEnded.class, "node task", TrivialTaskType.SEQ_NODE),
+            expect(SubtaskIncorporated.class, "root task", TrivialTaskType.ROOT),
+            expect(BodyExecuted.class, "root task", TrivialTaskType.ROOT),
+            expect(TaskAmended.class, "root task", TrivialTaskType.ROOT),
+            expect(TaskEnded.class, "root task", TrivialTaskType.ROOT)
         );
         exec.getSessions().addListener(listener);
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
@@ -140,6 +146,7 @@ public class JournalViaListenerTests {
             expect(TaskEnded.class, "root task", TrivialTaskType.ROOT)
         );
         exec.getSessions().addListener(listener);
+//        exec.getSessions().addListener(new LoggingJournalListener<>());
         exec.execute("root task", TrivialTaskType.ROOT, (rootExec, rootStorage) -> {
             rootExec.execute("node task", TrivialTaskType.SEQ_NODE, (nodeExec, nodeStorage) -> {
                 nodeExec.execute("leaf task", TrivialTaskType.LEAF, (leafStorage) -> {
