@@ -43,7 +43,7 @@ public class TestTreeFactory implements TaskTreeFactory<String, String, TrivialT
                 NitriteTreeConfig.<String, String, TrivialTaskType>of(
                     forTest(s),
                     GENERATOR_FACTORY,
-                    node -> new MergeSpec<>("merge_"+node.getId(), TrivialTaskType.LEAF)
+                    node -> new MergeSpec<>("merge", TrivialTaskType.LEAF)
                 )
             );
         out.getSessions().addListener(new LoggingJournalListener<>());

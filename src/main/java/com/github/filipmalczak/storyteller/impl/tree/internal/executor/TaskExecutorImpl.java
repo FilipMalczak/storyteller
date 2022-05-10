@@ -10,6 +10,7 @@ import com.github.filipmalczak.storyteller.impl.tree.internal.ThrowingAlreadyRec
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.Execution;
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.ExecutionFactoryImpl;
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.context.ExecutionContext;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.flogger.Flogger;
@@ -17,9 +18,15 @@ import org.dizitart.no2.Nitrite;
 
 @Value
 @Flogger
+@AllArgsConstructor
 public class TaskExecutorImpl<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements TaskExecutor<Id, Definition, Type, Nitrite> {
     TreeContext<Id, Definition, Type> treeContext;
     ExecutionContext<Id, Definition, Type> context;
+    boolean forUserDefinedTasks;
+
+    public TaskExecutorImpl(TreeContext<Id, Definition, Type> treeContext, ExecutionContext<Id, Definition, Type> context) {
+        this(treeContext, context, true);
+    }
 
     @SneakyThrows
     private Task<Id, Definition, Type> performLifecycle(Execution<Id, Definition, Type> execution, Callback<Id, Definition, Type> callback){
@@ -68,7 +75,7 @@ public class TaskExecutorImpl<Id extends Comparable<Id>, Definition, Type extend
         return performLifecycle(
             new ExecutionFactoryImpl<>(treeContext)
                 .inScopeOf(this.context)
-                .sequentialNode(definition, type, body),
+                .sequentialNode(definition, type, body, forUserDefinedTasks),
             callback
         );
     }
@@ -78,7 +85,7 @@ public class TaskExecutorImpl<Id extends Comparable<Id>, Definition, Type extend
         return performLifecycle(
             new ExecutionFactoryImpl<>(treeContext)
                 .inScopeOf(this.context)
-                .parallelNode(definition, type, body, filter),
+                .parallelNode(definition, type, body, filter, forUserDefinedTasks),
             callback
         );
     }
@@ -88,7 +95,7 @@ public class TaskExecutorImpl<Id extends Comparable<Id>, Definition, Type extend
         return performLifecycle(
             new ExecutionFactoryImpl<>(treeContext)
                 .inScopeOf(this.context)
-                .leaf(definition, type, body),
+                .leaf(definition, type, body, forUserDefinedTasks),
             callback
         );
     }

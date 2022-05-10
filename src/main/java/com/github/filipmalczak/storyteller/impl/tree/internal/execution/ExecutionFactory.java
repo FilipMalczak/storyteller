@@ -9,9 +9,21 @@ import com.github.filipmalczak.storyteller.impl.tree.internal.execution.context.
 
 public sealed interface ExecutionFactory<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> permits ExecutionFactoryImpl {
     interface Scoped<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> {
-        Execution<Id, Definition, Type> sequentialNode(Definition definition, Type type, NodeBody<Id, Definition, Type, NoSql> body); //todo args
-        Execution<Id, Definition, Type> parallelNode(Definition definition, Type type, NodeBody<Id, Definition, Type, NoSql> body, TaskTree.IncorporationFilter<Id, Definition,Type, NoSql> filter); //todo args
-        Execution<Id, Definition, Type> leaf(Definition definition, Type type, LeafBody<Id, Definition, Type, NoSql> body); //todo args
+        Execution<Id, Definition, Type> sequentialNode(Definition definition, Type type, NodeBody<Id, Definition, Type, NoSql> body, boolean userDefinedTask); //todo args
+        Execution<Id, Definition, Type> parallelNode(Definition definition, Type type, NodeBody<Id, Definition, Type, NoSql> body, TaskTree.IncorporationFilter<Id, Definition,Type, NoSql> filter, boolean userDefinedTask); //todo args
+        Execution<Id, Definition, Type> leaf(Definition definition, Type type, LeafBody<Id, Definition, Type, NoSql> body, boolean userDefinedTask); //todo args
+
+        default Execution<Id, Definition, Type> sequentialNode(Definition definition, Type type, NodeBody<Id, Definition, Type, NoSql> body) {
+            return sequentialNode(definition, type, body, true);
+        }
+
+        default Execution<Id, Definition, Type> parallelNode(Definition definition, Type type, NodeBody<Id, Definition, Type, NoSql> body, TaskTree.IncorporationFilter<Id, Definition,Type, NoSql> filter) {
+            return parallelNode(definition, type, body, filter, true);
+        }
+
+        default Execution<Id, Definition, Type> leaf(Definition definition, Type type, LeafBody<Id, Definition, Type, NoSql> body) {
+            return leaf(definition, type, body, true);
+        }
     }
 
     default Execution<Id, Definition, Type> rootExecution(Definition definition, Type type, NodeBody<Id, Definition, Type, NoSql> body){

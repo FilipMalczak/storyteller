@@ -175,12 +175,24 @@ For example, your evolutionary algorithm research could look like:
     - [x] actually implement SHRUNK entry
     - [x] start, define, run, end
     - [x] start, define, run, catch, interrupt
-    - [x] extend, amend
-    - [x] narrow, amend
-    - [x] change, amend
-    - [ ] inflate, augment,
+    - [x] extend, amend - sequential
+    - [x] narrow, amend - sequential
+    - [x] change, amend - sequential
+    - [ ] extend, amend - parallel
+    - [ ] narrow, amend - parallel
+    - [ ] extend, narrow, amend - parallel
+    - [ ] inflate, augment <- WIP, need better tooling
     - [ ] deflate, augment
     - [ ] refilter, augment
+    - [ ] extend, amend, inflate, augment,
+    - [ ] extend, amend, deflate, augment
+    - [ ] extend, amend, refilter, augment
+    - [ ] narrow, amend, inflate, augment,
+    - [ ] narrow, amend, deflate, augment
+    - [ ] narrow, amend, refilter, augment
+    - [ ] extend, narrow, amend, inflate, augment,
+    - [ ] extend, narrow, amend, deflate, augment
+    - [ ] extend, narrow, amend, refilter, augment
 - [x] deletion
     - [x] deleting files
         - [x] implementation
@@ -195,6 +207,8 @@ For example, your evolutionary algorithm research could look like:
 
 ### mid-version, probably 0.1.1
 
+- [ ] tweak journal entries hierarchy and API/impl dissonance
+- [ ] enhance inflated/deflated/refiltered with details (the IDs that appeared or disappeared)
 - [ ] parallel nodes testing, data-oriented
 - [ ] more extensive testing (see comments in existing tests)
 - [ ] add file modification summary to the report
@@ -204,7 +218,7 @@ For example, your evolutionary algorithm research could look like:
     - [ ] storyteller: add overloads with single XContext param (x=root/arc/thread/decision/scene) that group all the parameters of bodies
         - make them abstract, unrolled variants should be default methods
     - [ ] task tree: ditto, (x=SequentialNode/ParalleNode/Leaf)
-    - [ ] task tree: add TaskSpec = definition+type, make it the default (probably remove distinct param approaches too)
+    - [ ] task tree: add TaskSpec = definition+type, make it the default (probably remove distinct param approaches too) **candidate to be in 0.1.0**
 - [ ] dynamic reporting (I really wanna do this, but it may need to be postponed, as 0.2.0 features may be more important)
   - REST+websocket API to expose task summaries as JSONs and push events, JS-friendly page that renders them
 

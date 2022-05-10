@@ -58,7 +58,7 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                 return out;
             }
 
-            private ExecutionContext<Id, Definition, Type> getSubtaskContext(Definition definition, Type type){
+            private ExecutionContext<Id, Definition, Type> getSubtaskContext(Definition definition, Type type, boolean userDefinedTask){
                 var idGenerator = treeContext.getGeneratorFactory().over(definition, type);
                 IncrementalHistoryTracker<Id> history = parent.history() == null ? of(empty()) : parent.history().snapshot();
                 Id taskId;
@@ -67,7 +67,7 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                 if (parent.expectations().isEmpty()) {// || parent.id() == null) { //todo cleanup
                     taskId = idGenerator.generate();
                     log.atFine().log("Generated ID: %s", taskId);
-                    if (parent.isFinished()) {
+                    if (userDefinedTask && parent.isFinished()) {
                         parent.events().bodyExtended();
                         //gradparent, because expectations are empty, so we wanna avoid empty disown journal entry
                         parent.parent().disownExpectations();
@@ -129,21 +129,21 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
             };
 
             @Override
-            public Execution<Id, Definition, Type> sequentialNode(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body) {
+            public Execution<Id, Definition, Type> sequentialNode(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, boolean userDefinedTask) {
                 require(type.isSequential(), "Tried to run task '%s' of type %s (modifier: %s) as sequential node", definition, type, type.getModifier());
-                return new SequentialNodeExecution<>(treeContext, getSubtaskContext(definition, type), body);
+                return new SequentialNodeExecution<>(treeContext, getSubtaskContext(definition, type, userDefinedTask), body);
             }
 
             @Override
-            public Execution<Id, Definition, Type> parallelNode(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, TaskTree.IncorporationFilter<Id, Definition, Type, Nitrite> filter) {
+            public Execution<Id, Definition, Type> parallelNode(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, TaskTree.IncorporationFilter<Id, Definition, Type, Nitrite> filter, boolean userDefinedTask) {
                 require(type.isParallel(), "Tried to run task '%s' of type %s (modifier: %s) as parallel node", definition, type, type.getModifier());
-                return new ParallelNodeExecution<>(treeContext, getSubtaskContext(definition, type), body, filter);
+                return new ParallelNodeExecution<>(treeContext, getSubtaskContext(definition, type, userDefinedTask), body, filter);
             }
 
             @Override
-            public Execution<Id, Definition, Type> leaf(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
+            public Execution<Id, Definition, Type> leaf(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body, boolean userDefinedTask) {
                 require(type.isLeaf(), "Tried to run task '%s' of type %s (modifier: %s) as leaf", definition, type, type.getModifier());
-                return new LeafExecution<>(treeContext, getSubtaskContext(definition, type), body);
+                return new LeafExecution<>(treeContext, getSubtaskContext(definition, type, userDefinedTask), body);
             }
         };
     }

@@ -22,11 +22,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.function.Function;
 
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
+import static org.valid4j.Assertive.neverGetHere;
 import static org.valid4j.Assertive.require;
 
 @Value
@@ -56,22 +58,24 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
         Map<Id, Task<Id, Definition, Type>> subtasks = new HashMap<>();
         Map<Id, Map<Id, HistoryDiff<Id>>> increments = new HashMap<>();
         Map<Id, Long> timestamps = new HashMap<>();
-        var tree = new SubtaskAdapter<>(
-            new TaskExecutorImpl<>(treeContext, executionContext),
-            new TaskExecutor.Callback<Id, Definition, Type>() {
-                @Override
-                public void beforeRunning(Task<Id, Definition, Type> toStart) {
-                    var id = toStart.getId();
-                    subtasks.put(id, toStart);
-                    timestamps.put(id, System.currentTimeMillis());
-                }
+        Function<Boolean, TaskTree<Id, Definition, Type, Nitrite>> treeMaker = (forUserDefinedTasks) ->
+            new SubtaskAdapter<>(
+                new TaskExecutorImpl<>(treeContext, executionContext, forUserDefinedTasks),
+                new TaskExecutor.Callback<Id, Definition, Type>() {
+                    @Override
+                    public void beforeRunning(Task<Id, Definition, Type> toStart) {
+                        var id = toStart.getId();
+                        subtasks.put(id, toStart);
+                        timestamps.put(id, System.currentTimeMillis());
+                    }
 
-                @Override
-                public void onFinished(Task<Id, Definition, Type> finished, Map<Id, HistoryDiff<Id>> increment) {
-                    increments.put(finished.getId(), increment);
+                    @Override
+                    public void onFinished(Task<Id, Definition, Type> finished, Map<Id, HistoryDiff<Id>> increment) {
+                        increments.put(finished.getId(), increment);
+                    }
                 }
-            }
-        );
+            );
+        var tree = treeMaker.apply(true);
         body.perform(tree, storage);
         if (!executionContext.expectations().isEmpty()) {
             executionContext.events().bodyNarrowed(executionContext.expectations());
@@ -81,6 +85,7 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
         if (executionContext.needsAmendment()) {
             executionContext.events().taskAmended();
         }
+        boolean requiresNoAugmentation = true;
         //todo group definition+type as a general TaskSpec; changes to tree API, id generator and who knows what else
         var insights = storageFactory.insights(increments);
         var toIncorporate = filter
@@ -111,12 +116,30 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
                 .filter(not(mergeGenerator::canReuse))
                 .collect(toSet());
             log.atFine().log("IDs incorporated in the last session that ended the parallel node: %s", previouslyIncorporated);
-            if (previouslyIncorporated.equals(idsToIncorporate)){
+            requiresNoAugmentation = previouslyIncorporated.equals(idsToIncorporate);
+            if (requiresNoAugmentation){
                 mergeLeafId = optionalMergeLeaf.get();
                 log.atFine().log("Reusing merge leaf %s", mergeLeafId);
             } else {
                 log.atFine().log("Will need augmentation");
-                //todo augmentation and friends
+                var added = new HashSet<>(idsToIncorporate);
+                added.removeAll(previouslyIncorporated);
+                var removed = new HashSet<>(previouslyIncorporated);
+                removed.removeAll(idsToIncorporate);
+                //todo add details to entries; enhance JournalViaListenerTests accordingly
+                if (added.isEmpty()) {
+                    if (removed.isEmpty()){
+                        neverGetHere();
+                    } else {
+                        executionContext.events().nodeDeflated();
+                    }
+                } else {
+                    if (removed.isEmpty()){
+                        executionContext.events().nodeInflated();
+                    } else {
+                        executionContext.events().nodeRefiltered();
+                    }
+                }
                 executionContext.disown(asList(optionalMergeLeaf.get()));
             }
         }
@@ -125,7 +148,7 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
         incorporationOrder.sort((t1, t2) -> treeContext.getMergeOrder().compare(t1.getId(), t2.getId()));
         Map<Id, HistoryDiff<Id>> mergeIncrement;
         if (mergeLeafId == null) {
-            tree.execute(mergeSpec.definition(), mergeSpec.type(), rw -> {
+            treeMaker.apply(false).execute(mergeSpec.definition(), mergeSpec.type(), rw -> {
                 NitriteMerger merger = NitriteMerger.of(rw.documents());
 
                 for (var incorporationSubject: incorporationOrder){
@@ -147,5 +170,9 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
             executionContext.incorporate(incorporationSubject.getId(), increment, incorporationSubject.getType().isWriting());
         }
         executionContext.incorporate(mergeLeafId, mergeIncrement, true);
+        if (!requiresNoAugmentation){
+            executionContext.events().nodeAugmented();
+        }
+
     }
 }
