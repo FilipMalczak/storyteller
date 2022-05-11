@@ -38,6 +38,9 @@ public class AssertiveListener implements JournalListener<JournalEntry> {
             .onLeftovers(ctx -> {
                 throw new UnsatisfiedExpectationsLeft(ctx);
             })
+            .onMissingInstructions(e -> {
+                throw new UnknownExpectations(e);
+            })
             .build()
             .expect(expectations);
     }

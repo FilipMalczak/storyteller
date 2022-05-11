@@ -3,6 +3,8 @@ package com.github.filipmalczak.storyteller.utils.expectations;
 import lombok.*;
 
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 
 import static java.util.stream.Collectors.joining;
 import static org.valid4j.Assertive.neverGetHere;
@@ -13,6 +15,7 @@ public class StructuredExpectations<E, T> {
     @NonNull Condition<E, T> condition;
     @NonNull Callback<T> onMatch;
     @NonNull Callback<T> onMismatch;
+    @NonNull Consumer<T> onMissingInstructions;
     @NonNull Callback<Void> onLeftovers;
     OrderedGroup<E> expected = new OrderedGroup<>(new LinkedList<>());
 
@@ -26,6 +29,10 @@ public class StructuredExpectations<E, T> {
 
     public static <E> Expectation<E> ordered(Object... vals){
         return new OrderedGroup<>(new LinkedList<>(expectations(vals)));
+    }
+
+    private static <E> Expectation<E> ignoreFurther(){
+        return new NoExpectation<>();
     }
 
     private static <E> List<Expectation<E>> expectations(Object... events){
@@ -50,6 +57,8 @@ public class StructuredExpectations<E, T> {
 
     public void matchNext(T element){
         var ctx = new CallbackContext<>(element, condition.describe(), expected.describe(), expected.describeDirectNext());
+        if (expected.isFullySatisfied())
+            onMissingInstructions.accept(element);
         if (expected.match(element, condition::isSatisfied)){
             onMatch.run(ctx);
         } else {

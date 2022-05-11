@@ -41,6 +41,7 @@ public class ExecutionTracker<T> {
             .onMatch(Callback.logSuccess(log.atInfo()::log))
             .onMismatch(ctx -> {throw new ExpectationNotMetException(ctx); })
             .onLeftovers(ctx -> {throw new UnsatisfiedExpectationsLeft(ctx); })
+            .onMissingInstructions(cause -> {throw new UnknownExpectations(cause); })
             .build()
             .expect(events)
             .matchAll(data);

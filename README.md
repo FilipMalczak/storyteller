@@ -178,9 +178,9 @@ For example, your evolutionary algorithm research could look like:
     - [x] extend, amend - sequential
     - [x] narrow, amend - sequential
     - [x] change, amend - sequential
-    - [ ] extend, amend - parallel
-    - [ ] narrow, amend - parallel
-    - [ ] extend, narrow, amend - parallel
+    - [x] extend, amend - parallel
+    - [x] narrow, amend - parallel
+    - [x] extend, narrow, amend - parallel
     - [x] inflate, augment
     - [x] deflate, augment
     - [x] refilter, augment

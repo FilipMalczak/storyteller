@@ -1,21 +1,43 @@
 package com.github.filipmalczak.storyteller.impl.tree;
 
+import com.github.filipmalczak.storyteller.api.session.listener.LoggingJournalListener;
+import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.*;
 import com.github.filipmalczak.storyteller.impl.testimpl.TestTreeFactory;
+import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
 import com.github.filipmalczak.storyteller.utils.AssertiveListener;
+import lombok.extern.flogger.Flogger;
+import org.dizitart.no2.Nitrite;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashSet;
+import java.util.stream.Stream;
 
 import static com.github.filipmalczak.storyteller.impl.testimpl.TestTreeFactory.matchesSubtask;
 import static com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType.*;
 import static com.github.filipmalczak.storyteller.utils.AssertiveListener.entryForTask;
 import static com.github.filipmalczak.storyteller.utils.expectations.StructuredExpectations.ordered;
 import static com.github.filipmalczak.storyteller.utils.expectations.StructuredExpectations.unordered;
+import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Flogger
 public class JournalViaListenerTests {
     private static final TestTreeFactory FACTORY = new TestTreeFactory("DataConsistencyTests");
+
+    private static TaskTree.IncorporationFilter<String, String, TrivialTaskType, Nitrite> acceptAll(){
+        return (subtasks, i) -> subtasks;
+    }
+
+    private static TaskTree.IncorporationFilter<String, String, TrivialTaskType, Nitrite> accept(String... definitions){
+        return (subtasks, insights) -> subtasks.stream().filter(x -> Stream.of(definitions).anyMatch(x.getDefinition()::equals)).collect(toSet());
+    }
+
+    private static TaskTree.IncorporationFilter<String, String, TrivialTaskType, Nitrite> discard(String... definitions){
+        return (subtasks, insights) -> subtasks.stream().filter(x -> Stream.of(definitions).noneMatch(x.getDefinition()::equals)).collect(toSet());
+    }
 
     //todo add predicates to all the defined/incorporated/disowned that check if id matches expected subtask def/type
 
@@ -106,7 +128,7 @@ public class JournalViaListenerTests {
 
                     });
                 },
-                (subtasks, insights) -> subtasks.stream().filter(t -> !t.getDefinition().equals("leaf3")).collect(toSet())
+                discard("leaf3")
             );
         });
         listener.end();
@@ -403,7 +425,7 @@ public class JournalViaListenerTests {
                     nt.execute("l3", LEAF, rw -> {
                     });
                 },
-                (subtasks, insight) -> subtasks.stream().filter(t -> !t.getDefinition().equals("l3")).collect(toSet())
+                discard("l3")
             );
         });
         var listener = new AssertiveListener(
@@ -446,7 +468,7 @@ public class JournalViaListenerTests {
                     nt.execute("l3", LEAF, rw -> {
                     });
                 },
-                (subtasks, insight) -> subtasks
+                acceptAll()
             );
         });
         listener.end();
@@ -455,7 +477,7 @@ public class JournalViaListenerTests {
     @Test
     @DisplayName("r(=n(>l1, >l2, l3)) -> r(=n(>l1, l2, l3))")
     void deflateParallelNode(){
-        var exec = FACTORY.create("eflateParallelNode");
+        var exec = FACTORY.create("deflateParallelNode");
         exec.execute("root", ROOT, (rt, rs) -> {
             rt.execute("node", PAR_NODE,
                 (nt, ns) -> {
@@ -466,7 +488,7 @@ public class JournalViaListenerTests {
                     nt.execute("l3", LEAF, rw -> {
                     });
                 },
-                (subtasks, insight) -> subtasks.stream().filter(t -> !t.getDefinition().equals("l3")).collect(toSet())
+                discard("l3")
             );
         });
         var listener = new AssertiveListener(
@@ -503,7 +525,7 @@ public class JournalViaListenerTests {
                     nt.execute("l3", LEAF, rw -> {
                     });
                 },
-                (subtasks, insight) -> subtasks.stream().filter(t -> t.getDefinition().equals("l1")).collect(toSet())
+                accept("l1")
             );
         });
         listener.end();
@@ -512,7 +534,7 @@ public class JournalViaListenerTests {
     @Test
     @DisplayName("r(=n(>l1, >l2, l3)) -> r(=n(l1, >l2, >l3))")
     void refilterParallelNode(){
-        var exec = FACTORY.create("eflateParallelNode");
+        var exec = FACTORY.create("refilterParallelNode");
         exec.execute("root", ROOT, (rt, rs) -> {
             rt.execute("node", PAR_NODE,
                 (nt, ns) -> {
@@ -523,7 +545,7 @@ public class JournalViaListenerTests {
                     nt.execute("l3", LEAF, rw -> {
                     });
                 },
-                (subtasks, insight) -> subtasks.stream().filter(t -> !t.getDefinition().equals("l3")).collect(toSet())
+                discard("l3")
             );
         });
         var listener = new AssertiveListener(
@@ -565,7 +587,71 @@ public class JournalViaListenerTests {
                     nt.execute("l3", LEAF, rw -> {
                     });
                 },
-                (subtasks, insight) -> subtasks.stream().filter(t -> !t.getDefinition().equals("l1")).collect(toSet())
+                discard("l1")
+            );
+        });
+        listener.end();
+    }
+
+    @Test
+    @DisplayName("r(=n(>l1, >l2, l3)) -> r(=n(>l1, >l2, l3, l4))")
+    void extendParallelNode(){
+        var exec = FACTORY.create("extendParallelNode");
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                },
+                accept("l1", "l2")
+            );
+        });
+        var listener = new AssertiveListener(
+
+            unordered(
+                entryForTask(InstructionsSkipped.class, "l1", LEAF),
+                entryForTask(InstructionsSkipped.class, "l2", LEAF),
+                entryForTask(InstructionsSkipped.class, "l3", LEAF),
+                ordered(
+                    entryForTask(BodyExtended.class, "node", PAR_NODE),
+                    entryForTask(SubtaskDefined.class, "node", PAR_NODE, matchesSubtask("l4", LEAF)),
+                    entryForTask(TaskStarted.class, "l4", LEAF),
+                    entryForTask(InstructionsRan.class, "l4", LEAF),
+                    entryForTask(TaskEnded.class, "l4", LEAF)
+                )
+            ),
+            entryForTask(BodyExecuted.class, "node", PAR_NODE),
+            //2 incorporations for leafs
+            unordered(
+                entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l1", LEAF)),
+                entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l2", LEAF))
+            ),
+//            entryForTask(InstructionsSkipped.class, "merge", LEAF),
+            //1 merge leaf
+            entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(SubtaskIncorporated.class, "root", ROOT, matchesSubtask("node", PAR_NODE)),
+            entryForTask(BodyExecuted.class, "root", ROOT),
+            entryForTask(TaskAmended.class, "root", ROOT),
+            entryForTask(TaskEnded.class, "root", ROOT)
+        );
+        exec.getSessions().addListener(listener);
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                    nt.execute("l4", LEAF, rw -> {
+                    });
+                },
+                accept("l1", "l2")
             );
         });
         listener.end();

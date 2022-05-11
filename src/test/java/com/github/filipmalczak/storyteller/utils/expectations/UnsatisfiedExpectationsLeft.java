@@ -11,7 +11,7 @@ public class UnsatisfiedExpectationsLeft extends AssertionError {
         super("Some expectations were still not satisfied!\n"+
             "\t> Condition was: "+context.condition()+"\n"+
             "\t> Direct expectation was: "+context.directExpectation()+"\n"+
-            "\t> All the expectations were: "+context.expectation());
+            "\t> All the expectations were: "+context.expectation()+"\n");
         this.context = context;
     }
 }
