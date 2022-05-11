@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 
-import static com.github.filipmalczak.storyteller.utils.ExecutionTracker.unordered;
+import static com.github.filipmalczak.storyteller.utils.expectations.StructuredExpectations.unordered;
 import static java.util.stream.Collectors.toSet;
 
 public class ParalleNodeTests {
@@ -18,7 +18,7 @@ public class ParalleNodeTests {
 
     @BeforeEach
     private void setup(){
-        tracker = new ExecutionTracker<>(Integer.class);
+        tracker = new ExecutionTracker<>();
     }
 
     //todo all the following tests (where possible), but starting from no merge

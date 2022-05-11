@@ -1,15 +1,10 @@
 package com.github.filipmalczak.storyteller.impl.tree;
 
-import com.github.filipmalczak.storyteller.api.session.listener.LoggingJournalListener;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.*;
 import com.github.filipmalczak.storyteller.impl.testimpl.TestTreeFactory;
-import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
 import com.github.filipmalczak.storyteller.utils.AssertiveListener;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.stream.Collectors;
 
 import static com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType.*;
 import static com.github.filipmalczak.storyteller.utils.AssertiveListener.expect;

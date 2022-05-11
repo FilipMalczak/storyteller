@@ -8,7 +8,6 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.extern.flogger.Flogger;
-import org.opentest4j.AssertionFailedError;
 
 import java.util.ArrayList;
 import java.util.Iterator;

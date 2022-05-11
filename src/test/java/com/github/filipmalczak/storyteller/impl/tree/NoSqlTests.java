@@ -16,7 +16,7 @@ public class NoSqlTests {
 
     @BeforeEach
     private void setup(){
-        tracker = new ExecutionTracker<>(String.class);
+        tracker = new ExecutionTracker<>();
     }
 
     @Test

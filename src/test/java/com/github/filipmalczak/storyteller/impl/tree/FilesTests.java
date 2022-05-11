@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
-import static com.github.filipmalczak.storyteller.utils.ExecutionTracker.unordered;
+import static com.github.filipmalczak.storyteller.utils.expectations.StructuredExpectations.unordered;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,7 +20,7 @@ public class FilesTests {
 
     @BeforeEach
     private void setup(){
-        tracker = new ExecutionTracker<>(String.class);
+        tracker = new ExecutionTracker<>();
     }
 
     @Test

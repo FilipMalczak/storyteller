@@ -20,7 +20,7 @@ class SequentialNodeTests {
 
     @BeforeEach
     private void setup(){
-        tracker = new ExecutionTracker<>(Integer.class);
+        tracker = new ExecutionTracker<>();
     }
 
     @Test
