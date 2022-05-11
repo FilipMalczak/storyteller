@@ -184,9 +184,9 @@ For example, your evolutionary algorithm research could look like:
     - [x] inflate, augment
     - [x] deflate, augment
     - [x] refilter, augment
-    - [ ] extend, amend, inflate, augment,
-    - [ ] extend, amend, deflate, augment
-    - [ ] extend, amend, refilter, augment
+    - [x] extend, amend, inflate, augment,
+    - [x] extend, amend, deflate, augment
+    - [x] extend, amend, refilter, augment
     - [ ] narrow, amend, inflate, augment,
     - [ ] narrow, amend, deflate, augment
     - [ ] narrow, amend, refilter, augment

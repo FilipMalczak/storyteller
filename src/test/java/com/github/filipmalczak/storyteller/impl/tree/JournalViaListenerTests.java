@@ -630,6 +630,7 @@ public class JournalViaListenerTests {
                 entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l1", LEAF)),
                 entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l2", LEAF))
             ),
+//todo I think this should be here, but it can wait to another version
 //            entryForTask(InstructionsSkipped.class, "merge", LEAF),
             //1 merge leaf
             entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
@@ -652,6 +653,286 @@ public class JournalViaListenerTests {
                     });
                 },
                 accept("l1", "l2")
+            );
+        });
+        listener.end();
+    }
+
+    @Test
+    @DisplayName("r(=n(>l1, >l2, l3)) -> r(=n(>l1, >l2, l3, >l4))")
+    void extendInflateParallelNode(){
+        var exec = FACTORY.create("extendParallelNode");
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                },
+                accept("l1", "l2")
+            );
+        });
+        var listener = new AssertiveListener(
+
+            unordered(
+                entryForTask(InstructionsSkipped.class, "l1", LEAF),
+                entryForTask(InstructionsSkipped.class, "l2", LEAF),
+                entryForTask(InstructionsSkipped.class, "l3", LEAF),
+                ordered(
+                    entryForTask(BodyExtended.class, "node", PAR_NODE),
+                    entryForTask(SubtaskDefined.class, "node", PAR_NODE, matchesSubtask("l4", LEAF)),
+                    entryForTask(TaskStarted.class, "l4", LEAF),
+                    entryForTask(InstructionsRan.class, "l4", LEAF),
+                    entryForTask(TaskEnded.class, "l4", LEAF)
+                )
+            ),
+            entryForTask(BodyExecuted.class, "node", PAR_NODE),
+            entryForTask(ParallelNodeInflated.class, "node", PAR_NODE),
+            entryForTask(SubtaskDisowned.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)), //merge leaf is disowned
+            entryForTask(TaskOrphaned.class, "merge", LEAF), //merge leaf is disowned
+            entryForTask(SubtaskDefined.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(TaskStarted.class, "merge", LEAF),
+            entryForTask(InstructionsRan.class, "merge", LEAF),
+            entryForTask(TaskEnded.class, "merge", LEAF),
+            //3 incorporations for leafs
+            unordered(
+                entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l1", LEAF)),
+                entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l2", LEAF)),
+                entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l4", LEAF))
+            ),
+            //1 merge leaf
+            entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(ParallelNodeAugmented.class, "node", PAR_NODE),
+            entryForTask(TaskEnded.class, "node", PAR_NODE),
+            entryForTask(SubtaskIncorporated.class, "root", ROOT, matchesSubtask("node", PAR_NODE)),
+            entryForTask(BodyExecuted.class, "root", ROOT),
+            entryForTask(TaskAmended.class, "root", ROOT),
+            entryForTask(TaskEnded.class, "root", ROOT)
+        );
+        exec.getSessions().addListener(listener);
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                    nt.execute("l4", LEAF, rw -> {
+                    });
+                },
+                accept("l1", "l2", "l4")
+            );
+        });
+        listener.end();
+    }
+
+    @Test
+    @DisplayName("r(=n(>l1, >l2, l3)) -> r(=n(>l1, l2, l3, l4))")
+    void extendDeflateParallelNode(){
+        var exec = FACTORY.create("extendDeflateParallelNode");
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                },
+                accept("l1", "l2")
+            );
+        });
+        var listener = new AssertiveListener(
+
+            unordered(
+                entryForTask(InstructionsSkipped.class, "l1", LEAF),
+                entryForTask(InstructionsSkipped.class, "l2", LEAF),
+                entryForTask(InstructionsSkipped.class, "l3", LEAF),
+                ordered(
+                    entryForTask(BodyExtended.class, "node", PAR_NODE),
+                    entryForTask(SubtaskDefined.class, "node", PAR_NODE, matchesSubtask("l4", LEAF)),
+                    entryForTask(TaskStarted.class, "l4", LEAF),
+                    entryForTask(InstructionsRan.class, "l4", LEAF),
+                    entryForTask(TaskEnded.class, "l4", LEAF)
+                )
+            ),
+            entryForTask(BodyExecuted.class, "node", PAR_NODE),
+            entryForTask(ParallelNodeDeflated.class, "node", PAR_NODE),
+            entryForTask(SubtaskDisowned.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)), //merge leaf is disowned
+            entryForTask(TaskOrphaned.class, "merge", LEAF), //merge leaf is disowned
+            entryForTask(SubtaskDefined.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(TaskStarted.class, "merge", LEAF),
+            entryForTask(InstructionsRan.class, "merge", LEAF),
+            entryForTask(TaskEnded.class, "merge", LEAF),
+            entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l1", LEAF)),
+            entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(ParallelNodeAugmented.class, "node", PAR_NODE),
+            entryForTask(TaskEnded.class, "node", PAR_NODE),
+            entryForTask(SubtaskIncorporated.class, "root", ROOT, matchesSubtask("node", PAR_NODE)),
+            entryForTask(BodyExecuted.class, "root", ROOT),
+            entryForTask(TaskAmended.class, "root", ROOT),
+            entryForTask(TaskEnded.class, "root", ROOT)
+        );
+        exec.getSessions().addListener(listener);
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                    nt.execute("l4", LEAF, rw -> {
+                    });
+                },
+                accept("l1")
+            );
+        });
+        listener.end();
+    }
+
+    @Test
+    @DisplayName("r(=n(>l1, l2, l3)) -> r(=n(>l1, l2, >l3, l4))")
+    void extendRefilterToOldParallelNode(){
+        var exec = FACTORY.create("extendDeflateParallelNode");
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                },
+                accept("l1", "l2")
+            );
+        });
+        var listener = new AssertiveListener(
+
+            unordered(
+                entryForTask(InstructionsSkipped.class, "l1", LEAF),
+                entryForTask(InstructionsSkipped.class, "l2", LEAF),
+                entryForTask(InstructionsSkipped.class, "l3", LEAF),
+                ordered(
+                    entryForTask(BodyExtended.class, "node", PAR_NODE),
+                    entryForTask(SubtaskDefined.class, "node", PAR_NODE, matchesSubtask("l4", LEAF)),
+                    entryForTask(TaskStarted.class, "l4", LEAF),
+                    entryForTask(InstructionsRan.class, "l4", LEAF),
+                    entryForTask(TaskEnded.class, "l4", LEAF)
+                )
+            ),
+            entryForTask(BodyExecuted.class, "node", PAR_NODE),
+            entryForTask(ParallelNodeRefiltered.class, "node", PAR_NODE),
+            entryForTask(SubtaskDisowned.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)), //merge leaf is disowned
+            entryForTask(TaskOrphaned.class, "merge", LEAF), //merge leaf is disowned
+            entryForTask(SubtaskDefined.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(TaskStarted.class, "merge", LEAF),
+            entryForTask(InstructionsRan.class, "merge", LEAF),
+            entryForTask(TaskEnded.class, "merge", LEAF),
+            unordered(
+                entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l1", LEAF)),
+                entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l3", LEAF))
+            ),
+            entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(ParallelNodeAugmented.class, "node", PAR_NODE),
+            entryForTask(TaskEnded.class, "node", PAR_NODE),
+            entryForTask(SubtaskIncorporated.class, "root", ROOT, matchesSubtask("node", PAR_NODE)),
+            entryForTask(BodyExecuted.class, "root", ROOT),
+            entryForTask(TaskAmended.class, "root", ROOT),
+            entryForTask(TaskEnded.class, "root", ROOT)
+        );
+        exec.getSessions().addListener(listener);
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                    nt.execute("l4", LEAF, rw -> {
+                    });
+                },
+                accept("l1", "l3")
+            );
+        });
+        listener.end();
+    }
+
+    @Test
+    @DisplayName("r(=n(>l1, l2, l3)) -> r(=n(>l1, l2, l3, >l4))")
+    void extendRefilterToNewParallelNode(){
+        var exec = FACTORY.create("extendRefilterToNewParallelNode");
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                },
+                accept("l1", "l2")
+            );
+        });
+        var listener = new AssertiveListener(
+
+            unordered(
+                entryForTask(InstructionsSkipped.class, "l1", LEAF),
+                entryForTask(InstructionsSkipped.class, "l2", LEAF),
+                entryForTask(InstructionsSkipped.class, "l3", LEAF),
+                ordered(
+                    entryForTask(BodyExtended.class, "node", PAR_NODE),
+                    entryForTask(SubtaskDefined.class, "node", PAR_NODE, matchesSubtask("l4", LEAF)),
+                    entryForTask(TaskStarted.class, "l4", LEAF),
+                    entryForTask(InstructionsRan.class, "l4", LEAF),
+                    entryForTask(TaskEnded.class, "l4", LEAF)
+                )
+            ),
+            entryForTask(BodyExecuted.class, "node", PAR_NODE),
+            entryForTask(ParallelNodeRefiltered.class, "node", PAR_NODE),
+            entryForTask(SubtaskDisowned.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)), //merge leaf is disowned
+            entryForTask(TaskOrphaned.class, "merge", LEAF), //merge leaf is disowned
+            entryForTask(SubtaskDefined.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(TaskStarted.class, "merge", LEAF),
+            entryForTask(InstructionsRan.class, "merge", LEAF),
+            entryForTask(TaskEnded.class, "merge", LEAF),
+            unordered(
+                entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l1", LEAF)),
+                entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l4", LEAF))
+            ),
+            entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(ParallelNodeAugmented.class, "node", PAR_NODE),
+            entryForTask(TaskEnded.class, "node", PAR_NODE),
+            entryForTask(SubtaskIncorporated.class, "root", ROOT, matchesSubtask("node", PAR_NODE)),
+            entryForTask(BodyExecuted.class, "root", ROOT),
+            entryForTask(TaskAmended.class, "root", ROOT),
+            entryForTask(TaskEnded.class, "root", ROOT)
+        );
+        exec.getSessions().addListener(listener);
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                    nt.execute("l4", LEAF, rw -> {
+                    });
+                },
+                accept("l1", "l4")
             );
         });
         listener.end();

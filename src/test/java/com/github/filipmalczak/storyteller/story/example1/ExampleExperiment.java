@@ -104,8 +104,8 @@ public class ExampleExperiment {
                 .get(0)
                 .getNoOfDivisors();
             //expected:
-            //13^5 + 5^5 = 374418
-            //Number of divisors: 24
+            //13^8 + 13^3 = 815732918
+            //Number of divisors: 32
             log.atInfo().log("%s^%s + %s^%s = %s", aVal, bVal, cVal, dVal, xVal);
             log.atInfo().log("Number of divisors: %s", no);
         });
