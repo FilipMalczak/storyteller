@@ -407,8 +407,6 @@ public class JournalViaListenerTests {
             );
         });
         var listener = new AssertiveListener(
-            //fixme CRUCIAL
-            //todo I need equivalent of unordered() from tracker!!!!!!!
             unordered(
                 entryForTask(InstructionsSkipped.class, "l1", LEAF),
                 entryForTask(InstructionsSkipped.class, "l2", LEAF),
@@ -449,6 +447,125 @@ public class JournalViaListenerTests {
                     });
                 },
                 (subtasks, insight) -> subtasks
+            );
+        });
+        listener.end();
+    }
+
+    @Test
+    @DisplayName("r(=n(>l1, >l2, l3)) -> r(=n(>l1, l2, l3))")
+    void deflateParallelNode(){
+        var exec = FACTORY.create("eflateParallelNode");
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                },
+                (subtasks, insight) -> subtasks.stream().filter(t -> !t.getDefinition().equals("l3")).collect(toSet())
+            );
+        });
+        var listener = new AssertiveListener(
+            unordered(
+                entryForTask(InstructionsSkipped.class, "l1", LEAF),
+                entryForTask(InstructionsSkipped.class, "l2", LEAF),
+                entryForTask(InstructionsSkipped.class, "l3", LEAF)
+            ),
+            entryForTask(BodyExecuted.class, "node", PAR_NODE),
+            entryForTask(ParallelNodeDeflated.class, "node", PAR_NODE),
+            entryForTask(SubtaskDisowned.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)), //merge leaf is disowned
+            entryForTask(TaskOrphaned.class, "merge", LEAF), //merge leaf is disowned
+            entryForTask(SubtaskDefined.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(TaskStarted.class, "merge", LEAF),
+            entryForTask(InstructionsRan.class, "merge", LEAF),
+            entryForTask(TaskEnded.class, "merge", LEAF),
+            entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l1", LEAF)),
+            entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(ParallelNodeAugmented.class, "node", PAR_NODE),
+            entryForTask(TaskEnded.class, "node", PAR_NODE),
+            entryForTask(SubtaskIncorporated.class, "root", ROOT, matchesSubtask("node", PAR_NODE)),
+            entryForTask(BodyExecuted.class, "root", ROOT),
+            entryForTask(TaskAmended.class, "root", ROOT),
+            entryForTask(TaskEnded.class, "root", ROOT)
+        );
+        exec.getSessions().addListener(listener);
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                },
+                (subtasks, insight) -> subtasks.stream().filter(t -> t.getDefinition().equals("l1")).collect(toSet())
+            );
+        });
+        listener.end();
+    }
+
+    @Test
+    @DisplayName("r(=n(>l1, >l2, l3)) -> r(=n(l1, >l2, >l3))")
+    void refilterParallelNode(){
+        var exec = FACTORY.create("eflateParallelNode");
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                },
+                (subtasks, insight) -> subtasks.stream().filter(t -> !t.getDefinition().equals("l3")).collect(toSet())
+            );
+        });
+        var listener = new AssertiveListener(
+            unordered(
+                entryForTask(InstructionsSkipped.class, "l1", LEAF),
+                entryForTask(InstructionsSkipped.class, "l2", LEAF),
+                entryForTask(InstructionsSkipped.class, "l3", LEAF)
+            ),
+            entryForTask(BodyExecuted.class, "node", PAR_NODE),
+            entryForTask(ParallelNodeRefiltered.class, "node", PAR_NODE),
+            entryForTask(SubtaskDisowned.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)), //merge leaf is disowned
+            entryForTask(TaskOrphaned.class, "merge", LEAF), //merge leaf is disowned
+            entryForTask(SubtaskDefined.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(TaskStarted.class, "merge", LEAF),
+            entryForTask(InstructionsRan.class, "merge", LEAF),
+            entryForTask(TaskEnded.class, "merge", LEAF),
+            //2 incorporations for leafs
+            unordered(
+                entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l2", LEAF)),
+                entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l3", LEAF))
+            ),
+            //1 merge leaf
+            entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(ParallelNodeAugmented.class, "node", PAR_NODE),
+            entryForTask(TaskEnded.class, "node", PAR_NODE),
+            entryForTask(SubtaskIncorporated.class, "root", ROOT, matchesSubtask("node", PAR_NODE)),
+            entryForTask(BodyExecuted.class, "root", ROOT),
+            entryForTask(TaskAmended.class, "root", ROOT),
+            entryForTask(TaskEnded.class, "root", ROOT)
+        );
+        exec.getSessions().addListener(listener);
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                },
+                (subtasks, insight) -> subtasks.stream().filter(t -> !t.getDefinition().equals("l1")).collect(toSet())
             );
         });
         listener.end();
