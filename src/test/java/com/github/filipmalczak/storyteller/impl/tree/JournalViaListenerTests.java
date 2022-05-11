@@ -801,7 +801,7 @@ public class JournalViaListenerTests {
     @Test
     @DisplayName("r(=n(>l1, l2, l3)) -> r(=n(>l1, l2, >l3, l4))")
     void extendRefilterToOldParallelNode(){
-        var exec = FACTORY.create("extendDeflateParallelNode");
+        var exec = FACTORY.create("extendRefilterToOldParallelNode");
         exec.execute("root", ROOT, (rt, rs) -> {
             rt.execute("node", PAR_NODE,
                 (nt, ns) -> {
@@ -933,6 +933,72 @@ public class JournalViaListenerTests {
                     });
                 },
                 accept("l1", "l4")
+            );
+        });
+        listener.end();
+    }
+
+    @Test
+    @DisplayName("r(=n(>l1, l2, l3)) -> r(=n(>l1, >l2))")
+    void narrowInflateParallelNode(){
+        var exec = FACTORY.create("narrowInflateParallelNode");
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                    nt.execute("l3", LEAF, rw -> {
+                    });
+                },
+                accept("l1")
+            );
+        });
+        var listener = new AssertiveListener(
+
+            unordered(
+                entryForTask(InstructionsSkipped.class, "l1", LEAF),
+                entryForTask(InstructionsSkipped.class, "l2", LEAF)
+            ),
+            entryForTask(BodyNarrowed.class, "node", PAR_NODE),
+            entryForTask(SubtaskDisowned.class, "node", PAR_NODE, matchesSubtask("l3", LEAF)), //merge leaf is disowned
+            entryForTask(TaskOrphaned.class, "l3", LEAF),
+            entryForTask(BodyExecuted.class, "node", PAR_NODE),
+            entryForTask(TaskAmended.class, "node", PAR_NODE),
+            //FIXME I believe that when narrowing, inflated may not be emitted
+//            entryForTask(SubtaskDisowned.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)), //merge leaf is disowned
+//            entryForTask(ParallelNodeInflated.class, "node", PAR_NODE),
+//            entryForTask(TaskOrphaned.class, "merge", LEAF), //merge leaf is disowned
+            entryForTask(SubtaskDefined.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+            entryForTask(TaskStarted.class, "merge", LEAF),
+            entryForTask(InstructionsRan.class, "merge", LEAF),
+            entryForTask(TaskEnded.class, "merge", LEAF),
+            //3 incorporations for leafs
+            unordered(
+                entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l1", LEAF)),
+                entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("l2", LEAF))
+            ),
+            //1 merge leaf
+            entryForTask(SubtaskIncorporated.class, "node", PAR_NODE, matchesSubtask("merge", LEAF)),
+//fixme yep, seems like it; should augmented be emitted, though? it should be emitted only if node is finished, and since it narrowed, then it isnt finished until there is ended after amended
+//            entryForTask(ParallelNodeAugmented.class, "node", PAR_NODE),
+            entryForTask(TaskEnded.class, "node", PAR_NODE),
+            entryForTask(SubtaskIncorporated.class, "root", ROOT, matchesSubtask("node", PAR_NODE)),
+            entryForTask(BodyExecuted.class, "root", ROOT),
+            entryForTask(TaskAmended.class, "root", ROOT),
+            entryForTask(TaskEnded.class, "root", ROOT)
+        );
+        exec.getSessions().addListener(listener);
+        exec.execute("root", ROOT, (rt, rs) -> {
+            rt.execute("node", PAR_NODE,
+                (nt, ns) -> {
+                    nt.execute("l1", LEAF, rw -> {
+                    });
+                    nt.execute("l2", LEAF, rw -> {
+                    });
+                },
+                accept("l1", "l2")
             );
         });
         listener.end();
