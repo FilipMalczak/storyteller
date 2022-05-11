@@ -16,6 +16,10 @@ public class StructuredExpectations<E, T> {
     @NonNull Callback<Void> onLeftovers;
     OrderedGroup<E> expected = new OrderedGroup<>(new LinkedList<>());
 
+    /**
+     * Remember that if subnodes of this are non-concrete, then only one should match, or you'll get into nondeterministic
+     * problems (because any of matching subnodes will be taken).
+     */
     public static <E> Expectation<E> unordered(Object... vals){
         return new UnorderedGroup<E>(new HashSet<>(expectations(vals)));
     }

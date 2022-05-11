@@ -1,5 +1,5 @@
 package com.github.filipmalczak.storyteller.utils.expectations;
 
-interface Describable {
+public interface Describable {
     String describe();
 }

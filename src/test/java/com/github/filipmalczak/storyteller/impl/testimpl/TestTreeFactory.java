@@ -1,8 +1,11 @@
 package com.github.filipmalczak.storyteller.impl.testimpl;
 
+import com.github.filipmalczak.recordtuples.Pair;
 import com.github.filipmalczak.storyteller.api.session.listener.LoggingJournalListener;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeFactory;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
+import com.github.filipmalczak.storyteller.api.tree.task.Task;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.ReferencesSubtask;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTreeFactory;
 import com.github.filipmalczak.storyteller.impl.tree.config.MergeSpec;
@@ -14,6 +17,7 @@ import lombok.experimental.FieldDefaults;
 import org.dizitart.no2.Nitrite;
 
 import java.io.File;
+import java.util.function.Predicate;
 
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 
@@ -48,5 +52,14 @@ public class TestTreeFactory implements TaskTreeFactory<String, String, TrivialT
             );
         out.getSessions().addListener(new LoggingJournalListener<>());
         return out;
+    }
+
+    public static <T extends ReferencesSubtask<String>> Predicate<T> entryMatchesSubtask(String def, TrivialTaskType type){
+        return e -> GENERATOR_FACTORY.over(def, type).canReuse(e.getReference());
+    }
+
+    public static <T extends ReferencesSubtask<String>> Predicate<Pair<Task, T>> matchesSubtask(String def, TrivialTaskType type){
+        var forEntry = entryMatchesSubtask(def, type);
+        return p -> forEntry.test(p.get1());
     }
 }

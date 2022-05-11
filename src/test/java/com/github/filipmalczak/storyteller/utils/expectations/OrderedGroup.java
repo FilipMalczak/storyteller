@@ -1,6 +1,6 @@
 package com.github.filipmalczak.storyteller.utils.expectations;
 
-import lombok.Value;
+import lombok.*;
 import lombok.experimental.PackagePrivate;
 
 import java.util.List;
@@ -8,8 +8,12 @@ import java.util.function.BiPredicate;
 
 import static java.util.stream.Collectors.joining;
 
-@Value
-class OrderedGroup<E> implements Expectation<E> {
+@ToString(exclude = "identity")
+@EqualsAndHashCode(of = "identity")
+@RequiredArgsConstructor
+final class OrderedGroup<E> implements Expectation<E> {
+    final int identity = IdentityHelper.i.getAndIncrement();
+    @NonNull
     @PackagePrivate List<Expectation<E>> expectations;
 
     @Override
@@ -37,6 +41,6 @@ class OrderedGroup<E> implements Expectation<E> {
 
     @Override
     public String describeDirectNext() {
-        return expectations.get(0).describeDirectNext();
+        return expectations.isEmpty() ? "N/A" : expectations.get(0).describeDirectNext();
     }
 }

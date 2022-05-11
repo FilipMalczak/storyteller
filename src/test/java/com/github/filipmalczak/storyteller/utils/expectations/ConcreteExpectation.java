@@ -1,16 +1,16 @@
 package com.github.filipmalczak.storyteller.utils.expectations;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.function.BiPredicate;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor
+@EqualsAndHashCode(of = "identity")
+@ToString(exclude = "identity")
 final class ConcreteExpectation<E> implements Expectation<E> {
+    final int identity = IdentityHelper.i.getAndIncrement();
     @NonNull E expected;
     @Getter
     boolean fullySatisfied = false;
@@ -27,7 +27,7 @@ final class ConcreteExpectation<E> implements Expectation<E> {
 
     @Override
     public String describe() {
-        return "expect: " + expected.toString();
+        return "expect " + expected.toString();
     }
 
     @Override
