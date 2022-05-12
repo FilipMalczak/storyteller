@@ -203,54 +203,6 @@ Look it up on [jitpack](https://jitpack.io/#FilipMalczak/storyteller/0.1.0).
 
 ## ToDo
 
-### v0.1.0
-
-- [x] add license
-- [x] add some meaningful readme 
-- [x] make the repo public (long way until there)
-- [x] add better session management (extract PersistentRoot with start/end session; requires renaming to tree)
-    - [x] update tests to use it
-- [x] rename StackedExecutor to PersistentTaskTree
-  - [x] tests and some impl details still use executor as variable names (not done; in a way it makes sense, since tree has execute() methods)
-- [x] add journal listener (may be easier if sessions are well handled already)
-- [x] change choice to parallel task (will be way easier after renaming to tree, because methods will be easier to name)
-    - [x] keep choice as a utility method? (nope, see below)
-    - [x] THIS REQUIRES MUCH MORE TESTING (this didnt actually happen; choice isnt part of task tree API anymore)
-    - [x] PARALLEL NODES IN GENERAL NEEDS TESTING
-- [x] test journaling (will be easier once session management is done, as we won't have to spin up subprocess just to do amendments, etc)
-    - [x] actually implement SHRUNK entry
-    - [x] start, define, run, end
-    - [x] start, define, run, catch, interrupt
-    - [x] extend, amend - sequential
-    - [x] narrow, amend - sequential
-    - [x] change, amend - sequential
-    - [x] extend, amend - parallel
-    - [x] narrow, amend - parallel
-    - [x] extend, narrow, amend - parallel
-    - [x] inflate, augment
-    - [x] deflate, augment
-    - [x] refilter, augment
-    - [x] extend, amend, inflate, augment
-    - [x] extend, amend, deflate, augment
-    - [x] extend, amend, refilter, augment
-    - [x] narrow, amend, inflate, augment
-    - [x] narrow, amend, deflate, augment
-    - [x] narrow, amend, refilter, augment
-    - [x] extend, narrow, amend, inflate, augment,
-    - [x] extend, narrow, amend, deflate, augment
-    - [x] extend, narrow, amend, refilter, augment
-- [x] deletion
-    - [x] deleting files
-        - [x] implementation
-        - [x] testing
-    - [x] when merging DBs (in parallel nodes) - deleting documents/objects
-        - [x] implementation
-        - [x] testing
-- [x] parallel node needs to track what has been incorporated; if that has changed between runs, we need to amend the node
-  - give choice whether incorporation order matters
-  - if it does, add some new journal entry ("reordered"?)
-- [x] add JitPack info to README
-
 ### mid-version, probably 0.1.2
 
 - [ ] tweak journal entries hierarchy and API/impl dissonance
