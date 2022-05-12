@@ -1,4 +1,4 @@
-package com.github.filipmalczak.storyteller.utils.expectations;
+package com.github.filipmalczak.storyteller.utils.expectations.condition;
 
 class Unconditional {
     public static class Success<E, T> implements Condition<E, T> {

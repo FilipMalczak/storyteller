@@ -2,6 +2,10 @@ package com.github.filipmalczak.storyteller.utils;
 
 import com.github.filipmalczak.storyteller.api.session.Sessions;
 import com.github.filipmalczak.storyteller.utils.expectations.*;
+import com.github.filipmalczak.storyteller.utils.expectations.condition.Condition;
+import com.github.filipmalczak.storyteller.utils.expectations.exception.ExpectationNotMetException;
+import com.github.filipmalczak.storyteller.utils.expectations.exception.UnknownExpectations;
+import com.github.filipmalczak.storyteller.utils.expectations.exception.UnsatisfiedExpectationsLeft;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;

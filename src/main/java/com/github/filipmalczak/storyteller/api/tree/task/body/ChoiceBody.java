@@ -8,7 +8,7 @@ import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 @FunctionalInterface
 public interface ChoiceBody<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType, NoSql> {
 
-    //todo rethink these; once you do, ass toBeContinued feature too<
+    //todo rethink these; once you do, add toBeContinued feature too
     class SubtaskNotFoundException extends RuntimeException {
         //todo
     }

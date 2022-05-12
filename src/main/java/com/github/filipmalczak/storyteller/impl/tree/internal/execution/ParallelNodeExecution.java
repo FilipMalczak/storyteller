@@ -99,7 +99,7 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
         require(possibleMergeIds.size() < 2, "At most 1 ID should be reusable for a merge leaf");
         var optionalMergeLeaf = possibleMergeIds.stream().findFirst();
         Id mergeLeafId = null;
-        if (executionContext.isFinished()) {
+        if (executionContext.isFinished() || executionContext.needsAmendment()) {
             require(optionalMergeLeaf.isPresent(), "Merge leaf should have been added before finishing the task");
             var endedEntry = executionContext.task()
                 .getJournalEntries()

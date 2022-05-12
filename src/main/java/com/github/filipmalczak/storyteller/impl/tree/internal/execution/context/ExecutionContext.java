@@ -41,6 +41,4 @@ public interface ExecutionContext<Id extends Comparable<Id>, Definition, Type ex
         var writing = t.getType().isWriting();
         taskStack().forEach(stackId -> history().add(stackId, id, writing));
     }
-
-    //todo I think "incorporate"
 }

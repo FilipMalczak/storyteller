@@ -21,7 +21,6 @@ public class EventsEmitter<Id extends Comparable<Id>> {
     @NonNull JournalEntryManager<Id> manager;
     @NonNull JournalEntryFactory factory;
 
-    //fixme second param should be id
     public void defineSubtask(Task<Id, ?, ?> parent, Id subtask){
         manager.record(parent, factory.subtaskDefined(subtask));
     }

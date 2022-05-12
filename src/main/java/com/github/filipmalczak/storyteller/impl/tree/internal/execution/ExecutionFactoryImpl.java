@@ -64,7 +64,7 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                 Id taskId;
                 log.atFine().log("Parent ID: %s", parent.id());
                 log.atFine().log("Parent expectations: %s", parent.expectations());
-                if (parent.expectations().isEmpty()) {// || parent.id() == null) { //todo cleanup
+                if (parent.expectations().isEmpty()) {
                     taskId = idGenerator.generate();
                     log.atFine().log("Generated ID: %s", taskId);
                     if (userDefinedTask && parent.isFinished()) {
@@ -97,6 +97,10 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                         if (parent.policy().noMatchingCandidatesTreatedAsConflict(parent.isFinished())){
                             parent.events().bodyChanged(parent.expectations(), taskId);
                             parent.disownExpectations();
+                        } else {
+                            if (userDefinedTask && parent.isFinished()) {
+                                parent.events().bodyExtended();
+                            }
                         }
                     }
                 }
@@ -130,6 +134,7 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
 
             @Override
             public Execution<Id, Definition, Type> sequentialNode(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, boolean userDefinedTask) {
+                //todo exception should say smth like "you forgot to add incorporation filter"
                 require(type.isSequential(), "Tried to run task '%s' of type %s (modifier: %s) as sequential node", definition, type, type.getModifier());
                 return new SequentialNodeExecution<>(treeContext, getSubtaskContext(definition, type, userDefinedTask), body);
             }

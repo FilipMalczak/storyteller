@@ -6,19 +6,16 @@ import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
 import com.github.filipmalczak.storyteller.utils.expectations.*;
+import com.github.filipmalczak.storyteller.utils.expectations.condition.Condition;
+import com.github.filipmalczak.storyteller.utils.expectations.exception.ExpectationNotMetException;
+import com.github.filipmalczak.storyteller.utils.expectations.exception.UnknownExpectations;
+import com.github.filipmalczak.storyteller.utils.expectations.exception.UnsatisfiedExpectationsLeft;
 import lombok.NonNull;
 import lombok.Value;
-import lombok.experimental.NonFinal;
 import lombok.extern.flogger.Flogger;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

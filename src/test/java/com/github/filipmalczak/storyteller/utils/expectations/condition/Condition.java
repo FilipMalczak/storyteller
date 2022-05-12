@@ -1,4 +1,6 @@
-package com.github.filipmalczak.storyteller.utils.expectations;
+package com.github.filipmalczak.storyteller.utils.expectations.condition;
+
+import com.github.filipmalczak.storyteller.utils.expectations.Describable;
 
 import java.util.ArrayList;
 import java.util.function.BiPredicate;

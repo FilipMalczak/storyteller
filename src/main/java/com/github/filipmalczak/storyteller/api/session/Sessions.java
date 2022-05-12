@@ -43,7 +43,6 @@ public interface Sessions {
     <T extends JournalEntry> ListenerHandle addListener(Class<T> clazz, JournalListener<T> listener);
 
     //todo this can be tested by opening the session twice; since the mechanism is exactly the same, it should suffice to check validitiy
-    //todo make SessionStarted/Ended extend SessionLifecycleEvent
     default ListenerHandle addListener(SessionListener<SessionEvent> listener){
         return addListener(SessionEvent.class, listener);
     }

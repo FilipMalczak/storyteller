@@ -171,7 +171,7 @@ For example, your evolutionary algorithm research could look like:
     - [x] keep choice as a utility method? (nope, see below)
     - [x] THIS REQUIRES MUCH MORE TESTING (this didnt actually happen; choice isnt part of task tree API anymore)
     - [x] PARALLEL NODES IN GENERAL NEEDS TESTING
-- [ ] test journaling (will be easier once session management is done, as we won't have to spin up subprocess just to do amendments, etc)
+- [x] test journaling (will be easier once session management is done, as we won't have to spin up subprocess just to do amendments, etc)
     - [x] actually implement SHRUNK entry
     - [x] start, define, run, end
     - [x] start, define, run, catch, interrupt
@@ -184,15 +184,15 @@ For example, your evolutionary algorithm research could look like:
     - [x] inflate, augment
     - [x] deflate, augment
     - [x] refilter, augment
-    - [x] extend, amend, inflate, augment,
+    - [x] extend, amend, inflate, augment
     - [x] extend, amend, deflate, augment
     - [x] extend, amend, refilter, augment
-    - [ ] narrow, amend, inflate, augment, <- the test is written, but I think I've found a bug
-    - [ ] narrow, amend, deflate, augment
-    - [ ] narrow, amend, refilter, augment
-    - [ ] extend, narrow, amend, inflate, augment,
-    - [ ] extend, narrow, amend, deflate, augment
-    - [ ] extend, narrow, amend, refilter, augment
+    - [x] narrow, amend, inflate, augment
+    - [x] narrow, amend, deflate, augment
+    - [x] narrow, amend, refilter, augment
+    - [x] extend, narrow, amend, inflate, augment,
+    - [x] extend, narrow, amend, deflate, augment
+    - [x] extend, narrow, amend, refilter, augment
 - [x] deletion
     - [x] deleting files
         - [x] implementation

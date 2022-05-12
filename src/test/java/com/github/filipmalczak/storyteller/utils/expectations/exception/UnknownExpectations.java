@@ -1,4 +1,4 @@
-package com.github.filipmalczak.storyteller.utils.expectations;
+package com.github.filipmalczak.storyteller.utils.expectations.exception;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

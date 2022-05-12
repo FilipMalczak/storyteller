@@ -1,5 +1,6 @@
-package com.github.filipmalczak.storyteller.utils.expectations;
+package com.github.filipmalczak.storyteller.utils.expectations.exception;
 
+import com.github.filipmalczak.storyteller.utils.expectations.CallbackContext;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 

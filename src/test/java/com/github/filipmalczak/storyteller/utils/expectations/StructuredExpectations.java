@@ -1,9 +1,9 @@
 package com.github.filipmalczak.storyteller.utils.expectations;
 
+import com.github.filipmalczak.storyteller.utils.expectations.condition.Condition;
 import lombok.*;
 
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import static java.util.stream.Collectors.joining;
@@ -29,10 +29,6 @@ public class StructuredExpectations<E, T> {
 
     public static <E> Expectation<E> ordered(Object... vals){
         return new OrderedGroup<>(new LinkedList<>(expectations(vals)));
-    }
-
-    private static <E> Expectation<E> ignoreFurther(){
-        return new NoExpectation<>();
     }
 
     private static <E> List<Expectation<E>> expectations(Object... events){

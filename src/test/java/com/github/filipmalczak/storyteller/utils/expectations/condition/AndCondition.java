@@ -1,12 +1,9 @@
-package com.github.filipmalczak.storyteller.utils.expectations;
+package com.github.filipmalczak.storyteller.utils.expectations.condition;
 
-import com.github.filipmalczak.storyteller.utils.expectations.Condition;
 import lombok.Value;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
 

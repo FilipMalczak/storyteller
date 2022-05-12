@@ -67,7 +67,8 @@ public enum EntryType {
      */
     INTERRUPTED(TaskInterrupted.class),
     /**
-     * Another subtask was expected to happen, which indicates that task body has been redefined.
+     * Another subtask was expected to happen, which indicates that task body has been redefined. This can only happen for
+     * sequential nodes - in case of parallel ones it is represented as EXTENDED+NARROWED.
      * <p>
      * Owner: node that changed
      */
@@ -82,13 +83,14 @@ public enum EntryType {
      * More subtasks has been defined, but the task has run its course, which indicates that subtask was
      * removed from the body.
      * <p>
-     * Note: Body shrinking isn't treated as amendment, as there is no additional work that needs to happen.
+     * In case of parallel nodes, it may be recorded together with EXTENDED. In that case it is recorded after EXTENDED
+     * and all the new DEFINED, STARTED, etc.
      * <p>
      * Owner: node that has been trimmed
      */
     NARROWED(BodyNarrowed.class),
     /**
-     * Task body has already been finished, but it requires some more work. Is recorded after CHANGED or EXTENDED.
+     * Task body has already been finished, but it requires some more work. Is recorded after CHANGED, NARROWED or EXTENDED.
      * <p>
      * Owner: node that has been started again
      */

@@ -15,11 +15,6 @@ public interface Task<Id extends Comparable<Id>, Definition, Type extends Enum<T
     Definition getDefinition();
     Type getType();
 
-    //todo parenty task, sibling task ? tbd
-    //todo remove these
-//    Id getParentId();
-//    Id getPreviousSiblingId();
-
     JournalEntry record(JournalEntry entry);
     Stream<JournalEntry> getJournalEntries();
 
