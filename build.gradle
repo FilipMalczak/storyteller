@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'jacoco'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
@@ -71,22 +72,46 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
-test {
-    useJUnitPlatform()
+
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
 }
 
-//tasks.withType(JavaCompile) {
-//    options.compilerArgs += "--enable-preview"
-//}
-//
-//tasks.withType(Test) {
-//    jvmArgs += "--enable-preview"
-//    systemProperty("flogger.backend_factory", "com.google.common.flogger.backend.slf4j.Slf4jBackendFactory#getInstance")
-//}
-//
-//tasks.withType(JavaExec) {
-//    jvmArgs += '--enable-preview'
-//}
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+//    jacoco {
+//        excludes = [
+////            "com.github.filipmalczak.storyteller.api.visualize.**.*",
+////            "com.github.filipmalczak.storyteller.impl.visualize.**.*"
+//                "**.visualize.*",
+//                "**.visualize.**.*",
+//        ]
+//    }
+}
+
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+
+jacocoTestReport {
+    dependsOn test
+    sourceSets sourceSets.main
+    executionData fileTree(project.rootDir.absolutePath)
+            .include("**/build/jacoco/*.exec")
+    reports {
+        xml.enabled true
+        csv.enabled true
+        html.destination file("${buildDir}/reports/jacoco/Html")
+        csv.destination file("${buildDir}/reports/jacoco/jacoco.csv")
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: "**/visualize/**")
+        }))
+    }
+}
 
 wrapper {
     gradleVersion = "7.4.2"

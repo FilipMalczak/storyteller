@@ -8,7 +8,6 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @ToString
-@EqualsAndHashCode
 public class UnknownExpectations extends AssertionError {
     @Getter Object causedBy;
 
