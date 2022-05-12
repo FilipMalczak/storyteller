@@ -203,7 +203,7 @@ Look it up on [jitpack](https://jitpack.io/#FilipMalczak/storyteller/0.1.0).
 
 ## ToDo
 
-### mid-version, probably 0.1.2
+### mid-version, probably 0.1.1
 
 - [ ] tweak journal entries hierarchy and API/impl dissonance
 - [ ] enhance inflated/deflated/refiltered with details (the IDs that appeared or disappeared)
@@ -213,9 +213,10 @@ Look it up on [jitpack](https://jitpack.io/#FilipMalczak/storyteller/0.1.0).
   - maybe check if DB changed too?
 - [ ] use pattern matching, its 2022, for gods sake (if (x instanceof A) { do((A) x); } -> if (x instanceOf A aX) { do(aX); })
 - [ ] enhance APIs;
-    - [ ] storyteller: add overloads with single XContext param (x=root/arc/thread/decision/scene) that group all the parameters of bodies
+    - [x] storyteller: add overloads with single XContext param (x=root/arc/thread/decision/scene) that group all the parameters of bodies
         - make them abstract, unrolled variants should be default methods
-    - [ ] task tree: ditto, (x=SequentialNode/ParalleNode/Leaf)
+        - as an afterthough, not a good idea
+    - [x] task tree: ditto, (x=SequentialNode/ParalleNode/Leaf); ditto
     - [x] task tree: add TaskSpec = definition+type, make it the default (probably remove distinct param approaches too) **candidate to be in 0.1.0**
 - [ ] dynamic reporting (I really wanna do this, but it may need to be postponed, as 0.2.0 features may be more important)
   - REST+websocket API to expose task summaries as JSONs and push events, JS-friendly page that renders them
