@@ -264,7 +264,7 @@ Look it up on [jitpack](https://jitpack.io/#FilipMalczak/storyteller/0.1.0).
     - [ ] storyteller: add overloads with single XContext param (x=root/arc/thread/decision/scene) that group all the parameters of bodies
         - make them abstract, unrolled variants should be default methods
     - [ ] task tree: ditto, (x=SequentialNode/ParalleNode/Leaf)
-    - [ ] task tree: add TaskSpec = definition+type, make it the default (probably remove distinct param approaches too) **candidate to be in 0.1.0**
+    - [x] task tree: add TaskSpec = definition+type, make it the default (probably remove distinct param approaches too) **candidate to be in 0.1.0**
 - [ ] dynamic reporting (I really wanna do this, but it may need to be postponed, as 0.2.0 features may be more important)
   - REST+websocket API to expose task summaries as JSONs and push events, JS-friendly page that renders them
 
