@@ -165,7 +165,7 @@ For example, your evolutionary algorithm research could look like:
 
 Hosting is handled via [jitpack](https://jitpack.io/#FilipMalczak/storyteller).
 
-Current master version is [0.1.1](https://github.com/FilipMalczak/storyteller/releases/tag/0.1.1)
+Current master version is [0.1.0](https://github.com/FilipMalczak/storyteller/releases/tag/0.1.0)
 
 ### Gradle
 
@@ -177,7 +177,7 @@ Current master version is [0.1.1](https://github.com/FilipMalczak/storyteller/re
     }
     
     dependencies {
-      implementation 'com.github.FilipMalczak:storyteller:0.1.1'
+      implementation 'com.github.FilipMalczak:storyteller:0.1.0'
     }
 
 ### Maven
@@ -194,7 +194,7 @@ Current master version is [0.1.1](https://github.com/FilipMalczak/storyteller/re
     <dependency>
 	    <groupId>com.github.FilipMalczak</groupId>
 	    <artifactId>storyteller</artifactId>
-	    <version>0.1.1</version>
+	    <version>0.1.0</version>
 	</dependency>
 
 ### Others
@@ -249,13 +249,9 @@ Look it up on [jitpack](https://jitpack.io/#FilipMalczak/storyteller/0.1.0).
 - [x] parallel node needs to track what has been incorporated; if that has changed between runs, we need to amend the node
   - give choice whether incorporation order matters
   - if it does, add some new journal entry ("reordered"?)
-- [x] add JitPack info to README
+- [ ] add JitPack info to README
 
-### 0.1.1
-
-- [x] unscrew up (screw down?) JitPack
-
-### mid-version, probably 0.1.2
+### mid-version, probably 0.1.1
 
 - [ ] tweak journal entries hierarchy and API/impl dissonance
 - [ ] enhance inflated/deflated/refiltered with details (the IDs that appeared or disappeared)
