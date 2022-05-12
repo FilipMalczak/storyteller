@@ -249,9 +249,9 @@ Look it up on [jitpack](https://jitpack.io/#FilipMalczak/storyteller/0.1.0).
 - [x] parallel node needs to track what has been incorporated; if that has changed between runs, we need to amend the node
   - give choice whether incorporation order matters
   - if it does, add some new journal entry ("reordered"?)
-- [ ] add JitPack info to README
+- [x] add JitPack info to README
 
-### mid-version, probably 0.1.1
+### mid-version, probably 0.1.2
 
 - [ ] tweak journal entries hierarchy and API/impl dissonance
 - [ ] enhance inflated/deflated/refiltered with details (the IDs that appeared or disappeared)

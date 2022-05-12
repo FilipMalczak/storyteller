@@ -11,7 +11,6 @@ java {
 }
 
 group = "com.github.filipmalczak"
-version = '0.0.1-SNAPSHOT'
 
 repositories {
   mavenCentral()
@@ -72,6 +71,20 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+}
 
 jacocoTestReport {
     dependsOn test // tests are required to run before generating the report
@@ -80,14 +93,6 @@ jacocoTestReport {
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
-//    jacoco {
-//        excludes = [
-////            "com.github.filipmalczak.storyteller.api.visualize.**.*",
-////            "com.github.filipmalczak.storyteller.impl.visualize.**.*"
-//                "**.visualize.*",
-//                "**.visualize.**.*",
-//        ]
-//    }
 }
 
 jacoco {
@@ -103,7 +108,7 @@ jacocoTestReport {
     reports {
         xml.enabled true
         csv.enabled true
-        html.destination file("${buildDir}/reports/jacoco/Html")
+        html.destination file("${buildDir}/reports/jacoco/html")
         csv.destination file("${buildDir}/reports/jacoco/jacoco.csv")
     }
     afterEvaluate {
