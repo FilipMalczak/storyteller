@@ -2,9 +2,9 @@ package com.github.filipmalczak.storyteller.impl.story;
 
 import com.github.filipmalczak.storyteller.api.story.Storyteller;
 import com.github.filipmalczak.storyteller.api.story.StorytellerFactory;
+import com.github.filipmalczak.storyteller.api.tree.task.TaskSpec;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTreeFactory;
-import com.github.filipmalczak.storyteller.impl.tree.config.MergeSpec;
 import com.github.filipmalczak.storyteller.impl.tree.config.NitriteTreeConfig;
 import org.dizitart.no2.Nitrite;
 
@@ -22,7 +22,7 @@ public class NitriteStorytellerFactory implements StorytellerFactory<Nitrite, Pa
                         NitriteTreeConfig.of(
                             new NitriteStorageConfig<>(dataPath, s -> s),
                             new StorytellerIdGeneratorFactory<EpisodeType>(),
-                            node -> new MergeSpec<>(new StorytellerDefinition("merge", node.getId()), EpisodeType.SCENE)
+                            node -> TaskSpec.of(new StorytellerDefinition("merge", node.getId()), EpisodeType.SCENE)
                         )
                     )
             );

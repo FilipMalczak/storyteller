@@ -46,8 +46,8 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
 
     @Override
     public void run() {
-        var mergeSpec = treeContext.getMergeSpecFactory().forParallelNode(executionContext.task());
-        var mergeGenerator = treeContext.getGeneratorFactory().over(mergeSpec.definition(), mergeSpec.type());
+        var mergeSpec = treeContext.getTaskpecFactory().forParallelNode(executionContext.task());
+        var mergeGenerator = treeContext.getGeneratorFactory().over(mergeSpec);
         var storageFactory = new NitriteStorageFactory<>(
             treeContext.getNitriteManagers().getNitrite(),
             treeContext.getStorageConfig(),
@@ -148,7 +148,7 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
         incorporationOrder.sort((t1, t2) -> treeContext.getMergeOrder().compare(t1.getId(), t2.getId()));
         Map<Id, HistoryDiff<Id>> mergeIncrement;
         if (mergeLeafId == null) {
-            treeMaker.apply(false).execute(mergeSpec.definition(), mergeSpec.type(), rw -> {
+            treeMaker.apply(false).execute(mergeSpec, rw -> {
                 NitriteMerger merger = NitriteMerger.of(rw.documents());
 
                 for (var incorporationSubject: incorporationOrder){

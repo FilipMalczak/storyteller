@@ -2,6 +2,7 @@ package com.github.filipmalczak.storyteller.impl.tree.internal.executor;
 
 import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
+import com.github.filipmalczak.storyteller.api.tree.task.TaskSpec;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
@@ -71,31 +72,31 @@ public class TaskExecutorImpl<Id extends Comparable<Id>, Definition, Type extend
     }
 
     @Override
-    public Task<Id, Definition, Type> executeSequentialNode(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, Callback<Id, Definition, Type> callback) {
+    public Task<Id, Definition, Type> executeSequentialNode(TaskSpec<Definition, Type> taskSpec, NodeBody<Id, Definition, Type, Nitrite> body, Callback<Id, Definition, Type> callback) {
         return performLifecycle(
             new ExecutionFactoryImpl<>(treeContext)
                 .inScopeOf(this.context)
-                .sequentialNode(definition, type, body, forUserDefinedTasks),
+                .sequentialNode(taskSpec, body, forUserDefinedTasks),
             callback
         );
     }
 
     @Override
-    public Task<Id, Definition, Type> executeParallelNode(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, TaskTree.IncorporationFilter<Id, Definition, Type, Nitrite> filter, Callback<Id, Definition, Type> callback) {
+    public Task<Id, Definition, Type> executeParallelNode(TaskSpec<Definition, Type> taskSpec, NodeBody<Id, Definition, Type, Nitrite> body, TaskTree.IncorporationFilter<Id, Definition, Type, Nitrite> filter, Callback<Id, Definition, Type> callback) {
         return performLifecycle(
             new ExecutionFactoryImpl<>(treeContext)
                 .inScopeOf(this.context)
-                .parallelNode(definition, type, body, filter, forUserDefinedTasks),
+                .parallelNode(taskSpec, body, filter, forUserDefinedTasks),
             callback
         );
     }
 
     @Override
-    public Task<Id, Definition, Type> executeLeaf(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body, Callback<Id, Definition, Type> callback) {
+    public Task<Id, Definition, Type> executeLeaf(TaskSpec<Definition, Type> taskSpec, LeafBody<Id, Definition, Type, Nitrite> body, Callback<Id, Definition, Type> callback) {
         return performLifecycle(
             new ExecutionFactoryImpl<>(treeContext)
                 .inScopeOf(this.context)
-                .leaf(definition, type, body, forUserDefinedTasks),
+                .leaf(taskSpec, body, forUserDefinedTasks),
             callback
         );
     }

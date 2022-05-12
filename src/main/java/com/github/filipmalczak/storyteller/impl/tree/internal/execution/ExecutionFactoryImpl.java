@@ -3,6 +3,7 @@ package com.github.filipmalczak.storyteller.impl.tree.internal.execution;
 import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
+import com.github.filipmalczak.storyteller.api.tree.task.TaskSpec;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
@@ -46,9 +47,9 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                     out = new LinkedList<>(task.getSubtasks().toList());
                     log.atFine().log("Expectations for a sequential node %s: %s", task.getId(), out);
                 } else if (task.getType().isParallel()){
-                    var mergeSpec = treeContext.getMergeSpecFactory().forParallelNode(task);
+                    var mergeSpec = treeContext.getTaskpecFactory().forParallelNode(task);
                     log.atFine().log("Merge spec: %s", mergeSpec);
-                    var mergeGenerator = treeContext.getGeneratorFactory().over(mergeSpec.definition(), mergeSpec.type());
+                    var mergeGenerator = treeContext.getGeneratorFactory().over(mergeSpec);
                     out =  new LinkedList<>(task.getSubtasks().filter(t -> !mergeGenerator.canReuse(t.getId())).toList());
                     log.atFine().log("Expectations for a parallel node%s: %s", task.getId(), out);
                 } else {
@@ -58,8 +59,8 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                 return out;
             }
 
-            private ExecutionContext<Id, Definition, Type> getSubtaskContext(Definition definition, Type type, boolean userDefinedTask){
-                var idGenerator = treeContext.getGeneratorFactory().over(definition, type);
+            private ExecutionContext<Id, Definition, Type> getSubtaskContext(TaskSpec<Definition, Type> taskSpec, boolean userDefinedTask){
+                var idGenerator = treeContext.getGeneratorFactory().over(taskSpec);
                 IncrementalHistoryTracker<Id> history = parent.history() == null ? of(empty()) : parent.history().snapshot();
                 Id taskId;
                 log.atFine().log("Parent ID: %s", parent.id());
@@ -88,7 +89,7 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                             .task(task)
                             .history(history)
                             .emitter(treeContext.getEvents())
-                            .policy(policyForType(type))
+                            .policy(policyForType(taskSpec.getType()))
                             .expectations(expectationsFor(task))
                             .build();
                     } else {
@@ -106,7 +107,7 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                 }
 
                 Task<Id, Definition, Type> task = null;
-                if (type.isRoot()){
+                if (taskSpec.getType().isRoot()){
                     var found = treeContext.getNitriteManagers().getTaskManager().findById(taskId);
                     if (found.isPresent()) {
                         task = found.get();
@@ -115,8 +116,8 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                 if (task == null) {
                     task = SimpleTask.<Id, Definition, Type>builder()
                         .id(taskId)
-                        .definition(definition)
-                        .type(type)
+                        .definition(taskSpec.getDefinition())
+                        .type(taskSpec.getType())
                         .taskResolver(treeContext.getNitriteManagers().getTaskManager())
                         .build();
                     treeContext.getNitriteManagers().getTaskManager().register(task);
@@ -127,28 +128,28 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                     .task(task)
                     .history(history)
                     .emitter(treeContext.getEvents())
-                    .policy(policyForType(type))
+                    .policy(policyForType(taskSpec.getType()))
                     .expectations(expectationsFor(task))
                     .build();
             };
 
             @Override
-            public Execution<Id, Definition, Type> sequentialNode(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, boolean userDefinedTask) {
+            public Execution<Id, Definition, Type> sequentialNode(TaskSpec<Definition, Type> taskSpec, NodeBody<Id, Definition, Type, Nitrite> body, boolean userDefinedTask) {
                 //todo exception should say smth like "you forgot to add incorporation filter"
-                require(type.isSequential(), "Tried to run task '%s' of type %s (modifier: %s) as sequential node", definition, type, type.getModifier());
-                return new SequentialNodeExecution<>(treeContext, getSubtaskContext(definition, type, userDefinedTask), body);
+                require(taskSpec.getType().isSequential(), "Tried to run %s (modifier: %s) as sequential node", taskSpec, taskSpec.getType().getModifier());
+                return new SequentialNodeExecution<>(treeContext, getSubtaskContext(taskSpec, userDefinedTask), body);
             }
 
             @Override
-            public Execution<Id, Definition, Type> parallelNode(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, TaskTree.IncorporationFilter<Id, Definition, Type, Nitrite> filter, boolean userDefinedTask) {
-                require(type.isParallel(), "Tried to run task '%s' of type %s (modifier: %s) as parallel node", definition, type, type.getModifier());
-                return new ParallelNodeExecution<>(treeContext, getSubtaskContext(definition, type, userDefinedTask), body, filter);
+            public Execution<Id, Definition, Type> parallelNode(TaskSpec<Definition, Type> taskSpec, NodeBody<Id, Definition, Type, Nitrite> body, TaskTree.IncorporationFilter<Id, Definition, Type, Nitrite> filter, boolean userDefinedTask) {
+                require(taskSpec.getType().isParallel(), "Tried to run %s (modifier: %s) as parallel node", taskSpec, taskSpec.getType().getModifier());
+                return new ParallelNodeExecution<>(treeContext, getSubtaskContext(taskSpec, userDefinedTask), body, filter);
             }
 
             @Override
-            public Execution<Id, Definition, Type> leaf(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body, boolean userDefinedTask) {
-                require(type.isLeaf(), "Tried to run task '%s' of type %s (modifier: %s) as leaf", definition, type, type.getModifier());
-                return new LeafExecution<>(treeContext, getSubtaskContext(definition, type, userDefinedTask), body);
+            public Execution<Id, Definition, Type> leaf(TaskSpec<Definition, Type> taskSpec, LeafBody<Id, Definition, Type, Nitrite> body, boolean userDefinedTask) {
+                require(taskSpec.getType().isLeaf(), "Tried to run %s (modifier: %s) as leaf", taskSpec, taskSpec.getType().getModifier());
+                return new LeafExecution<>(treeContext, getSubtaskContext(taskSpec, userDefinedTask), body);
             }
         };
     }

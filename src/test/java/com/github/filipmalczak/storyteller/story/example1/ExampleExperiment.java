@@ -1,5 +1,6 @@
 package com.github.filipmalczak.storyteller.story.example1;
 
+import com.github.filipmalczak.storyteller.api.tree.task.TaskSpec;
 import com.github.filipmalczak.storyteller.api.visualize.ReportOptions;
 import com.github.filipmalczak.storyteller.impl.story.EpisodeType;
 import com.github.filipmalczak.storyteller.impl.story.NitriteStorytellerFactory;
@@ -142,8 +143,7 @@ public class ExampleExperiment {
             new File("examples/example1/report"),
             StartingPoints.of(
                 new StorytellerIdGeneratorFactory<>(),
-                new StorytellerDefinition("Finding x"),
-                EpisodeType.STORY
+                TaskSpec.of(new StorytellerDefinition("Finding x"), EpisodeType.STORY)
             ),
             ReportOptions.<String, StorytellerDefinition, EpisodeType>builder()
                 .definitionRenderer(d -> {

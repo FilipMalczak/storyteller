@@ -30,7 +30,7 @@ public class NitriteTaskTreeFactory<Id extends Comparable<Id>, Definition, Type 
             new EventsEmitter<>(managers.getJournalEntryManager(), new JournalEntryFactory(managers.getSessionManager())),
             config.storageConfig(),
             config.generatorFactory(),
-            config.mergeSpecFactory(),
+            config.taskpecFactory(),
             config.mergeOrder()
         );
         return new RootAdapter<>(managers.getSessionManager(), new TaskExecutorImpl<>(treeContext, new NullContext<>()));

@@ -1,5 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.story;
 
+import com.github.filipmalczak.storyteller.api.tree.task.TaskSpec;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGenerator;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
@@ -16,35 +17,24 @@ public class StorytellerIdGeneratorFactory<Type extends Enum<Type> & TaskType> i
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     @RequiredArgsConstructor
     private static class JustNameGenerator<Type extends Enum<Type> & TaskType> implements IdGenerator<String, StorytellerDefinition, Type> {
-        @NonNull StorytellerDefinition definition;
-        @NonNull Type type;
+        @Getter @NonNull TaskSpec<StorytellerDefinition, Type> spec;
 
         @Getter(lazy = true) String prefix = makePrefix();
 
         protected String makePrefix(){
-            return type.toString()+
+            return spec.getType().toString()+
                 "_"+
-                definition.getName()
+                spec.getDefinition().getName()
                     .replaceAll("([^\\w\\d-]+)", "_")
                     .replaceAll("[_]+", "_")
-                    .substring(0, min(32, definition.getName().length()))+
+                    .substring(0, min(32, spec.getDefinition().getName().length()))+
                 "_"+
-                definition.getName().hashCode();
-        }
-
-        @Override
-        public StorytellerDefinition definition() {
-            return this.definition;
-        }
-
-        @Override
-        public Type type() {
-            return this.type;
+                spec.getDefinition().getName().hashCode();
         }
 
         @Override
         public String generate() {
-            if (type.isRoot())
+            if (spec.getType().isRoot())
                 return getPrefix();
             return getPrefix()+"_"+System.currentTimeMillis();
         }
@@ -52,7 +42,7 @@ public class StorytellerIdGeneratorFactory<Type extends Enum<Type> & TaskType> i
         @Override
         public boolean canReuse(String s) {
             var prefix = getPrefix();
-            if (type().isRoot())
+            if (spec.getType().isRoot())
                 return prefix.equals(s);
             if (!s.startsWith(getPrefix()))
                 return false;
@@ -66,21 +56,21 @@ public class StorytellerIdGeneratorFactory<Type extends Enum<Type> & TaskType> i
     }
 
     private static class WithKeyGenerator<Type extends Enum<Type> & TaskType> extends JustNameGenerator<Type> {
-        public WithKeyGenerator(@NonNull StorytellerDefinition definition, @NonNull Type type) {
-            super(definition, type);
+        public WithKeyGenerator(@NonNull TaskSpec<StorytellerDefinition, Type> spec) {
+            super(spec);
         }
 
         @Override
         protected String makePrefix() {
-            var keyString = definition().getKey().toString();
-            return super.makePrefix()+"_"+keyString.substring(0, min(32, keyString.length()))+"_"+definition().getKey().hashCode();
+            var keyString = getSpec().getDefinition().getKey().toString();
+            return super.makePrefix()+"_"+keyString.substring(0, min(32, keyString.length()))+"_"+getSpec().getDefinition().getKey().hashCode();
         }
     }
 
     @Override
-    public IdGenerator<String, StorytellerDefinition, Type> over(StorytellerDefinition definition, Type type) {
-        if (definition.getKey() == null)
-            return new JustNameGenerator<>(definition, type);
-        return new WithKeyGenerator<>(definition, type);
+    public IdGenerator<String, StorytellerDefinition, Type> over(TaskSpec<StorytellerDefinition, Type> taskSpec) {
+        if (taskSpec.getDefinition().getKey() == null)
+            return new JustNameGenerator<>(taskSpec);
+        return new WithKeyGenerator<>(taskSpec);
     }
 }

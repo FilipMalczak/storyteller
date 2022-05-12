@@ -2,6 +2,7 @@ package com.github.filipmalczak.storyteller.impl.tree.internal.executor;
 
 import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
+import com.github.filipmalczak.storyteller.api.tree.task.TaskSpec;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
@@ -14,17 +15,17 @@ public class SubtaskAdapter<Id extends Comparable<Id>, Definition, Type extends 
     TaskExecutor.Callback<Id, Definition, Type> callback;
 
     @Override
-    public Task<Id, Definition, Type> execute(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body) {
-        return executor.executeSequentialNode(definition, type, body, callback);
+    public Task<Id, Definition, Type> execute(TaskSpec<Definition, Type> taskSpec, NodeBody<Id, Definition, Type, Nitrite> body) {
+        return executor.executeSequentialNode(taskSpec, body, callback);
     }
 
     @Override
-    public Task<Id, Definition, Type> execute(Definition definition, Type type, NodeBody<Id, Definition, Type, Nitrite> body, IncorporationFilter<Id, Definition, Type, Nitrite> filter) {
-        return executor.executeParallelNode(definition, type, body, filter, callback);
+    public Task<Id, Definition, Type> execute(TaskSpec<Definition, Type> taskSpec, NodeBody<Id, Definition, Type, Nitrite> body, IncorporationFilter<Id, Definition, Type, Nitrite> filter) {
+        return executor.executeParallelNode(taskSpec, body, filter, callback);
     }
 
     @Override
-    public Task<Id, Definition, Type> execute(Definition definition, Type type, LeafBody<Id, Definition, Type, Nitrite> body) {
-        return executor.executeLeaf(definition, type, body, callback);
+    public Task<Id, Definition, Type> execute(TaskSpec<Definition, Type> taskSpec, LeafBody<Id, Definition, Type, Nitrite> body) {
+        return executor.executeLeaf(taskSpec, body, callback);
     }
 }

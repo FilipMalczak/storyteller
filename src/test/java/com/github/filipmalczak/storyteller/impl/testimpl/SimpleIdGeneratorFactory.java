@@ -1,5 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.testimpl;
 
+import com.github.filipmalczak.storyteller.api.tree.task.TaskSpec;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGenerator;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
@@ -8,28 +9,24 @@ import static java.lang.Math.min;
 
 public class SimpleIdGeneratorFactory<Type extends Enum<Type> & TaskType> implements IdGeneratorFactory<String, String, Type> {
     @Override
-    public IdGenerator<String, String, Type> over(String definition, Type episodeType) {
-        String prefix = episodeType.toString()+
+    public IdGenerator<String, String, Type> over(TaskSpec<String, Type> taskSpec) {
+        String prefix = taskSpec.getType().toString()+
             "_"+
-            definition
+            taskSpec.getDefinition()
                 .replaceAll("([^\\w\\d-]+)", "_")
                 .replaceAll("[_]+", "_")
-                .substring(0, min(32, definition.length()))+
+                .substring(0, min(32, taskSpec.getDefinition().length()))+
             "_"+
-            definition.hashCode();
+            taskSpec.getDefinition().hashCode();
         return new IdGenerator<>() {
             @Override
-            public String definition() {
-                return definition;
+            public TaskSpec<String, Type> getSpec() {
+                return taskSpec;
             }
 
             @Override
-            public Type type() {
-                return episodeType;
-            }
-            @Override
             public String generate() {
-                if (type().isRoot())
+                if (taskSpec.getType().isRoot())
                     return prefix;
                 return prefix+
                     "_"+
@@ -38,7 +35,7 @@ public class SimpleIdGeneratorFactory<Type extends Enum<Type> & TaskType> implem
 
             @Override
             public boolean canReuse(String s) {
-                if (type().isRoot())
+                if (taskSpec.getType().isRoot())
                     return prefix.equals(s);
                 if (!s.startsWith(prefix))
                     return false;

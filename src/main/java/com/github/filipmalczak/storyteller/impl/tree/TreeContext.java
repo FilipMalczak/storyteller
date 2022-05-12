@@ -3,7 +3,7 @@ package com.github.filipmalczak.storyteller.impl.tree;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
-import com.github.filipmalczak.storyteller.impl.tree.config.MergeSpecFactory;
+import com.github.filipmalczak.storyteller.impl.tree.config.TaskpecFactory;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.NitriteManagers;
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.ExecutionFactory;
 import com.github.filipmalczak.storyteller.impl.tree.internal.execution.ExecutionFactoryImpl;
@@ -20,7 +20,7 @@ public class TreeContext<Id extends Comparable<Id>, Definition, Type extends Enu
     EventsEmitter<Id> events;
     NitriteStorageConfig<Id> storageConfig;
     IdGeneratorFactory<Id, Definition, Type> generatorFactory;
-    MergeSpecFactory<Id, Definition, Type> mergeSpecFactory;
+    TaskpecFactory<Id, Definition, Type> taskpecFactory;
     Comparator<Id> mergeOrder;
     @Getter(lazy = true)
     //todo if we add nosql generics, we can abstract [managers, merging, importing, exporting] out and we may have a pluggable task tree

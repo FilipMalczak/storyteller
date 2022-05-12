@@ -13,6 +13,7 @@ import com.github.filipmalczak.storyteller.api.story.closure.DecisionClosure;
 import com.github.filipmalczak.storyteller.api.story.closure.ThreadClosure;
 import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
+import com.github.filipmalczak.storyteller.api.tree.task.TaskSpec;
 import com.github.filipmalczak.storyteller.api.tree.task.body.LeafBody;
 import com.github.filipmalczak.storyteller.api.tree.task.body.NodeBody;
 import lombok.AccessLevel;
@@ -160,7 +161,7 @@ public class TreeStoryteller<NoSql> implements Storyteller<NoSql> {
 
     @Override
     public void tell(String storyName, StructureBody<ArcClosure<NoSql>, ReadStorage<NoSql>> arcClosure) {
-        executor.execute(new StorytellerDefinition(storyName), EpisodeType.STORY, arcToNodeBody(arcClosure));
+        executor.execute(TaskSpec.of(new StorytellerDefinition(storyName), EpisodeType.STORY), arcToNodeBody(arcClosure));
     }
 
     @Override

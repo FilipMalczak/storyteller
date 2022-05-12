@@ -1,7 +1,6 @@
 package com.github.filipmalczak.storyteller.utils.expectations.exception;
 
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;

@@ -1,5 +1,6 @@
 package com.github.filipmalczak.storyteller.impl.visualize.start;
 
+import com.github.filipmalczak.storyteller.api.tree.task.TaskSpec;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
 import com.github.filipmalczak.storyteller.api.tree.task.id.IdGeneratorFactory;
 import com.github.filipmalczak.storyteller.api.visualize.StartingPoint;
@@ -13,7 +14,7 @@ public final class StartingPoints {
     }
 
     public static <Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>
-    StartingPoint<Id> of(IdGeneratorFactory<Id, Definition, Type> factory, Definition definition, Type type) {
-        return new FromDetails<>(factory, definition, type);
+    StartingPoint<Id> of(IdGeneratorFactory<Id, Definition, Type> factory, TaskSpec<Definition, Type> taskSpec) {
+        return new FromDetails<>(factory, taskSpec);
     }
 }
