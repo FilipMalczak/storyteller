@@ -2,7 +2,11 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-[![develop](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml/badge.svg?branch=develop)](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml)
+[![](https://jitpack.io/v/FilipMalczak/storyteller.svg)](https://jitpack.io/#FilipMalczak/storyteller)
+
+| `master` | `develop` |
+| --- | --- |
+| [![master](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml/badge.svg?branch=master)](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml) | [![develop](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml/badge.svg?branch=develop)](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml) |
 
 [![Nitrite](https://img.shields.io/badge/uses-Nitrite-blue.svg)](https://github.com/nitrite/nitrite-java)
 [![valid4j](https://img.shields.io/badge/uses-valid4j-blue.svg)](https://github.com/valid4j/valid4j)
@@ -154,6 +158,47 @@ For example, your evolutionary algorithm research could look like:
 > [the test suite](src/test/java/com/github/filipmalczak/storyteller) and
 > [how the Storyteller is implemented over the "task tree" structure](src/main/java/com/github/filipmalczak/storyteller/impl/story/TreeStoryteller.java);
 > it should tell you more on how the API really looks like and how to use it.
+
+## Get it
+
+
+Hosting is handled via [jitpack](https://jitpack.io/#FilipMalczak/storyteller).
+
+Current master version is [0.1.0](https://github.com/FilipMalczak/storyteller/releases/tag/0.1.0)
+
+### Gradle
+
+    allprojects {
+      repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+      }
+    }
+    
+    dependencies {
+      implementation 'com.github.FilipMalczak:storyteller:0.1.0'
+    }
+
+### Maven
+
+    <repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+    
+    (...)
+    
+    <dependency>
+	    <groupId>com.github.FilipMalczak</groupId>
+	    <artifactId>storyteller</artifactId>
+	    <version>0.1.0</version>
+	</dependency>
+
+### Others
+
+Look it up on [jitpack](https://jitpack.io/#FilipMalczak/storyteller/0.1.0).
 
 ## ToDo
 
