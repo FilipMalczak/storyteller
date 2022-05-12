@@ -9,6 +9,9 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+    //todo reenable javadoc at some point
+//    withJavadocJar()
+    withSourcesJar()
 }
 
 group = "com.github.filipmalczak"
@@ -70,11 +73,6 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
-}
-
-java {
-    withJavadocJar()
-    withSourcesJar()
 }
 
 publishing {
