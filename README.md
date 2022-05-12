@@ -7,6 +7,8 @@
 | `master` | `develop` |
 | --- | --- |
 | [![master](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml/badge.svg?branch=master)](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml) | [![develop](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml/badge.svg?branch=develop)](https://github.com/FilipMalczak/storyteller/actions/workflows/ci.yaml) |
+| [![codecov](https://codecov.io/gh/FilipMalczak/storyteller/branch/master/graph/badge.svg?token=8JXL8TJ84K)](https://codecov.io/gh/FilipMalczak/storyteller) | [![codecov](https://codecov.io/gh/FilipMalczak/storyteller/branch/develop/graph/badge.svg?token=8JXL8TJ84K)](https://codecov.io/gh/FilipMalczak/storyteller)
+ |
 
 [![Nitrite](https://img.shields.io/badge/uses-Nitrite-blue.svg)](https://github.com/nitrite/nitrite-java)
 [![valid4j](https://img.shields.io/badge/uses-valid4j-blue.svg)](https://github.com/valid4j/valid4j)
