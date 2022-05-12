@@ -26,10 +26,35 @@ jobs:
         if: always()
         with:
           files: "build/test-results/**/*.xml"
-            # generates coverage-report.md and publishes as checkrun
+
+      # generates coverage-report.md and publishes as checkrun
+      - name: Jacoco Report to PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.1
+        with:
+          path: ${{ github.workspace }}/build/reports/jacoco/testCoverage/testCoverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 40
+          min-coverage-changed-files: 60
+          debug-mode: false
+
       - name: JaCoCo Code Coverage Report
         id: jacoco_reporter
         uses: PavanMudigonda/jacoco-reporter@v4.3
         with:
-          coverage_results_path: build/reports/jacoco/test/jacocoTestReport.xml
+          coverage_results_path: ${{ github.workspace }}/build/reports/jacoco/testCoverage/testCoverage.xml
+          coverage_report_name: Coverage
+          coverage_report_title: JaCoCo
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: false
+          minimum_coverage: 60
+          fail_below_threshold: false
+          publish_only_summary: false
+
+        # uploads the coverage-report.md artifact
+      - name: Upload Code Coverage Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: code-coverage-report
+          path: "*/coverage-results.md"
+          retention-days: 1
