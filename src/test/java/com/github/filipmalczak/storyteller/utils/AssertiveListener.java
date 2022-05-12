@@ -5,7 +5,8 @@ import com.github.filipmalczak.storyteller.api.session.listener.JournalListener;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
 import com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType;
-import com.github.filipmalczak.storyteller.utils.expectations.*;
+import com.github.filipmalczak.storyteller.utils.expectations.Callback;
+import com.github.filipmalczak.storyteller.utils.expectations.StructuredExpectations;
 import com.github.filipmalczak.storyteller.utils.expectations.condition.Condition;
 import com.github.filipmalczak.storyteller.utils.expectations.exception.ExpectationNotMetException;
 import com.github.filipmalczak.storyteller.utils.expectations.exception.UnknownExpectations;
@@ -15,10 +16,6 @@ import lombok.Value;
 import lombok.extern.flogger.Flogger;
 
 import java.util.function.Predicate;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Value
 @Flogger

@@ -1,7 +1,8 @@
 package com.github.filipmalczak.storyteller.utils;
 
 import com.github.filipmalczak.storyteller.api.session.Sessions;
-import com.github.filipmalczak.storyteller.utils.expectations.*;
+import com.github.filipmalczak.storyteller.utils.expectations.Callback;
+import com.github.filipmalczak.storyteller.utils.expectations.StructuredExpectations;
 import com.github.filipmalczak.storyteller.utils.expectations.condition.Condition;
 import com.github.filipmalczak.storyteller.utils.expectations.exception.ExpectationNotMetException;
 import com.github.filipmalczak.storyteller.utils.expectations.exception.UnknownExpectations;
@@ -13,11 +14,10 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.flogger.Flogger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.valid4j.Assertive.require;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Flogger

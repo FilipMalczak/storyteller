@@ -1,6 +1,5 @@
 package com.github.filipmalczak.storyteller.impl.tree;
 
-import com.github.filipmalczak.storyteller.api.session.listener.LoggingJournalListener;
 import com.github.filipmalczak.storyteller.api.tree.TaskTree;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.body.handles.Insight;
@@ -13,7 +12,6 @@ import org.dizitart.no2.Nitrite;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -22,7 +20,6 @@ import static com.github.filipmalczak.storyteller.impl.testimpl.TrivialTaskType.
 import static com.github.filipmalczak.storyteller.utils.AssertiveListener.entryForTask;
 import static com.github.filipmalczak.storyteller.utils.expectations.StructuredExpectations.ordered;
 import static com.github.filipmalczak.storyteller.utils.expectations.StructuredExpectations.unordered;
-import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

@@ -1,13 +1,15 @@
 package com.github.filipmalczak.storyteller.utils.expectations;
 
 import com.github.filipmalczak.storyteller.utils.expectations.condition.Condition;
-import lombok.*;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Consumer;
-
-import static java.util.stream.Collectors.joining;
-import static org.valid4j.Assertive.neverGetHere;
 
 @Value
 @Builder

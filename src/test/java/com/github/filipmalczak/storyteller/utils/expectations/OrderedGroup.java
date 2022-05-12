@@ -1,6 +1,9 @@
 package com.github.filipmalczak.storyteller.utils.expectations;
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.PackagePrivate;
 
 import java.util.List;
