@@ -26,3 +26,10 @@ jobs:
         if: always()
         with:
           files: "build/test-results/**/*.xml"
+            # generates coverage-report.md and publishes as checkrun
+      - name: JaCoCo Code Coverage Report
+        id: jacoco_reporter
+        uses: PavanMudigonda/jacoco-reporter@v4.3
+        with:
+          coverage_results_path: build/reports/jacoco/test/jacocoTestReport.xml
+          github_token: ${{ secrets.GITHUB_TOKEN }}
