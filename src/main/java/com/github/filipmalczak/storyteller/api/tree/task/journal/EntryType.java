@@ -188,25 +188,4 @@ public enum EntryType {
         neverGetHere();
         return null;
     }
-
-    //fixme these below aint API, but rather impl details
-    public static boolean describesException(EntryType entryType){
-        return entryType == CAUGHT;
-    }
-
-    public static boolean referencesSubtask(EntryType entryType){
-        return ReferencesSubtask.class.isAssignableFrom(entryType.entryClass);
-    }
-
-    public static boolean referencesSubtasks(EntryType entryType){
-        return ReferencesSubtasks.class.isAssignableFrom(entryType.entryClass);
-    }
-
-    //todo poor name
-    public static boolean impactsFinishedStateOfTask(EntryType type){
-        return switch (type){
-            case ENDED, AMENDED, AUGMENTED -> true;
-            default -> false;
-        };
-    }
 }

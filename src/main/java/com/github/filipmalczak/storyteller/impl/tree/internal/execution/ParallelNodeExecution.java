@@ -131,13 +131,13 @@ public class ParallelNodeExecution<Id extends Comparable<Id>, Definition, Type e
                     if (removed.isEmpty()){
                         neverGetHere();
                     } else {
-                        executionContext.events().nodeDeflated();
+                        executionContext.events().nodeDeflated(removed);
                     }
                 } else {
                     if (removed.isEmpty()){
-                        executionContext.events().nodeInflated();
+                        executionContext.events().nodeInflated(added);
                     } else {
-                        executionContext.events().nodeRefiltered();
+                        executionContext.events().nodeRefiltered(added, removed);
                     }
                 }
                 executionContext.disown(asList(optionalMergeLeaf.get()));

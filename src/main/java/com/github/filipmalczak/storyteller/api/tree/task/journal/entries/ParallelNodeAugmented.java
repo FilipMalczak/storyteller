@@ -1,6 +1,10 @@
 package com.github.filipmalczak.storyteller.api.tree.task.journal.entries;
 
 import com.github.filipmalczak.storyteller.api.session.Session;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.annotations.JournalledEvent;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.base.BaseEntry;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.FinalizingEvent;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.TaskStage;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -8,9 +12,10 @@ import lombok.ToString;
 import java.time.ZonedDateTime;
 
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public final class ParallelNodeAugmented extends AbstractJournalEntry {
-    public ParallelNodeAugmented(@NonNull Session session, @NonNull ZonedDateTime happenedAt) {
+@JournalledEvent
+public final class ParallelNodeAugmented extends BaseEntry
+    implements JournalEntry, FinalizingEvent, TaskStage.Planning {
+    public ParallelNodeAugmented(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt) {
         super(session, happenedAt);
     }
 }

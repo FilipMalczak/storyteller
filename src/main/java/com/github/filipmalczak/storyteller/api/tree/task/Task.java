@@ -3,12 +3,10 @@ package com.github.filipmalczak.storyteller.api.tree.task;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.TaskEnded;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.TaskStarted;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.FinalizingEvent;
 
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import static com.github.filipmalczak.storyteller.api.tree.task.journal.EntryType.impactsFinishedStateOfTask;
-import static com.github.filipmalczak.storyteller.api.tree.task.journal.EntryType.toType;
 
 public interface Task<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>{
     Id getId();
@@ -45,7 +43,7 @@ public interface Task<Id extends Comparable<Id>, Definition, Type extends Enum<T
 
     default boolean isFinished(){
         return getJournalEntries()
-            .filter(e -> impactsFinishedStateOfTask(toType(e)))
+            .filter(e -> e instanceof FinalizingEvent)
             .reduce((e1, e2) -> e2) //ugly way to say findLast
             .map(e -> e instanceof TaskEnded)
             .orElse(false);

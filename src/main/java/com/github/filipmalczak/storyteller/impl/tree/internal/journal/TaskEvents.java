@@ -1,6 +1,7 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.journal;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TaskEvents<Id extends Comparable<Id>> {
     void defineSubtask(Id subtask);
@@ -11,9 +12,9 @@ public interface TaskEvents<Id extends Comparable<Id>> {
 
     void bodyChanged(List<Id> conflicting, Id pivot);
 
-    void bodyExtended();
+    void bodyExtended(List<Id> added);
 
-    void bodyNarrowed(List<Id> disappeared);
+    void bodyNarrowed(List<Id> removed);
 
     void taskAmended();
 
@@ -23,11 +24,11 @@ public interface TaskEvents<Id extends Comparable<Id>> {
 
     void taskInterrupted();
 
-    void nodeInflated();
+    void nodeInflated(Set<Id> disappeared);
 
-    void nodeDeflated();
+    void nodeDeflated(Set<Id> appeared);
 
-    void nodeRefiltered();
+    void nodeRefiltered(Set<Id> appeared, Set<Id> disappeared);
 
     void nodeAugmented();
 

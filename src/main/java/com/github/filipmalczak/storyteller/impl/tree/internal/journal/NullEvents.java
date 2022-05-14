@@ -1,8 +1,10 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.journal;
 
 import java.util.List;
+import java.util.Set;
 
 public class NullEvents<Id extends Comparable<Id>> implements TaskEvents<Id> {
+
     @Override
     public void defineSubtask(Id subtask) {
 
@@ -24,12 +26,12 @@ public class NullEvents<Id extends Comparable<Id>> implements TaskEvents<Id> {
     }
 
     @Override
-    public void bodyExtended() {
+    public void bodyExtended(List<Id> added) {
 
     }
 
     @Override
-    public void bodyNarrowed(List<Id> disappeared) {
+    public void bodyNarrowed(List<Id> removed) {
 
     }
 
@@ -54,17 +56,17 @@ public class NullEvents<Id extends Comparable<Id>> implements TaskEvents<Id> {
     }
 
     @Override
-    public void nodeInflated() {
+    public void nodeInflated(Set<Id> disappeared) {
 
     }
 
     @Override
-    public void nodeDeflated() {
+    public void nodeDeflated(Set<Id> appeared) {
 
     }
 
     @Override
-    public void nodeRefiltered() {
+    public void nodeRefiltered(Set<Id> appeared, Set<Id> disappeared) {
 
     }
 

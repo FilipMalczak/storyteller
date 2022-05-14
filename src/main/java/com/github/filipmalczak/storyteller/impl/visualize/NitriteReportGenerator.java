@@ -132,7 +132,7 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
                 .getJournalEntries()
                 //if options.excludeDisowned we can simply browser task.subtasks
                 .filter(e -> e instanceof SubtaskDefined)
-                .map(e -> ((SubtaskDefined<Id>) e).getDefinedSubtaskId())
+                .map(e -> ((SubtaskDefined<Id>) e).getSubtaskId())
                 .map(managers.getTaskManager()::getById)
                 .forEach(t -> handle(newAncestors, t));
         }
@@ -371,15 +371,17 @@ public class NitriteReportGenerator<Id extends Comparable<Id>, Definition, Type 
                 for (int i = 0; i < sessionIdx; ++i)
                     row.add(empty());
                 String entryTxt = EntryType.toType(entry).toString();
-                if (entry instanceof ReferencesSubtasks) {
-                    entryTxt += " -> "+
-                        ((ReferencesSubtasks<Id>) entry)
-                            .getReferences()
-                            .stream()
-                            .map(managers.getTaskManager()::getById)
-                            .map(Task::getDefinition)
-                            .toList();
-                } else if (entry instanceof ExceptionCaught)
+                //fixme
+//                if (entry instanceof ReferencesSubtasks) {
+//                    entryTxt += " -> "+
+//                        ((ReferencesSubtasks<Id>) entry)
+//                            .getReferences()
+//                            .stream()
+//                            .map(managers.getTaskManager()::getById)
+//                            .map(Task::getDefinition)
+//                            .toList();
+//                } else
+                if (entry instanceof ExceptionCaught)
                     entryTxt += " : "+((ExceptionCaught) entry).getClassName()+"("+((ExceptionCaught) entry).getMessage()+")";
                 row.add(literal(entryTxt));
                 for (int i = sessionIdx + 1; i < orderedSessions.size(); ++i)

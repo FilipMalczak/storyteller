@@ -2,9 +2,12 @@ package com.github.filipmalczak.storyteller.impl.tree.internal.data.serializatio
 
 import com.github.filipmalczak.storyteller.api.session.Session;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
+import com.github.filipmalczak.storyteller.api.tree.task.id.IdSerializer;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.ExceptionCaught;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
-import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.ReferencesSubtasks;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.structural.ReferencesModifiedSubtasks;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.structural.ReferencesSingleTask;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.structural.ReferencesTasks;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.SessionManager;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.TaskManager;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.model.JournalEntryData;
@@ -13,6 +16,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.flogger.Flogger;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -25,15 +29,14 @@ import static com.github.filipmalczak.storyteller.impl.TimeUtils.toTimestamp;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter
-public class JournalEntrySerializer {
+@Flogger
+public class JournalEntrySerializer<Id extends Comparable<Id>> {
     @NonNull SessionManager sessionManager;
-    @NonNull TaskManager taskManager;
+    @NonNull TaskManager<Id, ?, ?> taskManager;
 
     @SneakyThrows
-    public <T extends JournalEntry> T toEntry(JournalEntryData data){
-        Class<T> resultClass = (Class<T>) data.getType().getEntryClass();
-        if (describesException(data.getType())){
-            return (T) resultClass
+    private ExceptionCaught deserializeExceptionCaught(JournalEntryData data){
+        return ExceptionCaught.class
                 .getConstructor(Session.class, ZonedDateTime.class, String.class, String.class, String.class)
                 .newInstance(
                     sessionManager.getById(data.getSessionId()),
@@ -42,26 +45,62 @@ public class JournalEntrySerializer {
                     (String) data.getAdditionalFields().get("message"),
                     (String) data.getAdditionalFields().get("stackTrace")
                 );
-        }
-        if (referencesSubtask(data.getType())) {
-            return (T) resultClass
-                .getConstructor(Session.class, ZonedDateTime.class, Comparable.class)
-                .newInstance(
-                    sessionManager.getById(data.getSessionId()),
-                    data.getHappenedAt(),
-                    ((List) data.getAdditionalFields().get("references")).get(0)
-                );
-        }
-        if (referencesSubtasks(data.getType())) {
-            return (T) resultClass
-                .getConstructor(Session.class, ZonedDateTime.class, List.class)
-                .newInstance(
-                    sessionManager.getById(data.getSessionId()),
-                    data.getHappenedAt(),
-                    data.getAdditionalFields().get("references")
-                );
-        }
-        return (T) resultClass
+    }
+
+    @SneakyThrows
+    private <T extends JournalEntry> T deserializeRefAndList(Class<? extends JournalEntry> clazz, JournalEntryData<Id> data){
+
+        return (T) clazz
+            .getConstructor(Session.class, ZonedDateTime.class, Comparable.class, List.class)
+            .newInstance(
+                sessionManager.getById(data.getSessionId()),
+                data.getHappenedAt(),
+                (Id) data.getAdditionalFields().get("reference"),
+                (List<Id>) data.getAdditionalFields().get("references")
+            );
+    }
+
+    @SneakyThrows
+    private <T extends JournalEntry> T deserializeRef(Class<? extends JournalEntry> clazz, JournalEntryData<Id> data){
+        log.atInfo().log("Im here");
+        return (T) clazz
+            .getConstructor(Session.class, ZonedDateTime.class, Comparable.class)
+            .newInstance(
+                sessionManager.getById(data.getSessionId()),
+                data.getHappenedAt(),
+                (Id) data.getAdditionalFields().get("reference")
+            );
+    }
+
+    @SneakyThrows
+    private <T extends JournalEntry> T deserializeList(Class<? extends JournalEntry> clazz, JournalEntryData<Id> data){
+
+        return (T) clazz
+            .getConstructor(Session.class, ZonedDateTime.class, List.class)
+            .newInstance(
+                sessionManager.getById(data.getSessionId()),
+                data.getHappenedAt(),
+                (List<Id>) data.getAdditionalFields().get("references")
+            );
+    }
+
+    @SneakyThrows
+    private <T extends JournalEntry> T deserializeTwoLists(Class<T> clazz, JournalEntryData<Id> data){
+
+        return (T) clazz
+            .getConstructor(Session.class, ZonedDateTime.class, List.class, List.class)
+            .newInstance(
+                sessionManager.getById(data.getSessionId()),
+                data.getHappenedAt(),
+                (List<Id>) data.getAdditionalFields().get("increment"),
+                (List<Id>) data.getAdditionalFields().get("decrement")
+            );
+    }
+
+    @SneakyThrows
+    private <T extends JournalEntry> T deserializeBase(Class<T> clazz, JournalEntryData<Id> data){
+
+        return (T) clazz
             .getConstructor(Session.class, ZonedDateTime.class)
             .newInstance(
                 sessionManager.getById(data.getSessionId()),
@@ -69,21 +108,53 @@ public class JournalEntrySerializer {
             );
     }
 
-    public <Id extends Comparable<Id>> JournalEntryData<Id> fromEntry(Task<Id, ?, ?> task, JournalEntry entry){
+    @SneakyThrows
+    public <T extends JournalEntry> T toEntry(JournalEntryData data){
+        Class<T> resultClass = (Class<T>) data.getType().getEntryClass();
+        if (ExceptionCaught.class.isAssignableFrom(resultClass)) {
+            return (T) deserializeExceptionCaught(data);
+        }
+        if (ReferencesSingleTask.class.isAssignableFrom(resultClass)) {
+            if (ReferencesTasks.class.isAssignableFrom(resultClass)) {
+                return (T) deserializeRefAndList(data.getType().getEntryClass(), data);
+            } else {
+                return (T) deserializeRef(data.getType().getEntryClass(), data);
+            }
+        }
+        if (ReferencesTasks.class.isAssignableFrom(resultClass)) {
+            if (ReferencesModifiedSubtasks.AddedAndRemoved.class.isAssignableFrom(resultClass)) {
+                return (T) deserializeTwoLists(resultClass, data);
+            } else {
+                return (T) deserializeList(resultClass, data);
+            }
+        }
+        return (T) deserializeBase(resultClass, data);
+    }
+
+    public JournalEntryData<Id> fromEntry(Task<Id, ?, ?> task, JournalEntry entry){
         return fromEntry(task.getId(), entry);
     }
 
-    public <Id extends Comparable<Id>> JournalEntryData<Id> fromEntry(Id taskId, JournalEntry entry){
+    public JournalEntryData<Id> fromEntry(Id taskId, JournalEntry entry){
         Map<String, Object> additional = new HashMap<>();
         var type = toType(entry);
-        if (describesException(type)){
+        if (ExceptionCaught.class.isAssignableFrom(type.getEntryClass())){
             additional.put("className", ((ExceptionCaught) entry).getClassName());
             additional.put("message", ((ExceptionCaught) entry).getMessage());
             additional.put("stackTrace", ((ExceptionCaught) entry).getFullStackTrace());
-        } else if (referencesSubtasks(type)){
-            additional.put("references", ((ReferencesSubtasks) entry).getReferences());
+        } else {
+            if (ReferencesSingleTask.class.isAssignableFrom(type.getEntryClass())) {
+                additional.put("reference", ((ReferencesSingleTask) entry).getReference());
+            }
+            if (ReferencesTasks.class.isAssignableFrom(type.getEntryClass())) {
+                if (ReferencesModifiedSubtasks.AddedAndRemoved.class.isAssignableFrom(type.getEntryClass())) {
+                    additional.put("increment", ((ReferencesModifiedSubtasks.AddedAndRemoved) entry).getIncrement().toList());
+                    additional.put("decrement", ((ReferencesModifiedSubtasks.AddedAndRemoved) entry).getDecrement().toList());
+                } else {
+                    additional.put("references", ((ReferencesTasks<Id>) entry).getReferences().toList());
+                }
+            }
         }
-        String id = taskId.toString()+"::"+toTimestamp(entry.getHappenedAt());
         return new JournalEntryData<>(
             UUID.randomUUID().toString(),
             taskId,

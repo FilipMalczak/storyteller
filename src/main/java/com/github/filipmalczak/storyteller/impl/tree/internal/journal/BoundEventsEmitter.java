@@ -4,6 +4,7 @@ import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import lombok.Value;
 
 import java.util.List;
+import java.util.Set;
 
 @Value
 public class BoundEventsEmitter<Id extends Comparable<Id>> implements TaskEvents<Id> {
@@ -27,17 +28,17 @@ public class BoundEventsEmitter<Id extends Comparable<Id>> implements TaskEvents
 
     @Override
     public void bodyChanged(List<Id> conflicting, Id pivot) {
-        emitter.bodyChanged(task, conflicting, pivot);
+        emitter.bodyChanged(task, pivot, conflicting);
     }
 
     @Override
-    public void bodyExtended() {
-        emitter.bodyExtended(task);
+    public void bodyExtended(List<Id> added) {
+        emitter.bodyExtended(task, added);
     }
 
     @Override
-    public void bodyNarrowed(List<Id> disappeared) {
-        emitter.bodyNarrowed(task, disappeared);
+    public void bodyNarrowed(List<Id> removed) {
+        emitter.bodyNarrowed(task, removed);
     }
 
     @Override
@@ -62,18 +63,18 @@ public class BoundEventsEmitter<Id extends Comparable<Id>> implements TaskEvents
 
     //todo should inflated, deflated and refiltered follow the example of extended, narrowed and changed and include reasons?
     @Override
-    public void nodeInflated() {
-        emitter.nodeInflated(task);
+    public void nodeInflated(Set<Id> appeared) {
+        emitter.nodeInflated(task, appeared);
     }
 
     @Override
-    public void nodeDeflated() {
-        emitter.nodeDeflated(task);
+    public void nodeDeflated(Set<Id> disappeared) {
+        emitter.nodeDeflated(task, disappeared);
     }
 
     @Override
-    public void nodeRefiltered() {
-        emitter.nodeRefiltered(task);
+    public void nodeRefiltered(Set<Id> appeared, Set<Id> disappeared) {
+        emitter.nodeRefiltered(task, appeared, disappeared);
     }
 
     @Override

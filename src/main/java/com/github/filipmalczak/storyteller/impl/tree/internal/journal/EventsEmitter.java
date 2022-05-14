@@ -10,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.flogger.Flogger;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.github.filipmalczak.storyteller.impl.tree.internal.data.JournalEntryManager.taskEntry;
 import static org.valid4j.Assertive.require;
@@ -42,13 +43,13 @@ public class EventsEmitter<Id extends Comparable<Id>> {
         }
     }
 
-    public void bodyChanged(Task<Id, ?, ?> task, List<Id> conflicting, Id pivot){
+    public void bodyChanged(Task<Id, ?, ?> task, Id pivot, List<Id> conflicting){
         //todo add pivot to the data
-        manager.record(task, factory.bodyChanged(conflicting));
+        manager.record(task, factory.bodyChanged(pivot, conflicting));
     }
 
-    public void bodyExtended(Task<Id, ?, ?> task){
-        manager.record(task, factory.bodyExtended());
+    public void bodyExtended(Task<Id, ?, ?> task, List<Id> added){
+        manager.record(task, factory.bodyExtended(added));
     }
 
     public void bodyNarrowed(Task<Id, ?, ?> task, List<Id> disappeared){
@@ -77,16 +78,16 @@ public class EventsEmitter<Id extends Comparable<Id>> {
         manager.record(ancestor, factory.taskInterrupted());
     }
 
-    public void nodeInflated(Task<Id, ?, ?> node){
-        manager.record(node, factory.nodeInflated());
+    public void nodeInflated(Task<Id, ?, ?> node, Set<Id> disappeared){
+        manager.record(node, factory.nodeInflated(disappeared));
     }
 
-    public void nodeDeflated(Task<Id, ?, ?> node){
-        manager.record(node, factory.nodeDeflated());
+    public void nodeDeflated(Task<Id, ?, ?> node, Set<Id> appeared){
+        manager.record(node, factory.nodeDeflated(appeared));
     }
 
-    public void nodeRefiltered(Task<Id, ?, ?> node){
-        manager.record(node, factory.nodeRefiltered());
+    public void nodeRefiltered(Task<Id, ?, ?> node, Set<Id> appeared, Set<Id> disappeared){
+        manager.record(node, factory.nodeRefiltered(appeared, disappeared));
     }
 
     public void nodeAugmented(Task<Id, ?, ?> node){

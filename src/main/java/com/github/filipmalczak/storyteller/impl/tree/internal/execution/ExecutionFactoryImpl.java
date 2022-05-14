@@ -21,6 +21,7 @@ import java.util.List;
 
 import static com.github.filipmalczak.storyteller.impl.tree.internal.history.HistoryTrackerImpl.empty;
 import static com.github.filipmalczak.storyteller.impl.tree.internal.history.IncrementalHistoryTrackerImpl.of;
+import static java.util.Arrays.asList;
 import static org.valid4j.Assertive.require;
 
 @Value
@@ -69,7 +70,7 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                     taskId = idGenerator.generate();
                     log.atFine().log("Generated ID: %s", taskId);
                     if (userDefinedTask && parent.isFinished()) {
-                        parent.events().bodyExtended();
+                        parent.events().bodyExtended(asList(taskId));
                         //gradparent, because expectations are empty, so we wanna avoid empty disown journal entry
                         parent.parent().disownExpectations();
                     }
@@ -100,7 +101,7 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                             parent.disownExpectations();
                         } else {
                             if (userDefinedTask && parent.isFinished()) {
-                                parent.events().bodyExtended();
+                                parent.events().bodyExtended(asList(taskId));
                             }
                         }
                     }

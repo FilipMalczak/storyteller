@@ -42,7 +42,7 @@ public class SimpleTask<Id extends Comparable<Id>, Definition, Type extends Enum
         var disownedIds = getDisownedSubtaskIds().toList();
         return getJournalEntries()
             .filter(e -> e instanceof SubtaskDefined)
-            .map(e -> ((SubtaskDefined<Id>) e).getDefinedSubtaskId())
+            .map(e -> ((SubtaskDefined<Id>) e).getSubtaskId())
             .filter(not(disownedIds::contains));
     }
 

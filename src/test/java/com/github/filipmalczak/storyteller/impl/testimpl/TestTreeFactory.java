@@ -6,7 +6,7 @@ import com.github.filipmalczak.storyteller.api.tree.TaskTreeFactory;
 import com.github.filipmalczak.storyteller.api.tree.TaskTreeRoot;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskSpec;
-import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.ReferencesSubtask;
+import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.structural.ReferencesSingleTask;
 import com.github.filipmalczak.storyteller.impl.storage.NitriteStorageConfig;
 import com.github.filipmalczak.storyteller.impl.tree.NitriteTaskTreeFactory;
 import com.github.filipmalczak.storyteller.impl.tree.config.NitriteTreeConfig;
@@ -54,19 +54,19 @@ public class TestTreeFactory implements TaskTreeFactory<String, String, TrivialT
         return out;
     }
 
-    public static <T extends ReferencesSubtask<String>> Predicate<T> entryMatchesSubtask(String def, TrivialTaskType type){
+    public static <T extends ReferencesSingleTask<String>> Predicate<T> entryMatchesSubtask(String def, TrivialTaskType type){
         return entryMatchesSubtask(TaskSpec.of(def, type));
     }
 
-    public static <T extends ReferencesSubtask<String>> Predicate<T> entryMatchesSubtask(TaskSpec<String, TrivialTaskType> spec){
+    public static <T extends ReferencesSingleTask<String>> Predicate<T> entryMatchesSubtask(TaskSpec<String, TrivialTaskType> spec){
         return e -> GENERATOR_FACTORY.over(spec).canReuse(e.getReference());
     }
 
-    public static <T extends ReferencesSubtask<String>> Predicate<Pair<Task, T>> matchesSubtask(String def, TrivialTaskType type){
+    public static <T extends ReferencesSingleTask<String>> Predicate<Pair<Task, T>> matchesSubtask(String def, TrivialTaskType type){
         return matchesSubtask(TaskSpec.of(def, type));
     }
 
-    public static <T extends ReferencesSubtask<String>> Predicate<Pair<Task, T>> matchesSubtask(TaskSpec<String, TrivialTaskType> spec){
+    public static <T extends ReferencesSingleTask<String>> Predicate<Pair<Task, T>> matchesSubtask(TaskSpec<String, TrivialTaskType> spec){
         var forEntry = entryMatchesSubtask(spec);
         return p -> forEntry.test(p.get1());
     }
