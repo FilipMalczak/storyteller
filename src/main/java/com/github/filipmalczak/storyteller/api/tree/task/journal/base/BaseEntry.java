@@ -30,6 +30,6 @@ public abstract class BaseEntry {
     }
 
     protected Stream<Pair<String, String>> toStringElements(){
-        return Stream.of(Pair.of("session", session.getId()), Pair.of("happenedAt", happenedAt.toString()));
+        return Stream.of(Pair.of("session.id", session.getId()), Pair.of("happenedAt", happenedAt.toString()));
     }
 }

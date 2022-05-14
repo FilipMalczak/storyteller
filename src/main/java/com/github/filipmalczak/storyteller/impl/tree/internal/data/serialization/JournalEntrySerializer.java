@@ -62,7 +62,6 @@ public class JournalEntrySerializer<Id extends Comparable<Id>> {
 
     @SneakyThrows
     private <T extends JournalEntry> T deserializeRef(Class<? extends JournalEntry> clazz, JournalEntryData<Id> data){
-        log.atInfo().log("Im here");
         return (T) clazz
             .getConstructor(Session.class, ZonedDateTime.class, Comparable.class)
             .newInstance(

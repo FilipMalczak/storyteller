@@ -52,7 +52,7 @@ public final class ExecutionFactoryImpl<Id extends Comparable<Id>, Definition, T
                     log.atFine().log("Merge spec: %s", mergeSpec);
                     var mergeGenerator = treeContext.getGeneratorFactory().over(mergeSpec);
                     out =  new LinkedList<>(task.getSubtasks().filter(t -> !mergeGenerator.canReuse(t.getId())).toList());
-                    log.atFine().log("Expectations for a parallel node%s: %s", task.getId(), out);
+                    log.atFine().log("Expectations for a parallel node %s: %s", task.getId(), out);
                 } else {
                     out = new LinkedList<>();
                     log.atFine().log("Expectations for a leaf %s: %s", task.getId(), out);

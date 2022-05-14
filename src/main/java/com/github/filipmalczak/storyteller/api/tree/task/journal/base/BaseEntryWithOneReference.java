@@ -23,7 +23,7 @@ public abstract class BaseEntryWithOneReference<Id extends Comparable<Id>> exten
 
     @Override
     protected Stream<Pair<String, String>> toStringElements(){
-        return Stream.concat(super.toStringElements(), Stream.of(Pair.of(toStringReferenceAlias()+".size", ""+reference)));
+        return Stream.concat(super.toStringElements(), Stream.of(Pair.of(toStringReferenceAlias(), ""+reference)));
     }
 
     protected abstract String toStringReferenceAlias();
