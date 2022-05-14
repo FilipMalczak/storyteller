@@ -3,12 +3,10 @@ package com.github.filipmalczak.storyteller.api.tree.task.journal.base;
 import com.github.filipmalczak.recordtuples.Pair;
 import com.github.filipmalczak.storyteller.api.session.Session;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.annotations.Internal;
-import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.ZonedDateTime;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;

@@ -2,13 +2,10 @@ package com.github.filipmalczak.storyteller.api.tree.task.journal.entries;
 
 import com.github.filipmalczak.storyteller.api.tree.task.journal.annotations.JournalledEvent;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.base.BaseEntryWithOneAndManyReferences;
-import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.EntryPersistence;
-import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.BodyExecutionEvent;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.TaskStage;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.TreeStructureEvent;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.structural.ReferencesModifiedSubtasks;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.structural.ReferencesSingleTask;
-import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.structural.ReferencesSubtask;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.structural.ReferencesTasks;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;

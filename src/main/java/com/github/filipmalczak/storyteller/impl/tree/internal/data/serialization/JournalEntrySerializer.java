@@ -2,7 +2,6 @@ package com.github.filipmalczak.storyteller.impl.tree.internal.data.serializatio
 
 import com.github.filipmalczak.storyteller.api.session.Session;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
-import com.github.filipmalczak.storyteller.api.tree.task.id.IdSerializer;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.ExceptionCaught;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.structural.ReferencesModifiedSubtasks;
@@ -24,8 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.github.filipmalczak.storyteller.api.tree.task.journal.EntryType.*;
-import static com.github.filipmalczak.storyteller.impl.TimeUtils.toTimestamp;
+import static com.github.filipmalczak.storyteller.api.tree.task.journal.EntryType.toType;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter

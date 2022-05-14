@@ -1,11 +1,13 @@
 package com.github.filipmalczak.storyteller.api.tree.task.journal.entries;
 
-import com.github.filipmalczak.storyteller.api.session.Session;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.annotations.JournalledEvent;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.base.BaseEntry;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.TaskStage;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.TreeStructureEvent;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 import java.time.ZonedDateTime;

@@ -1,6 +1,5 @@
 package com.github.filipmalczak.storyteller.api.tree.task;
 
-import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.TaskAmended;
 import lombok.Value;
 
 @Value
