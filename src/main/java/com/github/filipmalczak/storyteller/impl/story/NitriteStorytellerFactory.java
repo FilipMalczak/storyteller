@@ -10,6 +10,8 @@ import org.dizitart.no2.Nitrite;
 
 import java.nio.file.Path;
 
+import static java.util.Arrays.asList;
+
 //fixme placing it here will get tricky when we'll be splitting this into modules
 public class NitriteStorytellerFactory implements StorytellerFactory<Nitrite, Path> {
 
@@ -22,7 +24,7 @@ public class NitriteStorytellerFactory implements StorytellerFactory<Nitrite, Pa
                         NitriteTreeConfig.of(
                             new NitriteStorageConfig<>(dataPath, s -> s),
                             new StorytellerIdGeneratorFactory<EpisodeType>(),
-                            node -> TaskSpec.of(new StorytellerDefinition("merge", node.getId()), EpisodeType.SCENE)
+                            node -> TaskSpec.of(new StorytellerDefinition("merge", asList(node.getDefinition(), node.getId())), EpisodeType.SCENE)
                         )
                     )
             );

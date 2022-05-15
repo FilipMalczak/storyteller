@@ -205,6 +205,8 @@ Look it up on [jitpack](https://jitpack.io/#FilipMalczak/storyteller/0.1.0).
 
 ### mid-version, probably 0.1.1
 
+WIP: move visualizer out of main project -> add proper session layer to API -> build session-based reactive API to serve story forest 
+
 - [x] tweak journal entries hierarchy and API/impl dissonance
 - [x] enhance inflated/deflated/refiltered with details (the IDs that appeared or disappeared)
 - [ ] parallel nodes testing, data-oriented

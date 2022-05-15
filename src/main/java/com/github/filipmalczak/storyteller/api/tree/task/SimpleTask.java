@@ -22,6 +22,7 @@ import static java.util.function.Predicate.not;
 @Flogger
 public class SimpleTask<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements Task<Id, Definition, Type> {
     @NonNull Id id;
+    //todo keep spec instead of this pair? change Task API to require Spec and have defaults getters?
     @NonNull Definition definition;
     @NonNull Type type;
     @NonNull TaskResolver<Id, Definition, Type> taskResolver;
@@ -84,9 +85,9 @@ public class SimpleTask<Id extends Comparable<Id>, Definition, Type extends Enum
             "id=" + id +
             ", definition=" + definition +
             ", type=" + type +
-            ", subtasks=" + getSubtaskIds().count() +
-            ", disowned=" + getDisownedSubtaskIds().count() +
-            ", journal[" + journal.size()+"]" +
+            ", subtasks.count=" + getSubtaskIds().count() +
+            ", disowned.count=" + getDisownedSubtaskIds().count() +
+            ", journal.size" + journal.size() +
             ')';
     }
 }
