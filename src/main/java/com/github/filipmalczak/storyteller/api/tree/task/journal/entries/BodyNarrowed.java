@@ -1,6 +1,5 @@
 package com.github.filipmalczak.storyteller.api.tree.task.journal.entries;
 
-import com.github.filipmalczak.storyteller.api.session.Session;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.annotations.JournalledEvent;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.base.BaseEntryWithReferences;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.TaskStage;
@@ -19,7 +18,7 @@ import java.util.stream.Stream;
 public final class BodyNarrowed<Id extends Comparable<Id>> extends BaseEntryWithReferences<Id>
     implements JournalEntry, TreeStructureEvent, TaskStage.Computations,
                 ReferencesTasks<Id>, ReferencesModifiedSubtasks.Removed<Id> {
-    public BodyNarrowed(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Id> removed) {
+    public BodyNarrowed(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt, @NonNull List<Id> removed) {
         super(session, happenedAt, removed);
     }
 

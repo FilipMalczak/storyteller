@@ -22,7 +22,7 @@ import static org.valid4j.Assertive.require;
 public class NitriteTaskManager<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> implements TaskManager<Id, Definition, Type> {
     @NonNull ObjectRepository<TaskData> repository;
     @NonNull TaskSerializer<Id, Definition, Type> serializer;
-    @NonNull JournalEntryManager<Id> journalEntryManager;
+    @NonNull EventsPersistence<Id> eventsPersistence;
 
     @Override
     public Optional<Task<Id, Definition, Type>> findById(Id id) {

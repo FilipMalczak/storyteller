@@ -15,7 +15,7 @@ import java.time.ZonedDateTime;
 public final class SubtaskDefined<Id extends Comparable<Id>> extends BaseEntryWithOneReference<Id>
     implements JournalEntry, EntryPersistence.LifecycleEvent, TaskStage.Hierarchy,
             ReferencesSubtask<Id> {
-    public SubtaskDefined(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt, @NonNull Id definedSubtask) {
+    public SubtaskDefined(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt, @NonNull Id definedSubtask) {
         super(session, happenedAt, definedSubtask);
     }
 

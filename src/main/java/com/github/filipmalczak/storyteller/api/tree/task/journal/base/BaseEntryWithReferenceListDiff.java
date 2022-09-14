@@ -1,7 +1,6 @@
 package com.github.filipmalczak.storyteller.api.tree.task.journal.base;
 
 import com.github.filipmalczak.recordtuples.Pair;
-import com.github.filipmalczak.storyteller.api.session.Session;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.annotations.Internal;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -19,7 +18,7 @@ public abstract class BaseEntryWithReferenceListDiff<Id extends Comparable<Id>> 
     @NonNull List<Id> increment;
     @NonNull List<Id> decrement;
 
-    public BaseEntryWithReferenceListDiff(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Id> increment, @NonNull List<Id> decrement) {
+    public BaseEntryWithReferenceListDiff(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt, @NonNull List<Id> increment, @NonNull List<Id> decrement) {
         super(session, happenedAt);
         this.increment = increment;
         this.decrement = decrement;

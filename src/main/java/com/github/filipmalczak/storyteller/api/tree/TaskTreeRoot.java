@@ -1,6 +1,5 @@
 package com.github.filipmalczak.storyteller.api.tree;
 
-import com.github.filipmalczak.storyteller.api.session.Sessions;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskSpec;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;

@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 @EqualsAndHashCode(callSuper = true)
 @JournalledEvent
 public final class TaskInterrupted extends BaseEntry implements JournalEntry, TreeStructureEvent, TaskStage.Hierarchy {
-    public TaskInterrupted(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt) {
+    public TaskInterrupted(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt) {
         super(session, happenedAt);
     }
 }

@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
 @JournalledEvent
 public final class ParallelNodeAugmented extends BaseEntry
     implements JournalEntry, FinalizingEvent, TaskStage.Planning {
-    public ParallelNodeAugmented(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt) {
+    public ParallelNodeAugmented(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt) {
         super(session, happenedAt);
     }
 }

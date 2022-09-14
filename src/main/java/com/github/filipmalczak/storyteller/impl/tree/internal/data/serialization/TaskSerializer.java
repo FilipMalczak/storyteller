@@ -3,7 +3,7 @@ package com.github.filipmalczak.storyteller.impl.tree.internal.data.serializatio
 import com.github.filipmalczak.storyteller.api.tree.task.SimpleTask;
 import com.github.filipmalczak.storyteller.api.tree.task.Task;
 import com.github.filipmalczak.storyteller.api.tree.task.TaskType;
-import com.github.filipmalczak.storyteller.impl.tree.internal.data.JournalEntryManager;
+import com.github.filipmalczak.storyteller.impl.tree.internal.data.EventsPersistence;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.TaskManager;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.model.TaskData;
 import lombok.AccessLevel;
@@ -16,7 +16,7 @@ import java.util.LinkedList;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TaskSerializer<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>  {
-    @NonNull JournalEntryManager<Id> journalEntryManager;
+    @NonNull EventsPersistence<Id> eventsPersistence;
     @NonNull TaskManager<Id, Definition, Type> taskManager;
 
     public Task<Id, Definition, Type> toTask(TaskData<Id, Definition, Type> data){
@@ -26,7 +26,7 @@ public class TaskSerializer<Id extends Comparable<Id>, Definition, Type extends 
             .type(data.getType())
 //            .parentId(data.getParentId())
 //            .previousSiblingId(data.getPreviousSiblingId())
-            .journal(new LinkedList<>(journalEntryManager.findById(data.getId()).toList()))
+            .journal(new LinkedList<>(eventsPersistence.findEntriesByTaskId(data.getId()).toList()))
             .taskResolver(taskManager)
             .build();
     }

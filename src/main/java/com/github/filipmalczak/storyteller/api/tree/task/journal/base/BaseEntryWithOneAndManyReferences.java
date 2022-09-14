@@ -1,7 +1,6 @@
 package com.github.filipmalczak.storyteller.api.tree.task.journal.base;
 
 import com.github.filipmalczak.recordtuples.Pair;
-import com.github.filipmalczak.storyteller.api.session.Session;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.annotations.Internal;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -21,7 +20,7 @@ public abstract class BaseEntryWithOneAndManyReferences<Id extends Comparable<Id
     @NonNull Id reference;
     @Getter(value = AccessLevel.NONE) @NonNull List<Id> references;
 
-    public BaseEntryWithOneAndManyReferences(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull Id reference, @NonNull List<Id> references) {
+    public BaseEntryWithOneAndManyReferences(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt, @NonNull Id reference, @NonNull List<Id> references) {
         super(session, happenedAt);
         this.reference = reference;
         this.references = references;

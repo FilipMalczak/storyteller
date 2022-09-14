@@ -22,7 +22,7 @@ public final class ExceptionCaught extends BaseEntry
     String message; //nullable, as not every exception has a message
     @NonNull String fullStackTrace;
 
-    public ExceptionCaught(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt, @NonNull String className, String message, @NonNull String fullStackTrace) {
+    public ExceptionCaught(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt, @NonNull String className, String message, @NonNull String fullStackTrace) {
         super(session, happenedAt);
         this.className = className;
         this.message = message;

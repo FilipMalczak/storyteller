@@ -17,7 +17,7 @@ import org.dizitart.no2.Nitrite;
 public class NitriteManagers<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType> {
     @NonNull TaskManager<Id, Definition, Type> taskManager;
     @NonNull SessionManager sessionManager;
-    @NonNull JournalEntryManager<Id> journalEntryManager;
+    @NonNull EventsPersistence<Id> eventsPersistence;
     @NonNull Nitrite nitrite;
 
     public NitriteManagers(Nitrite nitrite) {
@@ -25,17 +25,17 @@ public class NitriteManagers<Id extends Comparable<Id>, Definition, Type extends
 
         JournalEntrySerializer journalEntrySerializer = new JournalEntrySerializer();
 
-        NitritieJournalManager<Id> journal = new NitritieJournalManager<>();
-        journal.setRepository(nitrite.getRepository(JournalEntryData.class));
-        journal.setSerializer(journalEntrySerializer);
+        NitriteEventsPersistence<Id> journal = new NitriteEventsPersistence<>();
+        journal.setJournalRepository(nitrite.getRepository(JournalEntryData.class));
+        journal.setJournalSerializer(journalEntrySerializer);
 
         TaskSerializer taskSerializer = new TaskSerializer();
-        taskSerializer.setJournalEntryManager(journal);
+        taskSerializer.setEventsPersistence(journal);
 
         NitriteTaskManager<Id, Definition, Type> task = new NitriteTaskManager<>();
         task.setRepository(nitrite.getRepository(TaskData.class));
         task.setSerializer(taskSerializer);
-        task.setJournalEntryManager(journal);
+        task.setEventsPersistence(journal);
 
         taskSerializer.setTaskManager(task);
 
@@ -49,6 +49,6 @@ public class NitriteManagers<Id extends Comparable<Id>, Definition, Type extends
 
         this.taskManager = task;
         this.sessionManager = session;
-        this.journalEntryManager = journal;
+        this.eventsPersistence = journal;
     }
 }

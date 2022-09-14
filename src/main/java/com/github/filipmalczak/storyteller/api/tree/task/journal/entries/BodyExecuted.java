@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
 @JournalledEvent
 public final class BodyExecuted extends BaseEntry
     implements JournalEntry, BodyExecutionEvent, TaskStage.Computations {
-    public BodyExecuted(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt) {
+    public BodyExecuted(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt) {
         super(session, happenedAt);
     }
 }

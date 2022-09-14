@@ -1,7 +1,6 @@
 package com.github.filipmalczak.storyteller.api.tree.task.journal.base;
 
 import com.github.filipmalczak.recordtuples.Pair;
-import com.github.filipmalczak.storyteller.api.session.Session;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.annotations.Internal;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.markers.structural.ReferencesTasks;
 import lombok.AccessLevel;
@@ -21,7 +20,7 @@ import static java.util.Collections.unmodifiableList;
 public abstract class BaseEntryWithReferences<Id extends Comparable<Id>> extends BaseEntry implements ReferencesTasks<Id> {
     @NonNull List<Id> references;
 
-    public BaseEntryWithReferences(@NonNull Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Id> references) {
+    public BaseEntryWithReferences(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt, @NonNull List<Id> references) {
         super(session, happenedAt);
         this.references = unmodifiableList(references);
     }

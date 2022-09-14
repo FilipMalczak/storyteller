@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
 @JournalledEvent
 public final class InstructionsSkipped extends BaseEntry
     implements JournalEntry, BodyExecutionEvent, TaskStage.Computations {
-    public InstructionsSkipped(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt) {
+    public InstructionsSkipped(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt) {
         super(session, happenedAt);
     }
 }

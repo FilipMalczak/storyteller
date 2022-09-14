@@ -8,8 +8,8 @@ import java.util.Comparator;
 
 public record NitriteTreeConfig<Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>(
     NitriteStorageConfig<Id> storageConfig,
-    IdGeneratorFactory<Id, Definition, Type> generatorFactory,
-    TaskpecFactory<Id, Definition, Type> taskpecFactory,
+    IdGeneratorFactory<Id, Definition, Type> idGeneratorFactory,
+    TaskpecFactory<Id, Definition, Type> mergepecFactory,
     Comparator<Id> mergeOrder
 ) {
     public static <Id extends Comparable<Id>, Definition, Type extends Enum<Type> & TaskType>

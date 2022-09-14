@@ -9,18 +9,6 @@ import lombok.experimental.FieldDefaults;
 
 import static org.valid4j.Assertive.neverGetHere;
 
-//todo deppen hierarchy with interfaces:
-// JorunalEntry -> (
-//  insctructions changed -> (body changed,narrowed,extended),
-//  incorporation changed -> (
-//      ordering constraints changed -> (tightened, loosened),
-//      incorporation order changed -> (reordered, inflated, deflated)
-//      ),
-//  perform becomes an interface
-//  lifecycle event -> (start, end, amend, augmented, perform, caught, interrupted) //maybe amend and augment are structure events?
-//  structure event -> (subtask event -> (defined, disowned, incorporated, orphaned) //in the future - adopted
-//  )
-// at that point add details to refiltered and friends
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum EntryType {

@@ -15,7 +15,7 @@ import java.time.ZonedDateTime;
 public final class SubtaskIncorporated<Id extends Comparable<Id>> extends BaseEntryWithOneReference<Id>
     implements JournalEntry, TreeStructureEvent, TaskStage.Hierarchy,
     ReferencesSubtask<Id> { //todo ...added? as in "added to internal history"
-    public SubtaskIncorporated(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt, @NonNull Id subtask) {
+    public SubtaskIncorporated(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt, @NonNull Id subtask) {
         super(session, happenedAt, subtask);
     }
 

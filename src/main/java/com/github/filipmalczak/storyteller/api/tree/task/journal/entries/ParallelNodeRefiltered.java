@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 public final class ParallelNodeRefiltered<Id extends Comparable<Id>> extends BaseEntryWithReferenceListDiff<Id>
     implements JournalEntry, TreeStructureEvent, TaskStage.Planning,
                 ReferencesTasks<Id>, ReferencesModifiedSubtasks.AddedAndRemoved<Id> {
-    public ParallelNodeRefiltered(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Id> appeared, @NonNull List<Id> disappeared) {
+    public ParallelNodeRefiltered(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt, @NonNull List<Id> appeared, @NonNull List<Id> disappeared) {
         super(session, happenedAt, appeared, disappeared);
 
     }

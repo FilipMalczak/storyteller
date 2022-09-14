@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 @JournalledEvent
 public final class TaskEnded extends BaseEntry
     implements JournalEntry, FinalizingEvent {
-    public TaskEnded(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt) {
+    public TaskEnded(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt) {
         super(session, happenedAt);
     }
 }

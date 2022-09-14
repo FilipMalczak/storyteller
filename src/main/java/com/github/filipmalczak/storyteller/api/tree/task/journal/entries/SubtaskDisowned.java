@@ -15,7 +15,7 @@ import java.time.ZonedDateTime;
 public final class SubtaskDisowned<Id extends Comparable<Id>> extends BaseEntryWithOneReference<Id>
     implements JournalEntry, TreeStructureEvent, TaskStage.Hierarchy,
     ReferencesSingleTask<Id> { //todo ReferencesModifiedSubtasks.Added?
-    public SubtaskDisowned(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt, @NonNull Id disowmned) {
+    public SubtaskDisowned(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt, @NonNull Id disowmned) {
         super(session, happenedAt, disowmned);
     }
 

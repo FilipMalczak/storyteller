@@ -16,8 +16,8 @@ import static java.util.stream.Collectors.joining;
 @Getter
 @RequiredArgsConstructor
 @Internal
-public abstract class BaseEntry {
-    @NonNull Session session;
+public abstract class BaseEntry<TaskId extends Comparable<TaskId>> {
+    @NonNull Session<TaskId> session;
     @NonNull ZonedDateTime happenedAt;
 
     @Override

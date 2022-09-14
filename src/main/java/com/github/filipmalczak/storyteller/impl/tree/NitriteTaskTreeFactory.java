@@ -27,10 +27,10 @@ public class NitriteTaskTreeFactory<Id extends Comparable<Id>, Definition, Type 
         var managers = new NitriteManagers<Id, Definition, Type>(no2);
         var treeContext = new TreeContext<>(
             managers,
-            new EventsEmitter<>(managers.getJournalEntryManager(), new JournalEntryFactory(managers.getSessionManager())),
+            new EventsEmitter<>(managers.getEventsPersistence(), new JournalEntryFactory(managers.getSessionManager())),
             config.storageConfig(),
-            config.generatorFactory(),
-            config.taskpecFactory(),
+            config.idGeneratorFactory(),
+            config.mergepecFactory(),
             config.mergeOrder()
         );
         return new RootAdapter<>(managers.getSessionManager(), new TaskExecutorImpl<>(treeContext, new NullContext<>()));

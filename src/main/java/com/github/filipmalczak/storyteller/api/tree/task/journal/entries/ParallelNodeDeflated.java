@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 public final class ParallelNodeDeflated<Id extends Comparable<Id>> extends BaseEntryWithReferences<Id>
     implements JournalEntry, TreeStructureEvent, TaskStage.Planning,
                 ReferencesTasks<Id>, ReferencesModifiedSubtasks.Removed<Id> {
-    public ParallelNodeDeflated(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Id> disappeared) {
+    public ParallelNodeDeflated(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt, @NonNull List<Id> disappeared) {
         super(session, happenedAt, disappeared);
     }
 

@@ -1,7 +1,7 @@
 package com.github.filipmalczak.storyteller.api.story.closure;
 
 import com.github.filipmalczak.storyteller.api.storage.ReadStorage;
-import com.github.filipmalczak.storyteller.api.story.body.ActionBody;
+import com.github.filipmalczak.storyteller.api.common.ActionBody;
 import com.github.filipmalczak.storyteller.api.story.body.StructureBody;
 
 public interface ArcClosure<NoSql> {

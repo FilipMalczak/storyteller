@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 public final class BodyExtended<Id extends Comparable<Id>> extends BaseEntryWithReferences<Id>
     implements JournalEntry, TreeStructureEvent, TaskStage.Computations,
                 ReferencesTasks<Id>, ReferencesModifiedSubtasks.Added<Id> {
-    public BodyExtended(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt, @NonNull List<Id> added) {
+    public BodyExtended(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt, @NonNull List<Id> added) {
         super(session, happenedAt, added);
     }
 

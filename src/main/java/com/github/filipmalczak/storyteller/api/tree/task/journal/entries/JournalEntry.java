@@ -1,7 +1,5 @@
 package com.github.filipmalczak.storyteller.api.tree.task.journal.entries;
 
-import com.github.filipmalczak.storyteller.api.session.Session;
-
 import java.time.ZonedDateTime;
 
 public sealed interface JournalEntry permits
@@ -13,6 +11,6 @@ public sealed interface JournalEntry permits
     ParallelNodeRefiltered, ParallelNodeInflated, ParallelNodeDeflated, ParallelNodeAugmented,
     SubtaskIncorporated, TaskEnded {
 
-    Session getSession();
+    LazySession getSession();
     ZonedDateTime getHappenedAt();
 }

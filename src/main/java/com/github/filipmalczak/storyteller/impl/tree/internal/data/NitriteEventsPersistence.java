@@ -1,6 +1,10 @@
 package com.github.filipmalczak.storyteller.impl.tree.internal.data;
 
+import com.github.filipmalczak.storyteller.api.session.events.SessionEvent;
 import com.github.filipmalczak.storyteller.api.tree.task.journal.entries.JournalEntry;
+import com.github.filipmalczak.storyteller.impl.nextgen.SessionEventData;
+import com.github.filipmalczak.storyteller.impl.nextgen.SessionEventSerializer;
+import com.github.filipmalczak.storyteller.impl.nextgen.TaskEntry;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.model.JournalEntryData;
 import com.github.filipmalczak.storyteller.impl.tree.internal.data.serialization.JournalEntrySerializer;
 import lombok.AccessLevel;
@@ -20,35 +24,38 @@ import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
 @Setter(AccessLevel.PACKAGE)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Flogger
-public class NitritieJournalManager<Id extends Comparable<Id>> implements JournalEntryManager<Id> {
-    @NonNull ObjectRepository<JournalEntryData> repository;
-    @NonNull JournalEntrySerializer serializer;
-    @NonNull SessionManager sessionManager;
+public class NitriteEventsPersistence<Id extends Comparable<Id>> implements EventsPersistence<Id> {
+    @NonNull ObjectRepository<JournalEntryData> journalRepository;
+    @NonNull ObjectRepository<SessionEventData> sessionRepository;
+    @NonNull JournalEntrySerializer journalSerializer;
+    @NonNull SessionEventSerializer sessionSerializer;
 
     @Override
-    public void record(TaskEntry<Id>... entries) {
+    public void persist(TaskEntry<Id>... entries) {
         log.atFiner().log("Request to record: %s", entries);
         JournalEntryData<Id>[] toInsert = new JournalEntryData[entries.length];
         for (int i = 0; i< entries.length; ++i){
             var e = entries[i];
             e.task().record(e.entry());
-            toInsert[i] = serializer.fromEntry(e.task(), e.entry());
+            toInsert[i] = journalSerializer.fromEntry(e.task(), e.entry());
         }
         log.atFiner().log("Inserting new entries: %s", toInsert);
-        repository.insert(toInsert);
-        for (var e: entries) {
-            sessionManager.emit(e.task(), e.entry());
-        }
+        journalRepository.insert(toInsert);
     }
 
     @Override
-    public Stream<JournalEntry> findById(Id taskId) {
+    public void persist(SessionEvent event) {
+        sessionRepository.insert(sessionSerializer.serialize(event));
+    }
+
+    @Override
+    public Stream<JournalEntry> findEntriesByTaskId(Id taskId) {
         return toStream(
-            repository
+            journalRepository
                 .find(
                     eq("taskId", taskId),
                     FindOptions.sort("happenedAt", SortOrder.Ascending)
                 )
-        ).map(serializer::toEntry);
+        ).map(journalSerializer::toEntry);
     }
 }

@@ -1,7 +1,8 @@
 package com.github.filipmalczak.storyteller.api.session.events;
 
-import com.github.filipmalczak.storyteller.api.session.Session;
+import java.time.ZonedDateTime;
 
-public sealed interface SessionEvent permits SessionLifecycleEvent, SessionAlreadyStarted{
-    Session getSubject();
+public sealed interface SessionEvent permits SessionLifecycleEvent, SessionTaskEvent {
+    String getSessionId();
+    ZonedDateTime getHappenedAt();
 }

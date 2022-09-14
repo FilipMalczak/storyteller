@@ -20,7 +20,7 @@ public final class BodyChanged<Id extends Comparable<Id>> extends BaseEntryWithO
     implements JournalEntry, TreeStructureEvent, TaskStage.Computations,
                 ReferencesSingleTask<Id>, ReferencesTasks<Id>, ReferencesModifiedSubtasks.AddedAndRemoved<Id> {
 
-    public BodyChanged(@NonNull com.github.filipmalczak.storyteller.api.session.Session session, @NonNull ZonedDateTime happenedAt, @NonNull Id pivot, @NonNull List<Id> conflicts) {
+    public BodyChanged(@NonNull LazySession session, @NonNull ZonedDateTime happenedAt, @NonNull Id pivot, @NonNull List<Id> conflicts) {
         super(session, happenedAt, pivot, conflicts);
     }
 
