@@ -99,12 +99,19 @@ class DispatchingInterceptor(Interceptor):
         return self._generic_around(target, name, ActionType.INVOKE, params, wrapped)
 
 
-def make_intercepted(t: type) -> type:
+def make_intercepted(t: type, customize: Callable[[], dict[str, object]]=None, initialize: Callable=None, bases: tuple[type]=()) -> type:
     dataclass_type = dataclasses.dataclass(t)
     @wraps(dataclass_type.__init__)
     def __init__(self, *args, **kwargs):
         self.__data__ = dataclass_type(*args, **kwargs)
         self.__interceptor__ = DispatchingInterceptor()
+        self.__initialize__()
+
+    __initialize__ = initialize
+
+    if not __initialize__:
+        def __initialize__(self): ...
+        __initialize__ = __initialize__
 
     def __str__(self):
         return t.__name__+"[data: "+str(self.__data__)+", interceptor: "+str(self.__interceptor__)+"]"
@@ -125,16 +132,28 @@ def make_intercepted(t: type) -> type:
         for k, v in type_hints.items():
             cls[k] = InterceptedProperty()
             # setattr(cls, k, InterceptedProperty())
+        methods = []
         for k, m in original_cls.items():
             if not k.startswith("_") and not k in type_hints:
                 # m = getattr(t, k)
                 if isinstance(m, Callable): #todo and not is property
                     # setattr(cls, k, intercepted_method(m))
                     cls[k] = intercepted_method(m)
+                    methods.append(k)
+        cls["__intercepted_properties__"] = type_hints
+        cls["__intercepted_methods__"] = methods
+
+        if customize:
+            for k, v in customize(dict(cls)).items():
+                if k not in cls:
+                    cls[k] = v
+
+        if "__initialize__" not in cls:
+            cls["__initialize__"] = __initialize__
 
     intercepted_type = new_class(
         t.__name__,
-        (t, ),
+        (t, ) + bases,
         {},
         setup
     )
